@@ -45,9 +45,8 @@ public class MacClient extends MacBase {
         return gson.fromJson(queryGet(url), OfferResponse.class);
     }
 
-    public RedeemResponse redeemCoupon(OfferResponse.Offer offer) {
-        String url = "/exp/v1/offers/redemption/" + offer.getOfferPropositionId()
-                + (offer.getOfferId() != 0 ? "?offerId=" + offer.getOfferId() : "");
+    public RedeemResponse redeemCoupon(String propositionId) {
+        String url = "/exp/v1/offers/redemption/" + propositionId;
         return gson.fromJson(queryGet(url), RedeemResponse.class);
     }
 }
