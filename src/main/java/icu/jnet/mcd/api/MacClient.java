@@ -9,25 +9,27 @@ import icu.jnet.mcd.api.response.*;
 
 public class MacClient extends MacBase {
 
-    public LoginResponse login(String email, String password) {
+    public boolean login(String email, String password) {
         String url2 = "https://eu-prod.api.mcd.com/exp/v1/customer/login";
         String body = gson.toJson(new LoginRequest(email, password));
         LoginResponse login = gson.fromJson(queryPost(url2, ByteArrayContent.fromString("application/json", body)), LoginResponse.class);
         auth.updateAccessToken(login.getAccessToken());
         auth.updateRefreshToken(login.getRefreshToken());
-        return login;
+        return login.getStatus().getType().contains("Success");
     }
 
-    public LoginResponse register(String email, String password, String zipCode, String country) {
+    public boolean register(String email, String password, String zipCode, String country) {
         String url = "https://eu-prod.api.mcd.com/exp/v1/customer/registration";
         String body = gson.toJson(new RegisterRequest(email, password, zipCode, country));
-        return gson.fromJson(queryPost(url, ByteArrayContent.fromString("application/json", body)), LoginResponse.class);
+        LoginResponse register = gson.fromJson(queryPost(url, ByteArrayContent.fromString("application/json", body)), LoginResponse.class);
+        return register.getStatus().getType().contains("Success");
     }
 
-    public Response activate(String email, String activationCode) {
+    public boolean activate(String email, String activationCode) {
         String url = "https://eu-prod.api.mcd.com/exp/v1/customer/activation";
         String body = gson.toJson(new ActivationRequest(email, activationCode));
-        return gson.fromJson(queryPut(url, ByteArrayContent.fromString("application/json", body)), Response.class);
+        Response activate = gson.fromJson(queryPut(url, ByteArrayContent.fromString("application/json", body)), Response.class);
+        return activate.getStatus().getType().contains("Success");
     }
 
     public ProfileResponse getProfile() {
