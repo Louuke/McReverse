@@ -18,7 +18,6 @@ import java.util.HashMap;
 
 class MacBase {
 
-    final String API_ENDPOINT = "https://eu-prod.api.mcd.com";
     final Authorization auth = new Authorization();
     final Gson gson = new Gson();
 
@@ -27,7 +26,7 @@ class MacBase {
     }
 
     private void getAccessToken() {
-        String url1 = "/v1/security/auth/token";
+        String url1 = "https://eu-prod.api.mcd.com/v1/security/auth/token";
         HashMap<String, String> params = new HashMap<>();
         params.put("grantType", "client_credentials");
         AuthResponse authResponse = gson.fromJson(queryPost(url1, new UrlEncodedContent(params)), AuthResponse.class);
@@ -35,7 +34,7 @@ class MacBase {
     }
 
     private boolean loginRefresh() {
-        String url = "/exp/v1/customer/login/refresh";
+        String url = "https://eu-prod.api.mcd.com/exp/v1/customer/login/refresh";
         String body = gson.toJson(new RefreshRequest(auth.getRefreshToken()));
         LoginResponse login = gson.fromJson(queryPost(url, ByteArrayContent.fromString("application/json", body)), LoginResponse.class);
         if(login.getStatus().getType().equals("Success")) {
@@ -48,7 +47,6 @@ class MacBase {
 
     String queryGet(String url)  {
         try {
-            url = API_ENDPOINT + url;
             HttpRequest request = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
             setRequestHeaders(request);
             return request.execute().parseAsString();
@@ -67,7 +65,6 @@ class MacBase {
 
     String queryPost(String url, HttpContent httpContent) {
         try {
-            url = API_ENDPOINT + url;
             HttpRequest request = new NetHttpTransport().createRequestFactory().buildPostRequest(new GenericUrl(url), httpContent);
             setRequestHeaders(request);
             return request.execute().parseAsString();
@@ -79,7 +76,6 @@ class MacBase {
 
     String queryPut(String url, HttpContent httpContent) {
         try {
-            url = API_ENDPOINT + url;
             HttpRequest request = new NetHttpTransport().createRequestFactory().buildPutRequest(new GenericUrl(url), httpContent);
             setRequestHeaders(request);
             return request.execute().parseAsString();
