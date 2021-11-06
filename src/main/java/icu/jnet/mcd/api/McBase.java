@@ -3,6 +3,7 @@ package icu.jnet.mcd.api;
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import icu.jnet.mcd.api.request.LoginRequest;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.auth.Authorization;
@@ -16,12 +17,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
-class MacBase {
+class McBase {
 
     final Authorization auth = new Authorization();
     final Gson gson = new Gson();
 
-    public MacBase() {
+    public McBase() {
         getAccessToken();
     }
 
@@ -37,6 +38,7 @@ class MacBase {
         String url = "https://eu-prod.api.mcd.com/exp/v1/customer/login/refresh";
         String body = gson.toJson(new RefreshRequest(auth.getRefreshToken()));
         LoginResponse login = gson.fromJson(queryPost(url, ByteArrayContent.fromString("application/json", body)), LoginResponse.class);
+        System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(login));
         if(login.getStatus().getType().equals("Success")) {
             auth.updateAccessToken(login.getAccessToken());
             auth.updateRefreshToken(login.getRefreshToken());

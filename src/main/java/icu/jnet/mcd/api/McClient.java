@@ -7,7 +7,7 @@ import icu.jnet.mcd.api.request.LoginRequest;
 import icu.jnet.mcd.api.request.RegisterRequest;
 import icu.jnet.mcd.api.response.*;
 
-public class MacClient extends MacBase {
+public class McClient extends McBase {
 
     public boolean login(String email, String password) {
         String url2 = "https://eu-prod.api.mcd.com/exp/v1/customer/login";
