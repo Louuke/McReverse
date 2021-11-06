@@ -12,7 +12,7 @@ allprojects {
 ```
 ```java
 dependencies {
-    implementation 'com.github.JicuNull:MCReverse:d9abc9c'
+    implementation 'com.github.JicuNull:MCReverse:e8ed501'
 }
 ```
 Find more options here: **[Jitpack](https://jitpack.io/#JicuNull/MCReverse)**
