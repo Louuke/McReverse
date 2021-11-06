@@ -34,6 +34,10 @@ class McBase {
         auth.updateAccessToken(authResponse.getToken());
     }
 
+    public Authorization getAuth() {
+        return auth;
+    }
+
     private boolean loginRefresh() {
         String url = "https://eu-prod.api.mcd.com/exp/v1/customer/login/refresh";
         String body = gson.toJson(new RefreshRequest(auth.getRefreshToken()));
@@ -56,6 +60,7 @@ class McBase {
             Response response = gson.fromJson(e.getContent(), Response.class);
             if(response.getStatus().getType().equals("ValidationException")) { // Authorization expired
                 if(loginRefresh() && !auth.getRefreshToken().isEmpty()) {
+                    System.out.println("Refresh token");
                     return queryGet(url);
                 }
             }
