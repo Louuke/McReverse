@@ -53,6 +53,11 @@ public class McClient extends McBase {
         return gson.fromJson(queryGet(url), OfferResponse.class);
     }
 
+    public OfferDetailsResponse getOfferDetails(String propositionId) {
+        String url = "https://eu-prod.api.mcd.com/exp/v1/offers/details/" + propositionId;
+        return gson.fromJson(queryGet(url), OfferDetailsResponse.class);
+    }
+
     public RedeemResponse redeemCoupon(String propositionId) {
         String url = "https://eu-prod.api.mcd.com/exp/v1/offers/redemption/" + propositionId;
         return gson.fromJson(queryGet(url), RedeemResponse.class);
