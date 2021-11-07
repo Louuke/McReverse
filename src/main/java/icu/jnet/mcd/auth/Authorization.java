@@ -17,6 +17,6 @@ public class Authorization {
     }
 
     public String getRefreshToken() {
-        return refreshToken != null ? accessToken : "";
+        return refreshToken != null ? refreshToken : "";
     }
 }
