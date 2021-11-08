@@ -65,16 +65,21 @@ public class McClient extends McBase {
 
     public AnniversaryResponse participateAnniversary() {
         ProfileResponse profileResponse = getProfile();
-        String userId = profileResponse.getInfo().getHashedDcsId();
-        String email = profileResponse.getInfo().getBase().getUsername();
-        String statusUrl = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/peak/status";
-        String statusBody = gson.toJson(new AnniversaryRequest(auth.getAccessToken().replace("Bearer ", ""), email, userId));
-        AnniversaryResponse anniversaryResponse = gson.fromJson(queryPost(statusUrl,
-                ByteArrayContent.fromString("application/json", statusBody)), AnniversaryResponse.class);
-        String prizeId = anniversaryResponse.getPrize().getPrizeId();
-        String partUrl = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/peak/participate";
-        String partBody = gson.toJson(new AnniversaryRequest.AnniversaryPartRequest(auth.getAccessToken().replace("Bearer ", ""),
-                email, userId, prizeId));
-        return gson.fromJson(queryPut(partUrl, ByteArrayContent.fromString("application/json", partBody)), AnniversaryResponse.class);
+        if(profileResponse.getStatus().getType().contains("Success")) {
+            String userId = profileResponse.getInfo().getHashedDcsId();
+            String email = profileResponse.getInfo().getBase().getUsername();
+            String statusUrl = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/peak/status";
+            String statusBody = gson.toJson(new AnniversaryRequest(auth.getAccessToken().replace("Bearer ", ""), email, userId));
+            AnniversaryResponse anniversaryResponse = gson.fromJson(queryPost(statusUrl,
+                    ByteArrayContent.fromString("application/json", statusBody)), AnniversaryResponse.class);
+            if(anniversaryResponse.getPrize() != null) {
+                String prizeId = anniversaryResponse.getPrize().getPrizeId();
+                String partUrl = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/peak/participate";
+                String partBody = gson.toJson(new AnniversaryRequest.AnniversaryPartRequest(auth.getAccessToken().replace("Bearer ", ""),
+                        email, userId, prizeId));
+                return gson.fromJson(queryPut(partUrl, ByteArrayContent.fromString("application/json", partBody)), AnniversaryResponse.class);
+            }
+        }
+        return new AnniversaryResponse();
     }
 }
