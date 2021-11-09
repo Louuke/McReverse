@@ -9,9 +9,9 @@ import icu.jnet.mcd.api.response.*;
 
 public class McClient extends McBase {
 
-    public boolean login(String email, String password) {
+    public boolean login(String email, String password, String deviceId) {
         String url2 = "https://eu-prod.api.mcd.com/exp/v1/customer/login";
-        String body = gson.toJson(new LoginRequest(email, password));
+        String body = gson.toJson(new LoginRequest(email, password, deviceId));
         LoginResponse login = gson.fromJson(queryPost(url2, ByteArrayContent.fromString("application/json", body)), LoginResponse.class);
         auth.updateAccessToken(login.getAccessToken());
         auth.updateRefreshToken(login.getRefreshToken());
