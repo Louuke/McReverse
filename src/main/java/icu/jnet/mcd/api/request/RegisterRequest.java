@@ -5,17 +5,18 @@ import java.util.HashMap;
 public class RegisterRequest {
 
     private Policies policies = new Policies();
-    private Device device = new Device();
     private Audit audit = new Audit();
+    private Device device;
     private Address address;
     private Credentials credentials;
     private final String emailAddress, firstName = "Max", lastName = "Mustermann";
     private final boolean optInForMarketing = false;
 
-    public RegisterRequest(String email, String password, String zipCode, String country) {
+    public RegisterRequest(String email, String password, String zipCode, String country, String deviceId) {
         this.emailAddress = email;
         address = new Address(zipCode, country);
         credentials = new Credentials(email, password);
+        device = new Device(deviceId);
     }
 
     private static class Address {
@@ -41,8 +42,13 @@ public class RegisterRequest {
     }
 
     private static class Device {
-        private final String deviceId = "75408e58622a88c6", deviceIdType = "AndroidId", isActive = "Y", os = "android",
+        private final String deviceIdType = "AndroidId", isActive = "Y", os = "android",
             osVersion = "9", timezone = "America/New_York";
+        private String deviceId;
+
+        public Device(String deviceId) {
+            this.deviceId = deviceId;
+        }
     }
 
     private static class Policies {

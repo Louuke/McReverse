@@ -18,9 +18,9 @@ public class McClient extends McBase {
         return login.getStatus().getType().contains("Success");
     }
 
-    public boolean register(String email, String password, String zipCode, String country) {
+    public boolean register(String email, String password, String zipCode, String country, String deviceId) {
         String url = "https://eu-prod.api.mcd.com/exp/v1/customer/registration";
-        String body = gson.toJson(new RegisterRequest(email, password, zipCode, country));
+        String body = gson.toJson(new RegisterRequest(email, password, zipCode, country, deviceId));
         LoginResponse register = gson.fromJson(queryPost(url, ByteArrayContent.fromString("application/json", body)), LoginResponse.class);
         return register.getStatus().getType().contains("Success");
     }
@@ -59,7 +59,11 @@ public class McClient extends McBase {
     }
 
     public RedeemResponse redeemCoupon(String propositionId) {
-        String url = "https://eu-prod.api.mcd.com/exp/v1/offers/redemption/" + propositionId;
+        return redeemCoupon(propositionId, null);
+    }
+
+    public RedeemResponse redeemCoupon(String propositionId, String offerId) {
+        String url = "https://eu-prod.api.mcd.com/exp/v1/offers/redemption/" + propositionId + (offerId != null ? "?offerId=" + offerId : "");
         return gson.fromJson(queryGet(url), RedeemResponse.class);
     }
 
