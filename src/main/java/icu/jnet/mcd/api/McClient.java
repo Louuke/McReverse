@@ -26,8 +26,12 @@ public class McClient extends McBase {
     }
 
     public boolean activate(String email, String activationCode) {
+        return activate(email, activationCode, null);
+    }
+
+    public boolean activate(String email, String activationCode, String deviceId) {
         String url = "https://eu-prod.api.mcd.com/exp/v1/customer/activation";
-        String body = gson.toJson(new ActivationRequest(email, activationCode));
+        String body = gson.toJson(new ActivationRequest(email, activationCode, deviceId));
         Response activate = gson.fromJson(queryPut(url, ByteArrayContent.fromString("application/json", body)), Response.class);
         return activate.getStatus().getType().contains("Success");
     }
