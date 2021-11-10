@@ -7,7 +7,7 @@ public class LoginRequest {
 
     public LoginRequest(String email, String password, String deviceId) {
         this.credentials = new Credentials(email, password);
-        this.deviceId = deviceId;
+        this.deviceId = deviceId != null ? deviceId : "fa24c95cc4475881";
     }
 
     public static class Credentials {

@@ -16,7 +16,7 @@ public class RegisterRequest {
         this.emailAddress = email;
         address = new Address(zipCode, country);
         credentials = new Credentials(email, password);
-        device = new Device(deviceId);
+        device = new Device(deviceId != null ? deviceId : "fa24c95cc4475881");
     }
 
     private static class Address {

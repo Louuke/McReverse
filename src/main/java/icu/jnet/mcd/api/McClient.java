@@ -9,6 +9,10 @@ import icu.jnet.mcd.api.response.*;
 
 public class McClient extends McBase {
 
+    public boolean login(String email, String password) {
+        return login(email, password, null);
+    }
+
     public boolean login(String email, String password, String deviceId) {
         String url2 = "https://eu-prod.api.mcd.com/exp/v1/customer/login";
         String body = gson.toJson(new LoginRequest(email, password, deviceId));
@@ -16,6 +20,10 @@ public class McClient extends McBase {
         auth.updateAccessToken(login.getAccessToken());
         auth.updateRefreshToken(login.getRefreshToken());
         return login.getStatus().getType().contains("Success");
+    }
+
+    public boolean register(String email, String password, String zipCode, String country) {
+        return register(email, password, zipCode, country, null);
     }
 
     public boolean register(String email, String password, String zipCode, String country, String deviceId) {
