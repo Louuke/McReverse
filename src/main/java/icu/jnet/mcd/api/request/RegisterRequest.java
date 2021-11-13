@@ -43,7 +43,7 @@ public class RegisterRequest {
 
     private static class Device {
         private final String deviceIdType = "AndroidId", isActive = "Y", os = "android",
-            osVersion = "9", timezone = "America/New_York";
+            osVersion = "9", timezone = "Europe/Berlin";
         private String deviceId;
 
         public Device(String deviceId) {

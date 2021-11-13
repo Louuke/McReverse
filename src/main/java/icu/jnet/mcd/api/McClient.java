@@ -1,13 +1,13 @@
 package icu.jnet.mcd.api;
 
 import com.google.api.client.http.ByteArrayContent;
-import icu.jnet.mcd.api.request.ActivationRequest;
-import icu.jnet.mcd.api.request.AnniversaryRequest;
-import icu.jnet.mcd.api.request.LoginRequest;
-import icu.jnet.mcd.api.request.RegisterRequest;
+import com.google.gson.GsonBuilder;
+import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
 public class McClient extends McBase {
+
+    public static final String DEFAULT_DEVICE_ID = "fa24c95cc4475881";
 
     public boolean login(String email, String password) {
         return login(email, password, null);
@@ -33,13 +33,21 @@ public class McClient extends McBase {
         return register.getStatus().getType().contains("Success");
     }
 
-    public boolean activate(String email, String activationCode) {
-        return activate(email, activationCode, null);
+    public boolean activateEmail(String email, String activationCode) {
+        return activate(email, activationCode, null, "email");
     }
 
-    public boolean activate(String email, String activationCode, String deviceId) {
+    public boolean activateEmail(String email, String activationCode, String deviceId) {
+        return activate(email, activationCode, deviceId, "email");
+    }
+
+    public boolean activateDevice(String email, String activationCode, String deviceId) {
+        return activate(email, activationCode, deviceId, "device");
+    }
+
+    private boolean activate(String email, String activationCode, String deviceId, String type) {
         String url = "https://eu-prod.api.mcd.com/exp/v1/customer/activation";
-        String body = gson.toJson(new ActivationRequest(email, activationCode, deviceId));
+        String body = gson.toJson(new ActivationRequest(email, activationCode, deviceId, type));
         Response activate = gson.fromJson(queryPut(url, ByteArrayContent.fromString("application/json", body)), Response.class);
         return activate.getStatus().getType().contains("Success");
     }
@@ -77,6 +85,19 @@ public class McClient extends McBase {
     public RedeemResponse redeemCoupon(String propositionId, String offerId) {
         String url = "https://eu-prod.api.mcd.com/exp/v1/offers/redemption/" + propositionId + (offerId != null ? "?offerId=" + offerId : "");
         return gson.fromJson(queryGet(url), RedeemResponse.class);
+    }
+
+    public Response joinMyMcDonalds() {
+        ProfileResponse profileResponse = getProfile();
+        if(profileResponse.getStatus().getType().contains("Success")) {
+            String userId = profileResponse.getInfo().getHashedDcsId();
+            String email = profileResponse.getInfo().getBase().getUsername();
+            String url = "https://eu-prod.api.mcd.com/exp/v1/customer/profile";
+            String body = gson.toJson(new MyMcDonaldsRequest(userId, email));
+            System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(new MyMcDonaldsRequest(userId, email)));
+            return gson.fromJson(queryPut(url, ByteArrayContent.fromString("application/json", body)), Response.class);
+        }
+        return null;
     }
 
     public AnniversaryResponse participateAnniversary() {
