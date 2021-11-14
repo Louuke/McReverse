@@ -96,7 +96,6 @@ public class McClient extends McBase {
             String email = profileResponse.getInfo().getBase().getUsername();
             String url = "https://eu-prod.api.mcd.com/exp/v1/customer/profile";
             String body = gson.toJson(new MyMcDonaldsRequest(userId, email));
-            System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(new MyMcDonaldsRequest(userId, email)));
             return gson.fromJson(queryPut(url, ByteArrayContent.fromString("application/json", body)), Response.class);
         }
         return null;
