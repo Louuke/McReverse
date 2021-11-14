@@ -5,15 +5,17 @@ import com.google.gson.GsonBuilder;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
+import javax.annotation.Nonnull;
+
 public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "fa24c95cc4475881";
 
-    public boolean login(String email, String password) {
-        return login(email, password, null);
+    public boolean login(@Nonnull String email, @Nonnull String password) {
+        return login(email, password, DEFAULT_DEVICE_ID);
     }
 
-    public boolean login(String email, String password, String deviceId) {
+    public boolean login(@Nonnull String email, @Nonnull String password, @Nonnull String deviceId) {
         String url2 = "https://eu-prod.api.mcd.com/exp/v1/customer/login";
         String body = gson.toJson(new LoginRequest(email, password, deviceId));
         LoginResponse login = gson.fromJson(queryPost(url2, ByteArrayContent.fromString("application/json", body)), LoginResponse.class);
