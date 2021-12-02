@@ -5,10 +5,13 @@ import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
 import javax.annotation.Nonnull;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class McClient extends McBase {
 
-    public static final String DEFAULT_DEVICE_ID = "fa24c95cc4475881";
+    public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
 
     public boolean login(@Nonnull String email, @Nonnull String password) {
         return login(email, password, DEFAULT_DEVICE_ID);
@@ -109,7 +112,8 @@ public class McClient extends McBase {
 
             // Fetch user state. Purpose is unknown
             String stateUrl = String.format("https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/appcalendar/"
-                    + "getUserState?userId=%s&token=%s", userId, token);
+                    + "getUserState?userId=%s&token=%s&userName=%s&deviceId=%s&formId=", userId, token,
+                    URLEncoder.encode(email, StandardCharsets.UTF_8), DEFAULT_DEVICE_ID);
             CalendarStateResponse stateResponse = gson.fromJson(queryGet(stateUrl), CalendarStateResponse.class);
             if(stateResponse.success() && !stateResponse.getInstantPrizes().isEmpty()) {
                 stateResponse.getInstantPrizes().forEach(s -> System.out.println("INSTANT PRIZE: " + email + " - " + gson.toJson(s)));
@@ -120,7 +124,7 @@ public class McClient extends McBase {
             CalendarResponse statusResponse = gson.fromJson(queryPost(statusUrl,
                     ByteArrayContent.fromString("application/json", statusBody)), CalendarResponse.class);
 
-            if(statusResponse.success()) {
+            if(statusResponse.success() && !statusResponse.hasParticipated()) {
                 String prizeId = statusResponse.getPrize().getPrizeId();
                 String partUrl = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/appcalendar/participate";
                 String partBody = gson.toJson(new CalendarRequest(token, email, userId, prizeId));
