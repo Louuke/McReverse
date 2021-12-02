@@ -1,7 +1,6 @@
 package icu.jnet.mcd.api;
 
 import com.google.api.client.http.ByteArrayContent;
-import com.google.gson.GsonBuilder;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
@@ -101,23 +100,36 @@ public class McClient extends McBase {
         return null;
     }
 
-    public AnniversaryResponse participateAnniversary() {
+    public CalendarResponse participateCalendar() {
         ProfileResponse profileResponse = getProfile();
         if(profileResponse.getStatus().getType().contains("Success")) {
             String userId = profileResponse.getInfo().getHashedDcsId();
             String email = profileResponse.getInfo().getBase().getUsername();
-            String statusUrl = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/peak/status";
-            String statusBody = gson.toJson(new AnniversaryRequest(auth.getAccessToken().replace("Bearer ", ""), email, userId));
-            AnniversaryResponse anniversaryResponse = gson.fromJson(queryPost(statusUrl,
-                    ByteArrayContent.fromString("application/json", statusBody)), AnniversaryResponse.class);
-            if(anniversaryResponse.getPrize() != null) {
-                String prizeId = anniversaryResponse.getPrize().getPrizeId();
-                String partUrl = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/peak/participate";
-                String partBody = gson.toJson(new AnniversaryRequest.AnniversaryPartRequest(auth.getAccessToken().replace("Bearer ", ""),
-                        email, userId, prizeId));
-                return gson.fromJson(queryPut(partUrl, ByteArrayContent.fromString("application/json", partBody)), AnniversaryResponse.class);
+            String token = auth.getAccessToken().replace("Bearer ", "");
+
+            // Fetch user state. Purpose is unknown
+            String stateUrl = String.format("https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/appcalendar/"
+                    + "getUserState?userId=%s&token=%s", userId, token);
+            CalendarStateResponse stateResponse = gson.fromJson(queryGet(stateUrl), CalendarStateResponse.class);
+            if(stateResponse.success() && !stateResponse.getInstantPrizes().isEmpty()) {
+                stateResponse.getInstantPrizes().forEach(s -> System.out.println("INSTANT PRIZE: " + email + " - " + gson.toJson(s)));
+            }
+            // Find out, if we have participated
+            String statusUrl = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/appcalendar/status";
+            String statusBody = gson.toJson(new CalendarRequest(token, email, userId));
+            CalendarResponse statusResponse = gson.fromJson(queryPost(statusUrl,
+                    ByteArrayContent.fromString("application/json", statusBody)), CalendarResponse.class);
+            if(statusResponse.success() && !statusResponse.hasParticipated()) {
+                String prizeId = statusResponse.getPrize().getPrizeId();
+                String partUrl = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/appcalendar/participate";
+                String partBody = gson.toJson(new CalendarRequest(token, email, userId, prizeId));
+                CalendarResponse partResponse = gson.fromJson(queryPut(partUrl,
+                        ByteArrayContent.fromString("application/json", partBody)), CalendarResponse.class);
+                if(partResponse.success()) {
+                    System.out.println("CALENDAR: " + email + " - " + partResponse.getPrize().getHeadline());
+                }
             }
         }
-        return new AnniversaryResponse();
+        return new CalendarResponse();
     }
 }

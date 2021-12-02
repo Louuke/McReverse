@@ -50,7 +50,7 @@ public class MyMcDonaldsRequest {
     }
 
     public static class Base {
-        private String firstName = "Max", lastName = "Mustermann";
+        private String firstName = "M", lastName = "M";
 
         public String getFirstName() {
             return firstName;
@@ -82,7 +82,7 @@ public class MyMcDonaldsRequest {
             private final String addressLocale = "de-DE";
 
             public static class AddressLineDetails {
-                private final String country = "DE", isAmberZone = "N", isRedZone = "N", zipCode = "25524";
+                private final String country = "DE", isAmberZone = "N", isRedZone = "N", zipCode = "24116";
             }
         }
     }

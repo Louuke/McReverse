@@ -9,7 +9,7 @@ public class RegisterRequest {
     private Device device;
     private Address address;
     private Credentials credentials;
-    private final String emailAddress, firstName = "Max", lastName = "Mustermann";
+    private final String emailAddress, firstName = "M", lastName = "M";
     private final boolean optInForMarketing = false;
 
     public RegisterRequest(String email, String password, String zipCode, String country, String deviceId) {

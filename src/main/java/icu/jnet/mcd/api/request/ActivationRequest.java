@@ -2,9 +2,8 @@ package icu.jnet.mcd.api.request;
 
 public class ActivationRequest {
 
-    private final String activationCode;
+    private final String activationCode, deviceId;
     private final Credentials credentials;
-    private String deviceId;
 
     public ActivationRequest(String email, String activationCode, String deviceId, String type) {
         this.activationCode = activationCode;

@@ -2,7 +2,7 @@ package icu.jnet.mcd.api.response;
 
 import java.util.HashMap;
 
-public class AnniversaryResponse {
+public class CalendarResponse {
 
     private HashMap<String, String> errors;
     private boolean participated;
@@ -21,8 +21,8 @@ public class AnniversaryResponse {
         return prize;
     }
 
-    public String getSuccess() {
-        return success;
+    public boolean success() {
+        return success != null && success.equals("ok");
     }
 
     public static class Prize {
