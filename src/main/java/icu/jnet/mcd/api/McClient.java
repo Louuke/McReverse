@@ -123,11 +123,8 @@ public class McClient extends McBase {
                 String prizeId = statusResponse.getPrize().getPrizeId();
                 String partUrl = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/appcalendar/participate";
                 String partBody = gson.toJson(new CalendarRequest(token, email, userId, prizeId));
-                CalendarResponse partResponse = gson.fromJson(queryPut(partUrl,
-                        ByteArrayContent.fromString("application/json", partBody)), CalendarResponse.class);
-                if(partResponse.success()) {
-                    System.out.println("CALENDAR: " + email + " - " + partResponse.getPrize().getHeadline());
-                }
+                return gson.fromJson(queryPut(partUrl, ByteArrayContent.fromString("application/json", partBody)),
+                        CalendarResponse.class);
             }
         }
         return new CalendarResponse();
