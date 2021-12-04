@@ -27,7 +27,7 @@ public class McClient extends McBase {
     }
 
     public boolean register(String email, String password, String zipCode, String country) {
-        return register(email, password, zipCode, country, null);
+        return register(email, password, zipCode, country, DEFAULT_DEVICE_ID);
     }
 
     public boolean register(String email, String password, String zipCode, String country, String deviceId) {
