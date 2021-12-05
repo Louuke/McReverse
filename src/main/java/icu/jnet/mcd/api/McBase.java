@@ -4,6 +4,7 @@ import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import icu.jnet.mcd.api.request.LoginRequest;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.auth.Authorization;
@@ -52,11 +53,15 @@ class McBase {
             setRequestHeaders(request);
             return request.execute().parseAsString();
         } catch (HttpResponseException e) {
-            Response response = gson.fromJson(e.getContent(), Response.class);
-            if(response.getStatus().getType().equals("ValidationException")) { // Authorization expired
-                if(loginRefresh() && !auth.getRefreshToken().isEmpty()) {
-                    return queryGet(url);
+            try {
+                Response response = gson.fromJson(e.getContent(), Response.class);
+                if(response.getStatus().getType().equals("ValidationException")) { // Authorization expired
+                    if(loginRefresh() && !auth.getRefreshToken().isEmpty()) {
+                        return queryGet(url);
+                    }
                 }
+            } catch (JsonSyntaxException e2) {
+                e2.printStackTrace();
             }
         } catch (IOException e) {
             e.printStackTrace();
