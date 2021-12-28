@@ -1,13 +1,22 @@
 package icu.jnet.mcd.api;
 
 import com.google.api.client.http.ByteArrayContent;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.UrlEncodedContent;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class McClient extends McBase {
 
@@ -103,6 +112,31 @@ public class McClient extends McBase {
         return null;
     }
 
+    public CalendarAddressResponse uploadAddress(Map<String, String> form) {
+        return uploadAddress(form, DEFAULT_DEVICE_ID);
+    }
+
+    public CalendarAddressResponse uploadAddress(Map<String, String> form, String deviceId) {
+        String url = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/appcalendar/uploadAddress";
+        form.put("token", auth.getAccessToken().replace("Bearer ", ""));
+        return gson.fromJson(queryPost(url, new UrlEncodedContent(form)), CalendarAddressResponse.class);
+    }
+
+    public CalendarStateResponse getUserState() {
+        ProfileResponse profileResponse = getProfile();
+        if(profileResponse.getStatus().getType().contains("Success")) {
+            String userId = profileResponse.getInfo().getHashedDcsId();
+            String email = profileResponse.getInfo().getBase().getUsername();
+            String token = auth.getAccessToken().replace("Bearer ", "");
+
+            String stateUrl = String.format("https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/appcalendar/"
+                            + "getUserState?userId=%s&token=%s&userName=%s&deviceId=%s&formId=", userId, token,
+                    URLEncoder.encode(email, StandardCharsets.UTF_8), DEFAULT_DEVICE_ID);
+            return gson.fromJson(queryGet(stateUrl), CalendarStateResponse.class);
+        }
+        return new CalendarStateResponse();
+    }
+
     public CalendarResponse participateCalendar() {
         ProfileResponse profileResponse = getProfile();
         if(profileResponse.getStatus().getType().contains("Success")) {
@@ -110,14 +144,6 @@ public class McClient extends McBase {
             String email = profileResponse.getInfo().getBase().getUsername();
             String token = auth.getAccessToken().replace("Bearer ", "");
 
-            // Fetch user state. Purpose is unknown
-            String stateUrl = String.format("https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/appcalendar/"
-                    + "getUserState?userId=%s&token=%s&userName=%s&deviceId=%s&formId=", userId, token,
-                    URLEncoder.encode(email, StandardCharsets.UTF_8), DEFAULT_DEVICE_ID);
-            CalendarStateResponse stateResponse = gson.fromJson(queryGet(stateUrl), CalendarStateResponse.class);
-            if(stateResponse.success() && !stateResponse.getInstantPrizes().isEmpty()) {
-                stateResponse.getInstantPrizes().forEach(s -> System.out.println("INSTANT PRIZE: " + email + " - " + gson.toJson(s)));
-            }
             // Find out, if we have participated
             String statusUrl = "https://mcd-gma-prod.mcdonalds.de/mcd-gmarestservice/service/appcalendar/status";
             String statusBody = gson.toJson(new CalendarRequest(token, email, userId));
