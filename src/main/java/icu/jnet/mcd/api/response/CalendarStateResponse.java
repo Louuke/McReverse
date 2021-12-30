@@ -3,7 +3,7 @@ package icu.jnet.mcd.api.response;
 import java.util.HashMap;
 import java.util.List;
 
-public class CalendarStateResponse {
+public class CalendarStateResponse extends Response {
 
     private HashMap<String, String> errors;
     private List<InstantPrize> instantPrizes;

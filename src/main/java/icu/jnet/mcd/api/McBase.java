@@ -4,13 +4,17 @@ import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import icu.jnet.mcd.api.request.AccessRequest;
 import icu.jnet.mcd.api.request.RefreshRequest;
+import icu.jnet.mcd.api.request.Request;
+import icu.jnet.mcd.api.response.status.Status;
 import icu.jnet.mcd.auth.Authorization;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.AuthResponse;
 import icu.jnet.mcd.api.response.LoginResponse;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,17 +28,14 @@ class McBase {
     }
 
     private void getAccessToken() {
-        String url1 = "https://eu-prod.api.mcd.com/v1/security/auth/token";
-        Map<String, String> params = new HashMap<>();
-        params.put("grantType", "client_credentials");
-        AuthResponse authResponse = gson.fromJson(queryPost(url1, new UrlEncodedContent(params)), AuthResponse.class);
+        Request request = new AccessRequest();
+        AuthResponse authResponse = queryPost(request, AuthResponse.class);
         auth.updateAccessToken(authResponse.getToken());
     }
 
     private boolean loginRefresh() {
-        String url = "https://eu-prod.api.mcd.com/exp/v1/customer/login/refresh";
-        String body = gson.toJson(new RefreshRequest(auth.getRefreshToken()));
-        LoginResponse login = gson.fromJson(queryPost(url, ByteArrayContent.fromString("application/json", body)), LoginResponse.class);
+        Request request = new RefreshRequest(auth.getRefreshToken());
+        LoginResponse login = queryPost(request, LoginResponse.class);
         if(login.getStatus().getType().equals("Success")) {
             auth.updateAccessToken(login.getAccessToken());
             auth.updateRefreshToken(login.getRefreshToken());
@@ -43,17 +44,20 @@ class McBase {
         return false;
     }
 
-    String queryGet(String url)  {
+    <T extends Response> T queryGet(Request request, Class<T> clazz)  {
         try {
-            HttpRequest request = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
-            setRequestHeaders(request, "application/json");
-            return request.execute().parseAsString();
+            String url = request.getUrl();
+            HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
+            setRequestHeaders(httpRequest, "application/json");
+            String s = httpRequest.execute().parseAsString();
+            System.out.println(s);
+            return gson.fromJson(s, clazz);
         } catch (HttpResponseException e) {
             try {
                 Response response = gson.fromJson(e.getContent(), Response.class);
                 if(response.getStatus().getType().equals("ValidationException")) { // Authorization expired
                     if(loginRefresh() && !auth.getRefreshToken().isEmpty()) {
-                        return queryGet(url);
+                        return queryGet(request, clazz);
                     }
                 }
             } catch (JsonSyntaxException e2) {
@@ -62,29 +66,33 @@ class McBase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "{\"status\": {\"code\": -1,\"type\": \"Error\"}}";
+        return clazz.cast(new Response(new Status(gson.toJson(request), "Error")));
     }
 
-    String queryPost(String url, HttpContent httpContent) {
+    <T extends Response> T queryPost(Request request, Class<T> clazz) {
         try {
-            HttpRequest request = new NetHttpTransport().createRequestFactory().buildPostRequest(new GenericUrl(url), httpContent);
-            setRequestHeaders(request, httpContent.getType());
-            return request.execute().parseAsString();
+            String url = request.getUrl();
+            HttpContent httpContent = request.getContent();
+            HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildPostRequest(new GenericUrl(url), httpContent);
+            setRequestHeaders(httpRequest, httpContent.getType());
+            return gson.fromJson(httpRequest.execute().parseAsString(), clazz);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "{\"status\": {\"code\": -1,\"type\": \"Error\"}}";
+        return clazz.cast(new Response(new Status(gson.toJson(request), "Error")));
     }
 
-    String queryPut(String url, HttpContent httpContent) {
+    <T extends Response> T queryPut(Request request, Class<T> clazz) {
         try {
-            HttpRequest request = new NetHttpTransport().createRequestFactory().buildPutRequest(new GenericUrl(url), httpContent);
-            setRequestHeaders(request, httpContent.getType());
-            return request.execute().parseAsString();
+            String url = request.getUrl();
+            HttpContent httpContent = request.getContent();
+            HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildPutRequest(new GenericUrl(url), httpContent);
+            setRequestHeaders(httpRequest, httpContent.getType());
+            return gson.fromJson(httpRequest.execute().parseAsString(), clazz);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "{\"status\": {\"code\": -1,\"type\": \"Error\"}}";
+        return clazz.cast(new Response(new Status(gson.toJson(request), "Error")));
     }
 
     private void setRequestHeaders(HttpRequest request, String type) {

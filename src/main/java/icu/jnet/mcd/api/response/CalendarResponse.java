@@ -2,7 +2,7 @@ package icu.jnet.mcd.api.response;
 
 import java.util.HashMap;
 
-public class CalendarResponse {
+public class CalendarResponse extends Response {
 
     private HashMap<String, String> errors;
     private boolean participated;

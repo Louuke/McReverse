@@ -2,7 +2,7 @@ package icu.jnet.mcd.api.response;
 
 import java.util.HashMap;
 
-public class AuthResponse {
+public class AuthResponse extends Response {
 
     private HashMap<String, Object> response;
 

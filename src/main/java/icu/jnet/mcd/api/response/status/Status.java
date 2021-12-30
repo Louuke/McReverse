@@ -5,8 +5,13 @@ import java.util.List;
 public class Status {
 
     private int code;
-    private String message, type;
+    private final String message, type;
     private List<Error> errors;
+
+    public Status(String message, String type) {
+        this.message = message;
+        this.type = type;
+    }
 
     public int getCode() {
         return code;

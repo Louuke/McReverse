@@ -1,8 +1,10 @@
 package icu.jnet.mcd.api.request;
 
+import com.google.api.client.http.HttpContent;
+
 import java.util.HashMap;
 
-public class RegisterRequest {
+public class RegisterRequest implements Request {
 
     private Policies policies = new Policies();
     private Audit audit = new Audit();
@@ -17,6 +19,11 @@ public class RegisterRequest {
         address = new Address(zipCode, country);
         credentials = new Credentials(email, password);
         device = new Device(deviceId);
+    }
+
+    @Override
+    public String getUrl() {
+        return "https://eu-prod.api.mcd.com/exp/v1/customer/registration";
     }
 
     private static class Address {

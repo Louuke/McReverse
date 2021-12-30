@@ -5,12 +5,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyMcDonaldsRequest {
+public class MyMcDonaldsRequest implements Request {
 
     private final CustomerInformation customerInformation;
 
     public MyMcDonaldsRequest(String userId, String emailAddress) {
         this.customerInformation = new CustomerInformation(userId, emailAddress);
+    }
+
+    @Override
+    public String getUrl() {
+        return "https://eu-prod.api.mcd.com/exp/v1/customer/profile";
     }
 
     public static class CustomerInformation {
