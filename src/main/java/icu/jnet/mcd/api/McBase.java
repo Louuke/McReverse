@@ -14,9 +14,7 @@ import icu.jnet.mcd.api.response.AuthResponse;
 import icu.jnet.mcd.api.response.LoginResponse;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
 class McBase {
 
@@ -48,10 +46,9 @@ class McBase {
         try {
             String url = request.getUrl();
             HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
-            setRequestHeaders(httpRequest, "application/json");
-            String s = httpRequest.execute().parseAsString();
-            System.out.println(s);
-            return gson.fromJson(s, clazz);
+            setRequestHeaders(httpRequest, "application/json;");
+            byte[] bytes = httpRequest.execute().parseAsString().getBytes(StandardCharsets.UTF_8);
+            return gson.fromJson(new String(bytes), clazz);
         } catch (HttpResponseException e) {
             try {
                 Response response = gson.fromJson(e.getContent(), Response.class);
@@ -104,7 +101,7 @@ class McBase {
         headers.set("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
         headers.set("authorization", token);
         headers.set("accept-charset", "UTF-8");
-        headers.set("content-type", type + "; charset=UTF-8");
+        headers.set("content-type", type);
         headers.set("accept-language", "de-DE");
         headers.setUserAgent("MCDSDK/15.0.29 (Android; 28; de-) GMA/7.5");
         headers.set("mcd-sourceapp", "GMA");
