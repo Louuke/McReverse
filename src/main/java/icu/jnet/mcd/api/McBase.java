@@ -113,7 +113,7 @@ class McBase {
 
     private <T> T createInstance(Class<T> clazz) {
         try {
-            clazz.getConstructor().newInstance();
+            return clazz.getConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }
