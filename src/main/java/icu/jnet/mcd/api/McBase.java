@@ -14,6 +14,7 @@ import icu.jnet.mcd.api.response.AuthResponse;
 import icu.jnet.mcd.api.response.LoginResponse;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 
 class McBase {
@@ -63,7 +64,7 @@ class McBase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return clazz.cast(new Response(new Status(gson.toJson(request), "Error")));
+        return createInstance(clazz);
     }
 
     <T extends Response> T queryPost(Request request, Class<T> clazz) {
@@ -76,7 +77,7 @@ class McBase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return clazz.cast(new Response(new Status(gson.toJson(request), "Error")));
+        return createInstance(clazz);
     }
 
     <T extends Response> T queryPut(Request request, Class<T> clazz) {
@@ -89,7 +90,7 @@ class McBase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return clazz.cast(new Response(new Status(gson.toJson(request), "Error")));
+        return createInstance(clazz);
     }
 
     private void setRequestHeaders(HttpRequest request, String type) {
@@ -108,5 +109,14 @@ class McBase {
         headers.set("mcd-uuid", "ed088d2c-e5df-4cbe-92e9-702ca00ddc4b");
         headers.set("mcd-marketid", "DE");
         request.setHeaders(headers);
+    }
+
+    private <T> T createInstance(Class<T> clazz) {
+        try {
+            clazz.getConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
