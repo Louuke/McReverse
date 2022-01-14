@@ -52,6 +52,7 @@ class McBase {
             return gson.fromJson(new String(bytes), clazz);
         } catch (HttpResponseException e) {
             try {
+                System.out.println(e.getContent());
                 Response response = gson.fromJson(e.getContent(), Response.class);
                 if(response.getStatus().getType().equals("ValidationException")) { // Authorization expired
                     if(loginRefresh() && !auth.getRefreshToken().isEmpty()) {
