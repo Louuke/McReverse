@@ -47,7 +47,6 @@ class McBase {
         try {
             String url = request.getUrl();
             HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
-            setRequestHeaders(httpRequest, "application/json;");
             return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
@@ -60,7 +59,6 @@ class McBase {
             String url = request.getUrl();
             HttpContent httpContent = request.getContent();
             HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildPostRequest(new GenericUrl(url), httpContent);
-            setRequestHeaders(httpRequest, httpContent.getType());
             return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
@@ -73,7 +71,6 @@ class McBase {
             String url = request.getUrl();
             HttpContent httpContent = request.getContent();
             HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildPutRequest(new GenericUrl(url), httpContent);
-            setRequestHeaders(httpRequest, httpContent.getType());
             return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
@@ -83,16 +80,18 @@ class McBase {
 
     private <T extends Response> T query(HttpRequest request, Class<T> clazz) {
         try {
+            setRequestHeaders(request);
             return gson.fromJson(request.execute().parseAsString(), clazz);
         } catch (HttpResponseException e) {
             try {
-                System.out.println(e.getContent());
                 Response response = gson.fromJson(e.getContent(), Response.class);
                 if(response.getStatus().getErrors().size() > 0
                         && response.getStatus().getErrors().get(0).getErrorType().equals("JWTTokenExpired")) { // Authorization expired
                     if(loginRefresh() && !auth.getRefreshToken().isEmpty()) {
                         return query(request, clazz);
                     }
+                } else {
+                    System.out.println(e.getContent());
                 }
             } catch (JsonSyntaxException e2) {
                 e2.printStackTrace();
@@ -103,7 +102,7 @@ class McBase {
         return createInstance(clazz);
     }
 
-    private void setRequestHeaders(HttpRequest request, String type) {
+    private void setRequestHeaders(HttpRequest request) {
         String token = !auth.getAccessToken().isEmpty()
                 ? auth.getAccessToken()
                 : "Basic NkRFVXlKT0thQm96OFFSRm00OXFxVklWUGowR1V6b0g6NWltaDZOS1UzdjVDVWlmVHZIUTdFeEY4ZXhrbWFOamI=";
@@ -112,7 +111,7 @@ class McBase {
         headers.set("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
         headers.set("authorization", token);
         headers.set("accept-charset", "UTF-8");
-        headers.set("content-type", type);
+        headers.set("content-type", request.getContent() != null ? request.getContent().getType() : "application/json;");
         headers.set("accept-language", "de-DE");
         headers.setUserAgent("MCDSDK/15.0.29 (Android; 28; de-) GMA/7.5");
         headers.set("mcd-sourceapp", "GMA");
