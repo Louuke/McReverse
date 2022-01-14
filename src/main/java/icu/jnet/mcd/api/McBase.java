@@ -54,7 +54,8 @@ class McBase {
             try {
                 System.out.println(e.getContent());
                 Response response = gson.fromJson(e.getContent(), Response.class);
-                if(response.getStatus().getType().equals("ValidationException")) { // Authorization expired
+                if(response.getStatus().getErrors().size() > 0
+                        && response.getStatus().getErrors().get(0).getErrorType().equals("JWTTokenExpired")) { // Authorization expired
                     if(loginRefresh() && !auth.getRefreshToken().isEmpty()) {
                         return queryGet(request, clazz);
                     }

@@ -1,12 +1,13 @@
 package icu.jnet.mcd.api.response.status;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Status {
 
-    private int code;
+    private final int code = -1;
     private final String message, type;
-    private List<Error> errors;
+    private final List<Error> errors = new ArrayList<>();
 
     public Status(String message, String type) {
         this.message = message;
