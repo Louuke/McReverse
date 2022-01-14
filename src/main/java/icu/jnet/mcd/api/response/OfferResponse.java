@@ -59,7 +59,11 @@ public class OfferResponse extends Response {
         }
 
         public String getName() {
-            return name;
+            return name.split("\n")[0];
+        }
+
+        public String getPrice() {
+            return name.split("\n")[1];
         }
 
         public String getOfferBucket() {

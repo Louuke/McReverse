@@ -48,21 +48,7 @@ class McBase {
             String url = request.getUrl();
             HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
             setRequestHeaders(httpRequest, "application/json;");
-            byte[] bytes = httpRequest.execute().parseAsString().getBytes(StandardCharsets.UTF_8);
-            return gson.fromJson(new String(bytes), clazz);
-        } catch (HttpResponseException e) {
-            try {
-                System.out.println(e.getContent());
-                Response response = gson.fromJson(e.getContent(), Response.class);
-                if(response.getStatus().getErrors().size() > 0
-                        && response.getStatus().getErrors().get(0).getErrorType().equals("JWTTokenExpired")) { // Authorization expired
-                    if(loginRefresh() && !auth.getRefreshToken().isEmpty()) {
-                        return queryGet(request, clazz);
-                    }
-                }
-            } catch (JsonSyntaxException e2) {
-                e2.printStackTrace();
-            }
+            return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,7 +61,7 @@ class McBase {
             HttpContent httpContent = request.getContent();
             HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildPostRequest(new GenericUrl(url), httpContent);
             setRequestHeaders(httpRequest, httpContent.getType());
-            return gson.fromJson(httpRequest.execute().parseAsString(), clazz);
+            return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,7 +74,30 @@ class McBase {
             HttpContent httpContent = request.getContent();
             HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildPutRequest(new GenericUrl(url), httpContent);
             setRequestHeaders(httpRequest, httpContent.getType());
-            return gson.fromJson(httpRequest.execute().parseAsString(), clazz);
+            return query(httpRequest, clazz);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return createInstance(clazz);
+    }
+
+    private <T extends Response> T query(HttpRequest request, Class<T> clazz) {
+        try {
+            return gson.fromJson(request.execute().parseAsString(), clazz);
+        } catch (HttpResponseException e) {
+            try {
+                Response response = gson.fromJson(e.getContent(), Response.class);
+                if(response.getStatus().getErrors().size() > 0
+                        && response.getStatus().getErrors().get(0).getErrorType().equals("JWTTokenExpired")) { // Authorization expired
+                    if(loginRefresh() && !auth.getRefreshToken().isEmpty()) {
+                        return query(request, clazz);
+                    }
+                } else {
+                    System.out.println(e.getContent());
+                }
+            } catch (JsonSyntaxException e2) {
+                e2.printStackTrace();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
