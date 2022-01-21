@@ -1,6 +1,11 @@
 package icu.jnet.mcd.api.response;
 
+import icu.jnet.mcd.api.request.ProfileRequest;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class ProfileResponse extends Response {
 
@@ -11,6 +16,8 @@ public class ProfileResponse extends Response {
     }
 
     public static class CustomerInformation {
+
+        private final List<ProfileRequest.Address> address = new ArrayList<>();
 
         private String hashedDcsId, languageCode, marketCode;
         private Base base;
@@ -30,6 +37,14 @@ public class ProfileResponse extends Response {
 
         public Base getBase() {
             return base;
+        }
+
+        public String getZipCode() {
+            return address.get(0).getDetails().get(0).getAddressLineDetails().getZipCode();
+        }
+
+        public Devices[] getDevices() {
+            return devices;
         }
     }
 

@@ -9,6 +9,7 @@ import java.util.Map;
 public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
+    private String userId, zipCode;
 
     public boolean login(@Nonnull String email, @Nonnull String password) {
         return login(email, password, DEFAULT_DEVICE_ID);
@@ -19,7 +20,16 @@ public class McClient extends McBase {
         LoginResponse login = queryPost(request, LoginResponse.class);
         auth.updateAccessToken(login.getAccessToken());
         auth.updateRefreshToken(login.getRefreshToken());
-        return login.getStatus().getType().contains("Success");
+        if(login.getStatus().getType().contains("Success")) {
+            ProfileResponse profileResponse = getProfile();
+            if(profileResponse.getStatus().getType().contains("Success")) {
+                this.email = email;
+                this.userId = profileResponse.getInfo().getHashedDcsId();
+                this.zipCode = profileResponse.getInfo().getZipCode();
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean register(String email, String password, String zipCode, String country) {
@@ -79,14 +89,12 @@ public class McClient extends McBase {
     }
 
     public Response joinMyMcDonalds() {
-        ProfileResponse profileResponse = getProfile();
-        if(profileResponse.getStatus().getType().contains("Success")) {
-            String userId = profileResponse.getInfo().getHashedDcsId();
-            String email = profileResponse.getInfo().getBase().getUsername();
-            Request request = new MyMcDonaldsRequest(userId, email);
-            return queryPut(request, Response.class);
-        }
-        return null;
+        return queryPut(new ProfileRequest(userId, email, zipCode), Response.class);
+    }
+
+    public Response setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+        return queryPut(new ProfileRequest(userId, email, zipCode), Response.class);
     }
 
     public CalendarAddressResponse uploadAddress(Map<String, String> form) {
@@ -95,34 +103,21 @@ public class McClient extends McBase {
     }
 
     public CalendarStateResponse getUserState() {
-        ProfileResponse profileResponse = getProfile();
-        if(profileResponse.getStatus().getType().contains("Success")) {
-            String userId = profileResponse.getInfo().getHashedDcsId();
-            String email = profileResponse.getInfo().getBase().getUsername();
-            String token = auth.getAccessToken().replace("Bearer ", "");
-
-            Request request = new CalendarStateRequest(userId, email, token, DEFAULT_DEVICE_ID);
-            return queryGet(request, CalendarStateResponse.class);
-        }
-        return new CalendarStateResponse();
+        String token = auth.getAccessToken().replace("Bearer ", "");
+        Request request = new CalendarStateRequest(userId, email, token, DEFAULT_DEVICE_ID);
+        return queryGet(request, CalendarStateResponse.class);
     }
 
     public CalendarResponse participateCalendar() {
-        ProfileResponse profileResponse = getProfile();
-        if(profileResponse.getStatus().getType().contains("Success")) {
-            String userId = profileResponse.getInfo().getHashedDcsId();
-            String email = profileResponse.getInfo().getBase().getUsername();
-            String token = auth.getAccessToken().replace("Bearer ", "");
+        String token = auth.getAccessToken().replace("Bearer ", "");
+        // Find out, if we have participated
+        Request request = new CalendarStatusRequest(token, email, userId);
+        CalendarResponse statusResponse = queryPost(request, CalendarResponse.class);
 
-            // Find out, if we have participated
-            Request request = new CalendarStatusRequest(token, email, userId);
-            CalendarResponse statusResponse = queryPost(request, CalendarResponse.class);
-
-            if(statusResponse.success() && !statusResponse.hasParticipated()) {
-                String prizeId = statusResponse.getPrize().getPrizeId();
-                request = new CalendarRequest(token, email, userId, prizeId);
-                return queryPut(request, CalendarResponse.class);
-            }
+        if(statusResponse.success() && !statusResponse.hasParticipated()) {
+            String prizeId = statusResponse.getPrize().getPrizeId();
+            request = new CalendarRequest(token, email, userId, prizeId);
+            return queryPut(request, CalendarResponse.class);
         }
         return new CalendarResponse();
     }

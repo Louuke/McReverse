@@ -19,8 +19,9 @@ import java.nio.charset.StandardCharsets;
 
 class McBase {
 
+    private final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     final Authorization auth = new Authorization();
-    final Gson gson = new Gson();
+    String email;
 
     public McBase() {
         getAccessToken();
@@ -46,7 +47,7 @@ class McBase {
     <T extends Response> T queryGet(Request request, Class<T> clazz)  {
         try {
             String url = request.getUrl();
-            HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildGetRequest(new GenericUrl(url));
+            HttpRequest httpRequest = factory.buildGetRequest(new GenericUrl(url));
             return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
@@ -58,7 +59,7 @@ class McBase {
         try {
             String url = request.getUrl();
             HttpContent httpContent = request.getContent();
-            HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildPostRequest(new GenericUrl(url), httpContent);
+            HttpRequest httpRequest = factory.buildPostRequest(new GenericUrl(url), httpContent);
             return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,7 +71,7 @@ class McBase {
         try {
             String url = request.getUrl();
             HttpContent httpContent = request.getContent();
-            HttpRequest httpRequest = new NetHttpTransport().createRequestFactory().buildPutRequest(new GenericUrl(url), httpContent);
+            HttpRequest httpRequest = factory.buildPutRequest(new GenericUrl(url), httpContent);
             return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
@@ -79,6 +80,7 @@ class McBase {
     }
 
     private <T extends Response> T query(HttpRequest request, Class<T> clazz) {
+        Gson gson = new Gson();
         try {
             setRequestHeaders(request);
             return gson.fromJson(request.execute().parseAsString(), clazz);
@@ -91,7 +93,7 @@ class McBase {
                         return query(request, clazz);
                     }
                 } else {
-                    System.out.println(e.getContent());
+                    System.out.println(email + ": " + e.getContent());
                 }
             } catch (JsonSyntaxException e2) {
                 e2.printStackTrace();
