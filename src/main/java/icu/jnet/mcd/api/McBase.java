@@ -96,6 +96,7 @@ class McBase {
                     System.out.println(email + ": " + e.getContent());
                 }
             } catch (JsonSyntaxException e2) {
+                System.out.println(e.getContent());
                 e2.printStackTrace();
             }
         } catch (IOException e) {
