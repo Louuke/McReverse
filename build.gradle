@@ -1,7 +1,8 @@
 plugins {
     id 'java'
-    id 'maven-publish'
 }
+
+apply plugin: 'maven-publish'
 
 group 'icu.jnet'
 version '1.0-SNAPSHOT'
