@@ -26,7 +26,15 @@ test {
     useJUnitPlatform()
 }
 
-wrapper {
-    gradleVersion = "7.1"
-    distributionType = Wrapper.DistributionType.ALL
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
 }
