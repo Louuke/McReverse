@@ -1,7 +1,9 @@
-apply plugin: 'java'
-apply plugin: 'maven-publish'
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
 
-group 'com.github.JicuNull'
+group 'icu.jnet'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.11
@@ -29,12 +31,4 @@ test {
 java {
     withSourcesJar()
     withJavadocJar()
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-        }
-    }
 }
