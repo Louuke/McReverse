@@ -1,11 +1,11 @@
-plugins {
-    id 'java'
-}
-
+apply plugin: 'java'
 apply plugin: 'maven-publish'
 
-group 'icu.jnet'
+group 'com.github.JicuNull'
 version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
 repositories {
     mavenCentral()
@@ -24,4 +24,9 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+wrapper {
+    gradleVersion = "7.1"
+    distributionType = Wrapper.DistributionType.ALL
 }
