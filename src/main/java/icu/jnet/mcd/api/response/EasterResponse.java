@@ -1,12 +1,15 @@
 package icu.jnet.mcd.api.response;
 
 import java.util.HashMap;
+import java.util.List;
 
-public class CalendarResponse extends Response {
+public class EasterResponse extends Response {
 
+    private String date;
     private HashMap<String, String> errors;
+    private HashMap<String, Object> instantFood;
     private boolean participated;
-    private Prize prize;
+    private Prize instantPrize;
     private String success;
 
     public HashMap<String, String> getErrors() {
@@ -17,8 +20,12 @@ public class CalendarResponse extends Response {
         return participated;
     }
 
+    public HashMap<String, Object> getInstantFood() {
+        return instantFood;
+    }
+
     public Prize getPrize() {
-        return prize;
+        return instantPrize;
     }
 
     public boolean success() {
@@ -26,15 +33,10 @@ public class CalendarResponse extends Response {
     }
 
     public static class Prize {
-        private String description, headline, imageUrl, prizeId, prizeUrl, revealVideoUrl, subheadline, type;
-        private boolean isAddressFromSent;
+        private String description, imageUrl, name, prizeButtonText, prizeId, prizeUrl;
 
         public String getDescription() {
             return description;
-        }
-
-        public String getHeadline() {
-            return headline;
         }
 
         public String getImageUrl() {
@@ -49,20 +51,12 @@ public class CalendarResponse extends Response {
             return prizeUrl;
         }
 
-        public String getRevealVideoUrl() {
-            return revealVideoUrl;
+        public String getName() {
+            return name;
         }
 
-        public String getSubHeadline() {
-            return subheadline;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public boolean isAddressFromSent() {
-            return isAddressFromSent;
+        public String getPrizeButtonText() {
+            return prizeButtonText;
         }
     }
 }

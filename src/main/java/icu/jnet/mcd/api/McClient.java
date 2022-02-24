@@ -1,5 +1,6 @@
 package icu.jnet.mcd.api;
 
+import com.google.gson.GsonBuilder;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
@@ -9,7 +10,7 @@ import java.util.Map;
 public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
-    private String userId, zipCode;
+    private String deviceId = DEFAULT_DEVICE_ID, zipCode;
 
     public boolean login(@Nonnull String email, @Nonnull String password) {
         return login(email, password, DEFAULT_DEVICE_ID);
@@ -24,6 +25,7 @@ public class McClient extends McBase {
             ProfileResponse profileResponse = getProfile();
             if(profileResponse.getStatus().getType().contains("Success")) {
                 this.email = email;
+                this.deviceId = deviceId;
                 this.userId = profileResponse.getInfo().getHashedDcsId();
                 this.zipCode = profileResponse.getInfo().getZipCode();
                 return true;
@@ -97,28 +99,33 @@ public class McClient extends McBase {
         return queryPut(new ProfileRequest(userId, email, zipCode), Response.class);
     }
 
-    public CalendarAddressResponse uploadAddress(Map<String, String> form) {
+    public EasterAddressResponse uploadAddress(Map<String, String> form) {
         form.put("token", auth.getAccessToken().replace("Bearer ", ""));
-        return queryPost(new CalendarAddressRequest(form), CalendarAddressResponse.class);
+        return queryPost(new EasterAddressRequest(form), EasterAddressResponse.class);
     }
 
-    public CalendarStateResponse getUserState() {
+    public EasterStateResponse getUserState() {
         String token = auth.getAccessToken().replace("Bearer ", "");
-        Request request = new CalendarStateRequest(userId, email, token, DEFAULT_DEVICE_ID);
-        return queryGet(request, CalendarStateResponse.class);
+        Request request = new EasterStateRequest(userId, email, token, deviceId);
+        return queryGet(request, EasterStateResponse.class);
     }
 
-    public CalendarResponse participateCalendar() {
+    public EasterResponse participateEasterSpecial() {
         String token = auth.getAccessToken().replace("Bearer ", "");
         // Find out, if we have participated
-        Request request = new CalendarStatusRequest(token, email, userId);
-        CalendarResponse statusResponse = queryPost(request, CalendarResponse.class);
+        Request request = new EasterStatusRequest(token, email, userId);
+        EasterResponse statusResponse = queryPost(request, EasterResponse.class);
+
 
         if(statusResponse.success() && !statusResponse.hasParticipated()) {
-            String prizeId = statusResponse.getPrize().getPrizeId();
-            request = new CalendarRequest(token, email, userId, prizeId);
-            return queryPut(request, CalendarResponse.class);
+            Request eggRequest = new EasterEggRequest(userId, email, token, deviceId);
+            EasterEggResponse eggResponse = queryGet(eggRequest, EasterEggResponse.class);
+
+            if(eggResponse.success()) {
+                request = new EasterRequest(token, email, userId, deviceId, eggResponse.getId());
+                return queryPut(request, EasterResponse.class);
+            }
         }
-        return new CalendarResponse();
+        return statusResponse;
     }
 }

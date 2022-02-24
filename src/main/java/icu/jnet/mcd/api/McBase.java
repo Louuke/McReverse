@@ -21,7 +21,7 @@ class McBase {
 
     private final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     final Authorization auth = new Authorization();
-    String email;
+    String email, userId;
 
     public McBase() {
         getAccessToken();
@@ -118,7 +118,7 @@ class McBase {
         headers.set("accept-language", "de-DE");
         headers.setUserAgent("MCDSDK/15.0.29 (Android; 28; de-) GMA/7.5");
         headers.set("mcd-sourceapp", "GMA");
-        headers.set("mcd-uuid", "ed088d2c-e5df-4cbe-92e9-702ca00ddc4b");
+        headers.set("mcd-uuid", userId != null ? userId : "ed088d2c-e5df-4cbe-92e9-702ca00ddc4c");
         headers.set("mcd-marketid", "DE");
         request.setHeaders(headers);
     }

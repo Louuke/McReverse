@@ -3,9 +3,10 @@ package icu.jnet.mcd.api.response;
 import java.util.HashMap;
 import java.util.List;
 
-public class CalendarStateResponse extends Response {
+public class EasterStateResponse extends Response {
 
     private HashMap<String, String> errors;
+    private List<Object> instantFood;
     private List<InstantPrize> instantPrizes;
     private String success, userId;
 
@@ -15,6 +16,10 @@ public class CalendarStateResponse extends Response {
 
     public List<InstantPrize> getInstantPrizes() {
         return instantPrizes;
+    }
+
+    public List<Object> getInstantFood() {
+        return instantFood;
     }
 
     public boolean success() {
