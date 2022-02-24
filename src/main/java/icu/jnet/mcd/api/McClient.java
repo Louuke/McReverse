@@ -1,6 +1,5 @@
 package icu.jnet.mcd.api;
 
-import com.google.gson.GsonBuilder;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
@@ -115,7 +114,6 @@ public class McClient extends McBase {
         // Find out, if we have participated
         Request request = new EasterStatusRequest(token, email, userId);
         EasterResponse statusResponse = queryPost(request, EasterResponse.class);
-
 
         if(statusResponse.success() && !statusResponse.hasParticipated()) {
             Request eggRequest = new EasterEggRequest(userId, email, token, deviceId);
