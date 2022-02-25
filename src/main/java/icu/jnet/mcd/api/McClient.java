@@ -98,29 +98,34 @@ public class McClient extends McBase {
         return queryPut(new ProfileRequest(userId, email, zipCode), Response.class);
     }
 
-    public EasterAddressResponse uploadAddress(Map<String, String> form) {
+    public EasterUploadResponse uploadAddress(Map<String, String> form) {
         form.put("token", auth.getAccessToken().replace("Bearer ", ""));
-        return queryPost(new EasterAddressRequest(form), EasterAddressResponse.class);
+        form.put("deviceId", userId.substring(0, 16));
+        form.put("userName", email);
+        form.put("userId", userId);
+        return queryPost(new EasterUploadRequest(form), EasterUploadResponse.class);
     }
 
     public EasterStateResponse getUserState() {
         String token = auth.getAccessToken().replace("Bearer ", "");
-        Request request = new EasterStateRequest(userId, email, token, deviceId);
+        Request request = new EasterStateRequest(userId, email, token, userId.substring(0, 16));
         return queryGet(request, EasterStateResponse.class);
     }
 
     public EasterResponse participateEasterSpecial() {
         String token = auth.getAccessToken().replace("Bearer ", "");
+        String fakeId = userId.substring(0, 16);
+
         // Find out, if we have participated
         Request request = new EasterStatusRequest(token, email, userId);
         EasterResponse statusResponse = queryPost(request, EasterResponse.class);
 
         if(statusResponse.success() && !statusResponse.hasParticipated()) {
-            Request eggRequest = new EasterEggRequest(userId, email, token, deviceId);
+            Request eggRequest = new EasterEggRequest(userId, email, token, fakeId);
             EasterEggResponse eggResponse = queryGet(eggRequest, EasterEggResponse.class);
 
             if(eggResponse.success()) {
-                request = new EasterRequest(token, email, userId, deviceId, eggResponse.getId());
+                request = new EasterRequest(token, email, userId, fakeId, eggResponse.getId());
                 return queryPut(request, EasterResponse.class);
             }
         }

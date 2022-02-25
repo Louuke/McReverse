@@ -5,11 +5,11 @@ import com.google.api.client.http.UrlEncodedContent;
 
 import java.util.Map;
 
-public class EasterAddressRequest implements Request {
+public class EasterUploadRequest implements Request {
 
     private final Map<String, String> form;
 
-    public EasterAddressRequest(Map<String, String> form) {
+    public EasterUploadRequest(Map<String, String> form) {
         this.form = form;
     }
 

@@ -2,7 +2,7 @@ package icu.jnet.mcd.api.response;
 
 import java.util.HashMap;
 
-public class EasterAddressResponse extends Response {
+public class EasterUploadResponse extends Response {
 
     private String date, success;
     private HashMap<String, Object> errors;

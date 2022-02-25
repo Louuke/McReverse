@@ -23,6 +23,6 @@ public class EasterEggRequest implements Request {
                 + "&deviceId=%s"
                 + "&formId=arPage"
                 + "&distance=2484";
-        return String.format(url, userId, token, URLEncoder.encode(email, StandardCharsets.UTF_8), userId.substring(0, 16));
+        return String.format(url, userId, token, URLEncoder.encode(email, StandardCharsets.UTF_8), deviceId);
     }
 }
