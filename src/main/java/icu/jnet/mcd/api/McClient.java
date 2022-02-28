@@ -9,7 +9,7 @@ import java.util.Map;
 public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
-    private String deviceId = DEFAULT_DEVICE_ID, zipCode;
+    private String deviceId = DEFAULT_DEVICE_ID, zipCode, userId;
 
     public boolean login(@Nonnull String email, @Nonnull String password) {
         return login(email, password, DEFAULT_DEVICE_ID);
@@ -33,12 +33,12 @@ public class McClient extends McBase {
         return false;
     }
 
-    public boolean register(String email, String password, String zipCode, String country) {
-        return register(email, password, zipCode, country, DEFAULT_DEVICE_ID);
+    public boolean register(String email, String password, String zipCode) {
+        return register(email, password, zipCode, DEFAULT_DEVICE_ID);
     }
 
-    public boolean register(String email, String password, String zipCode, String country, String deviceId) {
-        Request request = new RegisterRequest(email, password, zipCode, country, deviceId);
+    public boolean register(String email, String password, String zipCode, String deviceId) {
+        Request request = new RegisterRequest(email, password, zipCode, deviceId);
         LoginResponse register = queryPost(request, LoginResponse.class);
         return register.getStatus().getType().contains("Success");
     }

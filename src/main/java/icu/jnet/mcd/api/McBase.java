@@ -16,12 +16,14 @@ import icu.jnet.mcd.api.response.LoginResponse;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.util.Random;
 
 class McBase {
 
     private final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
+    private final Random rand = new Random();
     final Authorization auth = new Authorization();
-    String email, userId;
+    String email;
 
     public McBase() {
         getAccessToken();
@@ -118,7 +120,7 @@ class McBase {
         headers.set("accept-language", "de-DE");
         headers.setUserAgent("MCDSDK/15.0.29 (Android; 28; de-) GMA/7.5");
         headers.set("mcd-sourceapp", "GMA");
-        headers.set("mcd-uuid", userId != null ? userId : "ed088d2c-e5df-4cbe-92e9-702ca00ddc4c");
+        headers.set("mcd-uuid", rand.nextInt(99999) + "c4d-e5df-4cbe-92e9-702ca00ddc4c"); // Can not be fully random?
         headers.set("mcd-marketid", "DE");
         request.setHeaders(headers);
     }

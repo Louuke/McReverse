@@ -14,9 +14,9 @@ public class RegisterRequest implements Request {
     private final String emailAddress, firstName = "M", lastName = "M";
     private final boolean optInForMarketing = false;
 
-    public RegisterRequest(String email, String password, String zipCode, String country, String deviceId) {
+    public RegisterRequest(String email, String password, String zipCode, String deviceId) {
         this.emailAddress = email;
-        address = new Address(zipCode, country);
+        address = new Address(zipCode);
         credentials = new Credentials(email, password);
         device = new Device(deviceId);
     }
@@ -27,11 +27,10 @@ public class RegisterRequest implements Request {
     }
 
     private static class Address {
-        private final String zipCode, country;
+        private final String zipCode, country = "DE";
 
-        private Address(String zipCode, String country) {
+        private Address(String zipCode) {
             this.zipCode = zipCode;
-            this.country = country;
         }
     }
 
