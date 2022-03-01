@@ -61,6 +61,10 @@ public class McClient extends McBase {
         return activate.getStatus().getType().contains("Success");
     }
 
+    public Response deleteAccount() {
+        return queryDelete(new DeleteRequest(), Response.class);
+    }
+
     public ProfileResponse getProfile() {
         return queryGet(new ProfileRequest(), ProfileResponse.class);
     }

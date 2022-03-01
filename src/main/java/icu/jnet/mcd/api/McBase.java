@@ -69,6 +69,17 @@ class McBase {
         return createInstance(clazz);
     }
 
+    <T extends Response> T queryDelete(Request request, Class<T> clazz) {
+        try {
+            String url = request.getUrl();
+            HttpRequest httpRequest = factory.buildDeleteRequest(new GenericUrl(url));
+            return query(httpRequest, clazz);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return createInstance(clazz);
+    }
+
     <T extends Response> T queryPut(Request request, Class<T> clazz) {
         try {
             String url = request.getUrl();
@@ -120,7 +131,7 @@ class McBase {
         headers.set("accept-language", "de-DE");
         headers.setUserAgent("MCDSDK/15.0.29 (Android; 28; de-) GMA/7.5");
         headers.set("mcd-sourceapp", "GMA");
-        headers.set("mcd-uuid", rand.nextInt(99999) + "c4d-e5df-4cbe-92e9-702ca00ddc4c"); // Can not be fully random?
+        headers.set("mcd-uuid", (rand.nextInt(90000) + 10000) + "c4d-e5df-4cbe-92e9-702ca00ddc4c"); // Can not be fully random?
         headers.set("mcd-marketid", "DE");
         request.setHeaders(headers);
     }
