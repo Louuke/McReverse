@@ -4,7 +4,6 @@ import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 
 public class McClient extends McBase {
 
@@ -102,34 +101,30 @@ public class McClient extends McBase {
         return queryPut(new ProfileRequest(userId, email, zipCode), Response.class);
     }
 
-    public EasterUploadResponse uploadAddress(Map<String, String> form) {
-        form.put("token", auth.getAccessToken().replace("Bearer ", ""));
-        form.put("deviceId", userId.substring(0, 16));
-        form.put("userName", email);
-        form.put("userId", userId);
-        return queryPost(new EasterUploadRequest(form), EasterUploadResponse.class);
+    public EasterUploadResponse uploadAddress(EasterUploadRequest.UploadData data) {
+        String token = auth.getAccessToken().replace("Bearer ", "");
+        return queryPost(new EasterUploadRequest(userId, email, token, deviceId, data), EasterUploadResponse.class);
     }
 
     public EasterStateResponse getUserState() {
         String token = auth.getAccessToken().replace("Bearer ", "");
-        Request request = new EasterStateRequest(userId, email, token, userId.substring(0, 16));
+        Request request = new EasterStateRequest(userId, email, token, deviceId);
         return queryGet(request, EasterStateResponse.class);
     }
 
     public EasterResponse participateEasterSpecial() {
         String token = auth.getAccessToken().replace("Bearer ", "");
-        String fakeId = userId.substring(0, 16);
 
         // Find out, if we have participated
         Request request = new EasterStatusRequest(token, email, userId);
         EasterResponse statusResponse = queryPost(request, EasterResponse.class);
 
         if(statusResponse.success() && !statusResponse.hasParticipated()) {
-            Request eggRequest = new EasterEggRequest(userId, email, token, fakeId);
+            Request eggRequest = new EasterEggRequest(userId, email, token, deviceId);
             EasterEggResponse eggResponse = queryGet(eggRequest, EasterEggResponse.class);
 
             if(eggResponse.success()) {
-                request = new EasterRequest(token, email, userId, fakeId, eggResponse.getId());
+                request = new EasterRequest(token, email, userId, deviceId, eggResponse.getId());
                 return queryPut(request, EasterResponse.class);
             }
         }
