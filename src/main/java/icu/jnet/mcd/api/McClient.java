@@ -4,11 +4,20 @@ import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
 import javax.annotation.Nonnull;
+import java.net.Proxy;
 
 public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
     private String deviceId = DEFAULT_DEVICE_ID, zipCode, userId;
+
+    public McClient(Proxy proxy) {
+        super(proxy);
+    }
+
+    public McClient() {
+        super();
+    }
 
     public boolean login(@Nonnull String email, @Nonnull String password) {
         return login(email, password, DEFAULT_DEVICE_ID);

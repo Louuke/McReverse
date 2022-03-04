@@ -15,17 +15,24 @@ import icu.jnet.mcd.api.response.LoginResponse;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 class McBase {
 
-    private final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
+    private final HttpRequestFactory factory;
     private final Random rand = new Random();
     final Authorization auth = new Authorization();
     String email;
 
+    public McBase(Proxy proxy) {
+        this.factory = new NetHttpTransport.Builder().setProxy(proxy).build().createRequestFactory();
+        getAccessToken();
+    }
+
     public McBase() {
+        this.factory = new NetHttpTransport().createRequestFactory();
         getAccessToken();
     }
 
