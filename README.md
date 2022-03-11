@@ -16,7 +16,7 @@ allprojects {
 ```
 ```java
 dependencies {
-    implementation 'com.github.JicuNull:MCReverse:b31404f'
+    implementation 'com.github.JicuNull:MCReverse:ea37351'
 }
 ```
 Find more options here: **[Jitpack](https://jitpack.io/#JicuNull/MCReverse)**
@@ -27,8 +27,18 @@ Find more options here: **[Jitpack](https://jitpack.io/#JicuNull/MCReverse)**
 ```java
 McClient client = new McClient();
 ```
-You can log in with an existing account by calling `login(email, password)`.
+You can log in with an existing account by calling `login(email, password)`, where the default deviceId (75408e58622a88c6) is used.
+
+**NOTE** A deviceId must first be confirmed before a login with it is successful.
 ```java
 McClient client = new McClient();
 client.login("test@example.org", "123456");
 ```
+or using a custom deviceId
+```java
+McClient client = new McClient();
+client.login("test@example.org", "123456", "deviceId");
+```
+
+## Legal
+This code is in no way affiliated with, authorized, maintained, sponsored or endorsed by McDonald’s or any of its affiliates or subsidiaries. This is an independent and unofficial software. Use at your own risk.
