@@ -2,9 +2,10 @@ package icu.jnet.mcd.api.request;
 
 public class RedeemRequest implements Request {
 
-    private String propositionId, offerId;
+    private final int propositionId;
+    private final long offerId;
 
-    public RedeemRequest(String propositionId, String offerId) {
+    public RedeemRequest(int propositionId, long offerId) {
         this.propositionId = propositionId;
         this.offerId = offerId;
     }
@@ -12,6 +13,6 @@ public class RedeemRequest implements Request {
     @Override
     public String getUrl() {
         String url = "https://eu-prod.api.mcd.com/exp/v1/offers/redemption/" + propositionId;
-        return url + (offerId != null ? "?offerId=" + offerId : "");
+        return url + (offerId != 0 ? "?offerId=" + offerId : "");
     }
 }

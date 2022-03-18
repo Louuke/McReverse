@@ -93,11 +93,11 @@ public class McClient extends McBase {
         return queryGet(new OfferDetailsRequest(propositionId), OfferDetailsResponse.class);
     }
 
-    public RedeemResponse redeemCoupon(String propositionId) {
-        return redeemCoupon(propositionId, null);
+    public RedeemResponse redeemCoupon(int propositionId) {
+        return redeemCoupon(propositionId, 0);
     }
 
-    public RedeemResponse redeemCoupon(String propositionId, String offerId) {
+    public RedeemResponse redeemCoupon(int propositionId, long offerId) {
         return queryGet(new RedeemRequest(propositionId, offerId), RedeemResponse.class);
     }
 
