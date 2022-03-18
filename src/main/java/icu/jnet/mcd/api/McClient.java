@@ -101,6 +101,10 @@ public class McClient extends McBase {
         return queryGet(new RedeemRequest(propositionId, offerId), RedeemResponse.class);
     }
 
+    public Response cart() {
+        return queryPut(new CartRequest(), Response.class);
+    }
+
     public Response joinMyMcDonalds() {
         return queryPut(new ProfileRequest(userId, email, zipCode), Response.class);
     }
