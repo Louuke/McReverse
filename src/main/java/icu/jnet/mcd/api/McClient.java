@@ -89,7 +89,7 @@ public class McClient extends McBase {
         return queryGet(new OffersRequest(), OfferResponse.class);
     }
 
-    public OfferDetailsResponse getOfferDetails(String propositionId) {
+    public OfferDetailsResponse getOfferDetails(int propositionId) {
         return queryGet(new OfferDetailsRequest(propositionId), OfferDetailsResponse.class);
     }
 

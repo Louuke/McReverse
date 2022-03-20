@@ -2,9 +2,9 @@ package icu.jnet.mcd.api.request;
 
 public class OfferDetailsRequest implements Request {
 
-    private final String propositionId;
+    private final int propositionId;
 
-    public OfferDetailsRequest(String propositionId) {
+    public OfferDetailsRequest(int propositionId) {
         this.propositionId = propositionId;
     }
 
