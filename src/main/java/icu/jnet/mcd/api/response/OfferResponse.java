@@ -1,5 +1,6 @@
 package icu.jnet.mcd.api.response;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -8,7 +9,7 @@ public class OfferResponse extends Response {
     private HashMap<String, List<Offer>> response;
 
     public List<Offer> getOffers() {
-        return response.get("offers");
+        return response != null ? response.get("offers") : new ArrayList<>();
     }
 
     public static class Offer {

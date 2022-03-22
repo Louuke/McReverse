@@ -7,11 +7,11 @@ public class PointsResponse extends Response {
     private HashMap<String, Double> response;
 
     public double getTotalPoints() {
-        return response.get("totalPoints");
+        return response != null ? response.get("totalPoints") : 0;
     }
 
     public double getLifeTimePoints() {
-        return response.get("lifeTimePoints");
+        return response != null ? response.get("lifeTimePoints") : 0;
     }
 
 }
