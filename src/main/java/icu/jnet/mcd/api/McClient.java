@@ -114,31 +114,20 @@ public class McClient extends McBase {
         return queryPut(new ProfileRequest(userId, email, zipCode), Response.class);
     }
 
-    public EasterUploadResponse uploadAddress(EasterUploadRequest.UploadData data) {
-        String token = auth.getAccessToken().replace("Bearer ", "");
-        return queryPost(new EasterUploadRequest(userId, email, token, deviceId, data), EasterUploadResponse.class);
-    }
-
-    public EasterStateResponse getUserState() {
-        String token = auth.getAccessToken().replace("Bearer ", "");
-        Request request = new EasterStateRequest(userId, email, token, deviceId);
-        return queryGet(request, EasterStateResponse.class);
-    }
-
-    public EasterResponse participateEasterSpecial() {
+    public BigMacResponse participateBigSpecial() {
         String token = auth.getAccessToken().replace("Bearer ", "");
 
         // Find out, if we have participated
-        Request request = new EasterStatusRequest(token, email, userId);
-        EasterResponse statusResponse = queryPost(request, EasterResponse.class);
+        Request request = new BigMacStatusRequest(token, email, userId);
+        BigMacResponse statusResponse = queryPost(request, BigMacResponse.class);
 
-        if(statusResponse.success() && !statusResponse.hasParticipated()) {
-            Request eggRequest = new EasterEggRequest(userId, email, token, deviceId);
-            EasterEggResponse eggResponse = queryGet(eggRequest, EasterEggResponse.class);
+        if(!statusResponse.hasParticipated()) {
+            Request bigRequest = new BigMacPartRequest(token, email, userId);
+            BigMacResponse partResponse = queryPut(bigRequest, BigMacResponse.class);
 
-            if(eggResponse.success()) {
-                request = new EasterRequest(token, email, userId, deviceId, eggResponse.getId());
-                return queryPut(request, EasterResponse.class);
+            if(partResponse.hasParticipated()) {
+                System.out.println(email + ": " + partResponse.getCoupon().getHeadline());
+                return partResponse;
             }
         }
         return statusResponse;
