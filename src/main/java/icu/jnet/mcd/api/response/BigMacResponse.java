@@ -4,6 +4,7 @@ public class BigMacResponse extends Response {
 
     private Coupon coupon;
     private boolean participated;
+    private String userId;
 
     public Coupon getCoupon() {
         return coupon;

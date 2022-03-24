@@ -1,5 +1,6 @@
 package icu.jnet.mcd.api;
 
+import com.google.gson.GsonBuilder;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
@@ -126,7 +127,6 @@ public class McClient extends McBase {
             BigMacResponse partResponse = queryPut(bigRequest, BigMacResponse.class);
 
             if(partResponse.hasParticipated()) {
-                System.out.println(email + ": " + partResponse.getCoupon().getHeadline());
                 return partResponse;
             }
         }

@@ -16,6 +16,7 @@ public class OfferDetailsResponse extends Response {
         private boolean isDynamicExpiration, isExpired, isLocked, isSLPOffer, isvalidTotalOrder;
         private String imageBaseLanguage, imageBaseName, localValidFrom, localValidTo, longDescription, name, offerBucket;
         private Conditions conditions;
+        private RecurringInfo recurringInfo;
         private List<ProductSet> productSets;
         private List<String> restaurants;
 
@@ -91,6 +92,10 @@ public class OfferDetailsResponse extends Response {
             return conditions;
         }
 
+        public RecurringInfo getRecurringInfo() {
+            return recurringInfo;
+        }
+
         public List<ProductSet> getProductSets() {
             return productSets;
         }
@@ -158,6 +163,28 @@ public class OfferDetailsResponse extends Response {
 
         public double getValue() {
             return value;
+        }
+    }
+
+    public static class RecurringInfo {
+
+        private int maxRedemptionQuantity, maxRedemptionQuantityPerDay, maxRedemptionQuantityPerMonth,
+                maxRedemptionQuantityPerWeek;
+
+        public int getMaxRedemptionQuantity() {
+            return maxRedemptionQuantity;
+        }
+
+        public int getMaxRedemptionQuantityPerDay() {
+            return maxRedemptionQuantityPerDay;
+        }
+
+        public int getMaxRedemptionQuantityPerMonth() {
+            return maxRedemptionQuantityPerMonth;
+        }
+
+        public int getMaxRedemptionQuantityPerWeek() {
+            return maxRedemptionQuantityPerWeek;
         }
     }
 }
