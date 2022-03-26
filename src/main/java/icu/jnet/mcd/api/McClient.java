@@ -115,6 +115,10 @@ public class McClient extends McBase {
         return queryPut(new ProfileRequest(userId, email, zipCode), Response.class);
     }
 
+    public BigMacOptInResponse bigMacOptIn() {
+        return queryPost(new BigMacOptInRequest(), BigMacOptInResponse.class);
+    }
+
     public BigMacResponse participateBigSpecial() {
         String token = auth.getAccessToken().replace("Bearer ", "");
 
