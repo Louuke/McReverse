@@ -49,7 +49,7 @@ public class RegisterRequest implements Request {
 
     private static class Device {
         private final String deviceIdType = "AndroidId", isActive = "Y", os = "android",
-            osVersion = "9", timezone = "Europe/Berlin";
+            osVersion = "9", timezone = "Europe/Berlin", pushNotificationId = "c9ZdzkqwfgY:APA91bE910Kbyi2japDOTgwPtLM7Sl3UEMg_XdmtjSBpwRTXo4FH-_2pCtVzlbvbNPMNkRJN41B-5LZnK7ZDGH3namwOAXrjh-rhfVfSTXkh9DdFCZv99Joew7LJKokiUiUFuwdKZhnV";
         private String deviceId;
 
         public Device(String deviceId) {

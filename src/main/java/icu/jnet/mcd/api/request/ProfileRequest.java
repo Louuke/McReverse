@@ -15,6 +15,10 @@ public class ProfileRequest implements Request {
         this.customerInformation = new CustomerInformation(userId, emailAddress, zipCode);
     }
 
+    public ProfileRequest(String userId, String emailAddress, String zipCode, String deviceId) {
+        this.customerInformation = new CustomerInformation(userId, emailAddress, zipCode, deviceId);
+    }
+
     @Override
     public String getUrl() {
         return "https://eu-prod.api.mcd.com/exp/v1/customer/profile";
@@ -28,6 +32,12 @@ public class ProfileRequest implements Request {
         private final List<Address> address = new ArrayList<>();
         private final List<Email> email = new ArrayList<>();
         private final List<Subscription> subscriptions = new ArrayList<>();
+        private Device[] devices;
+
+        public CustomerInformation(String userId, String emailAddress, String zipCode, String deviceId) {
+            this(userId, emailAddress, zipCode);
+            devices = new Device[] {new Device(deviceId)};
+        }
 
         public CustomerInformation(String userId, String emailAddress, String zipCode) {
             this.hashedDcsId = userId;
@@ -65,6 +75,14 @@ public class ProfileRequest implements Request {
 
         public String getLastName() {
             return lastName;
+        }
+    }
+
+    public static class Device {
+        private final String deviceId, pushNotificationId = "c9ZdzkqwfgY:APA91bE910Kbyi2japDOTgwPtLM7Sl3UEMg_XdmtjSBpwRTXo4FH-_2pCtVzlbvbNPMNkRJN41B-5LZnK7ZDGH3namwOAXrjh-rhfVfSTXkh9DdFCZv99Joew7LJKokiUiUFuwdKZhnV";
+
+        public Device(String deviceId) {
+            this.deviceId = deviceId;
         }
     }
 

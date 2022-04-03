@@ -45,12 +45,16 @@ class McBase {
     private boolean loginRefresh() {
         Request request = new RefreshRequest(auth.getRefreshToken());
         LoginResponse login = queryPost(request, LoginResponse.class);
-        if(login.getStatus().getType().equals("Success")) {
+        if(success(login)) {
             auth.updateAccessToken(login.getAccessToken());
             auth.updateRefreshToken(login.getRefreshToken());
             return true;
         }
         return false;
+    }
+
+    boolean success(Response response) {
+        return response.getStatus().getType().equals("Success");
     }
 
     <T extends Response> T queryGet(Request request, Class<T> clazz)  {

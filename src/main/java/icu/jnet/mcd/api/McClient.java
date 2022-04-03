@@ -1,6 +1,5 @@
 package icu.jnet.mcd.api;
 
-import com.google.gson.GsonBuilder;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
@@ -29,9 +28,9 @@ public class McClient extends McBase {
         LoginResponse login = queryPost(request, LoginResponse.class);
         auth.updateAccessToken(login.getAccessToken());
         auth.updateRefreshToken(login.getRefreshToken());
-        if(login.getStatus().getType().contains("Success")) {
+        if(success(login)) {
             ProfileResponse profileResponse = getProfile();
-            if(profileResponse.getStatus().getType().contains("Success")) {
+            if(success(profileResponse)) {
                 this.email = email;
                 this.deviceId = deviceId;
                 this.userId = profileResponse.getInfo().getHashedDcsId();
@@ -49,7 +48,7 @@ public class McClient extends McBase {
     public boolean register(String email, String password, String zipCode, String deviceId) {
         Request request = new RegisterRequest(email, password, zipCode, deviceId);
         LoginResponse register = queryPost(request, LoginResponse.class);
-        return register.getStatus().getType().contains("Success");
+        return success(register);
     }
 
     public boolean activateAccount(String email, String activationCode) {
@@ -67,7 +66,7 @@ public class McClient extends McBase {
     private boolean activate(String email, String activationCode, String deviceId, String type) {
         Request request = new ActivationRequest(email, activationCode, deviceId, type);
         Response activate = queryPut(request, Response.class);
-        return activate.getStatus().getType().contains("Success");
+        return success(activate);
     }
 
     public Response deleteAccount() {
@@ -102,12 +101,8 @@ public class McClient extends McBase {
         return queryGet(new RedeemRequest(propositionId, offerId), RedeemResponse.class);
     }
 
-    public Response cart() {
-        return queryPut(new CartRequest(), Response.class);
-    }
-
     public Response joinMyMcDonalds() {
-        return queryPut(new ProfileRequest(userId, email, zipCode), Response.class);
+        return queryPut(new ProfileRequest(userId, email, zipCode, deviceId), Response.class);
     }
 
     public Response setZipCode(String zipCode) {

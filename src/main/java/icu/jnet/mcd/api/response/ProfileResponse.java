@@ -3,7 +3,6 @@ package icu.jnet.mcd.api.response;
 import icu.jnet.mcd.api.request.ProfileRequest;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
