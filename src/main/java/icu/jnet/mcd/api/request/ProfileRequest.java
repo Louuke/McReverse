@@ -7,16 +7,18 @@ import java.util.List;
 
 public class ProfileRequest implements Request {
 
-    private CustomerInformation customerInformation = null;
+    private final CustomerInformation customerInformation = new CustomerInformation();
 
     public ProfileRequest() {}
 
-    public ProfileRequest(String userId, String emailAddress, String zipCode) {
-        this.customerInformation = new CustomerInformation(userId, emailAddress, zipCode);
+    public ProfileRequest setZipCode(String zipCode) {
+        customerInformation.setZipCode(zipCode);
+        return this;
     }
 
-    public ProfileRequest(String userId, String emailAddress, String zipCode, String deviceId) {
-        this.customerInformation = new CustomerInformation(userId, emailAddress, zipCode, deviceId);
+    public ProfileRequest useMyMcDonalds(boolean b, String deviceId) {
+        customerInformation.useMyMcDonalds(b, deviceId);
+        return this;
     }
 
     @Override
@@ -26,29 +28,28 @@ public class ProfileRequest implements Request {
 
     public static class CustomerInformation {
 
-        private final String hashedDcsId;
         private final Base base = new Base();
         private final Audit audit = new Audit();
-        private final List<Address> address = new ArrayList<>();
-        private final List<Email> email = new ArrayList<>();
-        private final List<Subscription> subscriptions = new ArrayList<>();
+        private List<Address> address;
+        private List<Subscription> subscriptions;
         private Device[] devices;
 
-        public CustomerInformation(String userId, String emailAddress, String zipCode, String deviceId) {
-            this(userId, emailAddress, zipCode);
-            devices = new Device[] {new Device(deviceId)};
+        private void setZipCode(String zipCode) {
+            address = new ArrayList<>();
+            address.add(new Address(zipCode));
         }
 
-        public CustomerInformation(String userId, String emailAddress, String zipCode) {
-            this.hashedDcsId = userId;
-
+        private void useMyMcDonalds(boolean b, String deviceId) {
             String time = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString().replace("Z", "");
-            subscriptions.add(new Subscription(time, "Y", "24"));
-            subscriptions.add(new Subscription(time, "Y", "25"));
-            subscriptions.add(new Subscription(time, "N", "21"));
-            subscriptions.add(new Subscription(time, "Y", "23"));
-            email.add(new Email(emailAddress));
-            address.add(new Address(zipCode));
+            subscriptions = new ArrayList<>();
+            subscriptions.add(new Subscription(time, b ? "N" : "Y", "21"));
+            subscriptions.add(new Subscription(time, b ? "Y" : "N", "23"));
+            subscriptions.add(new Subscription(time, b ? "Y" : "N", "24"));
+            subscriptions.add(new Subscription(time, b ? "Y" : "N", "25"));
+
+            if(b) {
+                devices = new Device[] {new Device(deviceId)};
+            }
         }
     }
 

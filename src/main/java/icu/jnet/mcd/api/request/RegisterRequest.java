@@ -1,7 +1,5 @@
 package icu.jnet.mcd.api.request;
 
-import com.google.api.client.http.HttpContent;
-
 import java.util.HashMap;
 
 public class RegisterRequest implements Request {

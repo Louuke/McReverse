@@ -9,7 +9,7 @@ import java.net.Proxy;
 public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
-    private String deviceId = DEFAULT_DEVICE_ID, zipCode, userId;
+    private String deviceId = DEFAULT_DEVICE_ID, userId;
 
     public McClient(Proxy proxy) {
         super(proxy);
@@ -34,7 +34,6 @@ public class McClient extends McBase {
                 this.email = email;
                 this.deviceId = deviceId;
                 this.userId = profileResponse.getInfo().getHashedDcsId();
-                this.zipCode = profileResponse.getInfo().getZipCode();
                 return true;
             }
         }
@@ -101,13 +100,12 @@ public class McClient extends McBase {
         return queryGet(new RedeemRequest(propositionId, offerId), RedeemResponse.class);
     }
 
-    public Response joinMyMcDonalds() {
-        return queryPut(new ProfileRequest(userId, email, zipCode, deviceId), Response.class);
+    public Response useMyMcDonalds(boolean b) {
+        return queryPut(new ProfileRequest().useMyMcDonalds(b, deviceId), Response.class);
     }
 
     public Response setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-        return queryPut(new ProfileRequest(userId, email, zipCode), Response.class);
+        return queryPut(new ProfileRequest().setZipCode(zipCode), Response.class);
     }
 
     public BigMacOptInResponse bigMacOptIn() {
