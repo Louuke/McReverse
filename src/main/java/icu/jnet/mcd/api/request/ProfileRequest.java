@@ -42,10 +42,10 @@ public class ProfileRequest implements Request {
         private void useMyMcDonalds(boolean b, String deviceId) {
             String time = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString().replace("Z", "");
             subscriptions = new ArrayList<>();
-            subscriptions.add(new Subscription(time, b ? "N" : "Y", "21"));
-            subscriptions.add(new Subscription(time, b ? "Y" : "N", "23"));
-            subscriptions.add(new Subscription(time, b ? "Y" : "N", "24"));
-            subscriptions.add(new Subscription(time, b ? "Y" : "N", "25"));
+            subscriptions.add(new Subscription(time, b ? "N" : "Y", "Secondary Processing", "21"));
+            subscriptions.add(new Subscription(time, b ? "Y" : "N", "Personal Marketing", "23"));
+            subscriptions.add(new Subscription(time, b ? "Y" : "N", "Loyalty Enrollment", "24"));
+            subscriptions.add(new Subscription(time, b ? "Y" : "N", "Loyalty Communication", "25"));
 
             if(b) {
                 devices = new Device[] {new Device(deviceId)};
@@ -54,12 +54,19 @@ public class ProfileRequest implements Request {
     }
 
     public static class Subscription {
-        private final String optInDate, optInStatus, subscriptionId;
+        private final String optInStatus, subscriptionDesc, subscriptionId;
+        private String optInDate, optOutDate;
 
-        public Subscription(String optInDate, String optInStatus, String subscriptionId) {
-            this.optInDate = optInDate;
+        public Subscription(String optDate, String optInStatus, String subscriptionDesc, String subscriptionId) {
             this.optInStatus = optInStatus;
+            this.subscriptionDesc = subscriptionDesc;
             this.subscriptionId = subscriptionId;
+
+            if(optInStatus.equals("Y")) {
+                this.optInDate = optDate;
+            } else {
+                this.optOutDate = optDate;
+            }
         }
     }
 
