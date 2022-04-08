@@ -111,20 +111,20 @@ class McBase {
         } catch (HttpResponseException e) {
             try {
                 Response response = gson.fromJson(e.getContent(), Response.class);
-                if(response.getStatus().getErrors().size() > 0
+                if(!response.getStatus().getErrors().isEmpty()
                         && response.getStatus().getErrors().get(0).getErrorType().equals("JWTTokenExpired")) { // Authorization expired
-                    if(loginRefresh() && !auth.getRefreshToken().isEmpty()) {
+                    if(loginRefresh()) {
                         return query(request, clazz);
                     }
                 } else {
-                    System.out.println(email + ": " + e.getContent());
+                    System.out.println(email + ": " + clazz.getSimpleName() + " : " + e.getContent());
                 }
             } catch (JsonSyntaxException e2) {
                 System.out.println(e.getContent());
                 e2.printStackTrace();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return createInstance(clazz);
     }
