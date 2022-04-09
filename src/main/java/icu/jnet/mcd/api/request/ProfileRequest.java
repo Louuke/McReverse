@@ -36,7 +36,6 @@ public class ProfileRequest implements Request {
         private Subscription[] subscriptions;
         private Preference[] preferences;
         private Device[] devices;
-        private final Email[] email = new Email[] {new Email()};
         private final Object[] phone = new Object[0];
 
         private void setZipCode(String zipCode) {
@@ -68,11 +67,10 @@ public class ProfileRequest implements Request {
                     new Preference("Y", "Y", 10), new Preference(11),
                     new Preference("Y", 12), new Preference("Y", 13),
                     new Preference("Y", 14), new Preference("Y", 15),
-                    new Preference("Y", 16), new Preference("Y", 16),
-                    new Preference("Y", 17), new Preference("Y", 18),
-                    new Preference("Y", 19), new Preference("Y", 20),
-                    new Preference("Y", 21), new Preference("Y", 22),
-            };
+                    new Preference("Y", 16), new Preference("Y", 17),
+                    new Preference("Y", 18), new Preference("Y", 19),
+                    new Preference("Y", 20), new Preference("Y", 21),
+                    new Preference("Y", 22)};
 
             if(b) {
                 devices = new Device[] {new Device(deviceId)};
@@ -115,7 +113,11 @@ public class ProfileRequest implements Request {
     }
 
     private static class Email {
-        private final String verifiedInd = "Y";
+        private final String activeInd = "Y", verifiedInd = "Y", emailAddress;
+
+        private Email(String emailAddress) {
+            this.emailAddress = emailAddress;
+        }
     }
 
     public static class Address {
