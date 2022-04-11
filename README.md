@@ -1,7 +1,7 @@
 # MCReverse
- Reverse engineered implementation of the **german** McDonald's Android API in Java
+ Reverse engineered library for the **german** McDonald's API in Java 
 
-### Used by McCoupon
+## Used by McCoupon
 Please feel free to check out and use my website **[McCoupon.deals](https://www.mccoupon.deals)** the next time you 
 visit McDonald's to get access to basically unlimited amounts of coupons without using the app :)
 
@@ -16,7 +16,7 @@ allprojects {
 ```
 ```java
 dependencies {
-    implementation 'com.github.JicuNull:MCReverse:ea37351'
+    implementation 'com.github.JicuNull:MCReverse:0e8df13'
 }
 ```
 Find more options here: **[Jitpack](https://jitpack.io/#JicuNull/MCReverse)**
