@@ -29,8 +29,9 @@ public class McClient extends McBase {
         auth.updateAccessToken(login.getAccessToken());
         auth.updateRefreshToken(login.getRefreshToken());
         if(success(login)) {
+            Response locationResponse = setLocation(email);
             ProfileResponse profileResponse = getProfile();
-            if(success(profileResponse)) {
+            if(success(locationResponse) && success(profileResponse)) {
                 this.email = email;
                 this.deviceId = deviceId;
                 this.userId = profileResponse.getInfo().getHashedDcsId();
@@ -45,9 +46,7 @@ public class McClient extends McBase {
     }
 
     public boolean register(String email, String password, String zipCode, String deviceId) {
-        Request request = new RegisterRequest(email, password, zipCode, deviceId);
-        LoginResponse register = queryPost(request, LoginResponse.class);
-        return success(register);
+        return success(queryPost(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class));
     }
 
     public boolean activateAccount(String email, String activationCode) {
@@ -112,21 +111,24 @@ public class McClient extends McBase {
         return queryPost(new BigMacOptInRequest(), BigMacOptInResponse.class);
     }
 
-    public BigMacResponse participateBigSpecial() {
+    public RaffleResponse participateRaffle() {
         String token = auth.getAccessToken().replace("Bearer ", "");
 
         // Find out, if we have participated
-        Request request = new BigMacStatusRequest(token, email, userId);
-        BigMacResponse statusResponse = queryPost(request, BigMacResponse.class);
+        RaffleResponse statusResponse = queryPost(new RaffleStatusRequest(token, email, userId), RaffleResponse.class);
 
         if(!statusResponse.hasParticipated()) {
-            Request bigRequest = new BigMacPartRequest(token, email, userId);
-            BigMacResponse partResponse = queryPut(bigRequest, BigMacResponse.class);
+            Request bigRequest = new RafflePartRequest(token, email, userId, deviceId);
+            RaffleResponse partResponse = queryPut(bigRequest, RaffleResponse.class);
 
             if(partResponse.hasParticipated()) {
                 return partResponse;
             }
         }
         return statusResponse;
+    }
+
+    private Response setLocation(String email) {
+        return queryPost(new LocationRequest(email), Response.class);
     }
 }

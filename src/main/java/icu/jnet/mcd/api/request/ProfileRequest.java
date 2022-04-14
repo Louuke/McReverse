@@ -112,14 +112,6 @@ public class ProfileRequest implements Request {
         }
     }
 
-    private static class Email {
-        private final String activeInd = "Y", verifiedInd = "Y", emailAddress;
-
-        private Email(String emailAddress) {
-            this.emailAddress = emailAddress;
-        }
-    }
-
     public static class Address {
         private final String activeInd = "N", addressType = "home", allowPromotions = "N", primaryInd = "Y";
         private final List<Address.Details> details = new ArrayList<>();
