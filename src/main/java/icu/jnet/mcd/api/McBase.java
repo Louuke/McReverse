@@ -7,7 +7,6 @@ import com.google.gson.JsonSyntaxException;
 import icu.jnet.mcd.api.request.AccessRequest;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.api.request.Request;
-import icu.jnet.mcd.api.response.status.Status;
 import icu.jnet.mcd.auth.Authorization;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.AuthResponse;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Authenticator;
 import java.net.Proxy;
-import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 class McBase {
@@ -29,33 +27,21 @@ class McBase {
 
     public McBase(Proxy proxy) {
         this.factory = new NetHttpTransport.Builder().setProxy(proxy).build().createRequestFactory();
-        getAccessToken();
     }
 
     public McBase() {
         this.factory = new NetHttpTransport().createRequestFactory();
-        getAccessToken();
     }
 
     public void setAuthenticator(Authenticator authenticator) {
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
         Authenticator.setDefault(authenticator);
     }
 
-    private void getAccessToken() {
-        Request request = new AccessRequest();
-        AuthResponse authResponse = queryPost(request, AuthResponse.class);
+    AuthResponse getAccessToken() {
+        AuthResponse authResponse = queryPost(new AccessRequest(), AuthResponse.class);
         auth.updateAccessToken(authResponse.getToken());
-    }
-
-    private boolean loginRefresh() {
-        Request request = new RefreshRequest(auth.getRefreshToken());
-        LoginResponse login = queryPost(request, LoginResponse.class);
-        if(success(login)) {
-            auth.updateAccessToken(login.getAccessToken());
-            auth.updateRefreshToken(login.getRefreshToken());
-            return true;
-        }
-        return false;
+        return authResponse;
     }
 
     boolean success(Response response) {
@@ -131,6 +117,17 @@ class McBase {
             System.out.println(e.getMessage());
         }
         return createInstance(clazz);
+    }
+
+    private boolean loginRefresh() {
+        Request request = new RefreshRequest(auth.getRefreshToken());
+        LoginResponse login = queryPost(request, LoginResponse.class);
+        if(success(login)) {
+            auth.updateAccessToken(login.getAccessToken());
+            auth.updateRefreshToken(login.getRefreshToken());
+            return true;
+        }
+        return false;
     }
 
     private void setRequestHeaders(HttpRequest request) {

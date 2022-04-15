@@ -24,18 +24,20 @@ public class McClient extends McBase {
     }
 
     public boolean login(@Nonnull String email, @Nonnull String password, @Nonnull String deviceId) {
-        Request request = new LoginRequest(email, password, deviceId);
-        LoginResponse login = queryPost(request, LoginResponse.class);
-        auth.updateAccessToken(login.getAccessToken());
-        auth.updateRefreshToken(login.getRefreshToken());
-        if(success(login)) {
-            Response locationResponse = setLocation(email);
-            ProfileResponse profileResponse = getProfile();
-            if(success(locationResponse) && success(profileResponse)) {
-                this.email = email;
-                this.deviceId = deviceId;
-                this.userId = profileResponse.getInfo().getHashedDcsId();
-                return true;
+        AuthResponse authResponse = getAccessToken();
+        if(success(authResponse)) {
+            LoginResponse login = queryPost(new LoginRequest(email, password, deviceId), LoginResponse.class);
+            auth.updateAccessToken(login.getAccessToken());
+            auth.updateRefreshToken(login.getRefreshToken());
+            if(success(login)) {
+                Response locationResponse = setLocation(email);
+                ProfileResponse profileResponse = getProfile();
+                if(success(locationResponse) && success(profileResponse)) {
+                    this.email = email;
+                    this.deviceId = deviceId;
+                    this.userId = profileResponse.getInfo().getHashedDcsId();
+                    return true;
+                }
             }
         }
         return false;
@@ -62,9 +64,7 @@ public class McClient extends McBase {
     }
 
     private boolean activate(String email, String activationCode, String deviceId, String type) {
-        Request request = new ActivationRequest(email, activationCode, deviceId, type);
-        Response activate = queryPut(request, Response.class);
-        return success(activate);
+        return success(queryPut(new ActivationRequest(email, activationCode, deviceId, type), Response.class));
     }
 
     public Response deleteAccount() {
