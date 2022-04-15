@@ -15,6 +15,7 @@ import icu.jnet.mcd.api.response.LoginResponse;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.Authenticator;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
@@ -34,6 +35,10 @@ class McBase {
     public McBase() {
         this.factory = new NetHttpTransport().createRequestFactory();
         getAccessToken();
+    }
+
+    public void setAuthenticator(Authenticator authenticator) {
+        Authenticator.setDefault(authenticator);
     }
 
     private void getAccessToken() {
