@@ -2,16 +2,19 @@ package icu.jnet.mcd.api;
 
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
-
-import javax.annotation.Nonnull;
-import java.net.Proxy;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.Credentials;
 
 public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
     private String deviceId = DEFAULT_DEVICE_ID, userId;
 
-    public McClient(Proxy proxy) {
+    public McClient(HttpHost proxy, Credentials credentials) {
+        super(proxy, credentials);
+    }
+
+    public McClient(HttpHost proxy) {
         super(proxy);
     }
 
@@ -19,11 +22,11 @@ public class McClient extends McBase {
         super();
     }
 
-    public boolean login(@Nonnull String email, @Nonnull String password) {
+    public boolean login(String email, String password) {
         return login(email, password, DEFAULT_DEVICE_ID);
     }
 
-    public boolean login(@Nonnull String email, @Nonnull String password, @Nonnull String deviceId) {
+    public boolean login(String email, String password, String deviceId) {
         AuthResponse authResponse = getAccessToken();
         if(success(authResponse)) {
             LoginResponse login = queryPost(new LoginRequest(email, password, deviceId), LoginResponse.class);
@@ -107,10 +110,6 @@ public class McClient extends McBase {
         return queryPut(new ProfileRequest().setZipCode(zipCode), Response.class);
     }
 
-    public BigMacOptInResponse bigMacOptIn() {
-        return queryPost(new BigMacOptInRequest(), BigMacOptInResponse.class);
-    }
-
     public RaffleResponse participateRaffle() {
         String token = auth.getAccessToken().replace("Bearer ", "");
 
@@ -126,6 +125,12 @@ public class McClient extends McBase {
             }
         }
         return statusResponse;
+    }
+
+    private AuthResponse getAccessToken() {
+        AuthResponse authResponse = queryPost(new AccessRequest(), AuthResponse.class);
+        auth.updateAccessToken(authResponse.getToken());
+        return authResponse;
     }
 
     private Response setLocation(String email) {

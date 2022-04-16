@@ -1,119 +1,93 @@
 package icu.jnet.mcd.api;
 
-import com.google.api.client.http.*;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import icu.jnet.mcd.api.request.AccessRequest;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.api.request.Request;
 import icu.jnet.mcd.auth.Authorization;
 import icu.jnet.mcd.api.response.Response;
-import icu.jnet.mcd.api.response.AuthResponse;
 import icu.jnet.mcd.api.response.LoginResponse;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.*;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 
+import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.Authenticator;
-import java.net.Proxy;
 import java.util.Random;
 
 class McBase {
 
-    private final HttpRequestFactory factory;
+    private final HttpClientBuilder builder = HttpClientBuilder.create().disableCookieManagement();
     private final Random rand = new Random();
     final Authorization auth = new Authorization();
     String email;
 
-    public McBase(Proxy proxy) {
-        this.factory = new NetHttpTransport.Builder().setProxy(proxy).build().createRequestFactory();
+    public McBase(HttpHost proxy, Credentials credentials) {
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT), credentials);
+        this.builder.setProxy(proxy).setDefaultCredentialsProvider(credsProvider);
     }
 
-    public McBase() {
-        this.factory = new NetHttpTransport().createRequestFactory();
+    public McBase(HttpHost proxy) {
+        this.builder.setProxy(proxy);
     }
 
-    public void setAuthenticator(Authenticator authenticator) {
-        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-        Authenticator.setDefault(authenticator);
-    }
-
-    AuthResponse getAccessToken() {
-        AuthResponse authResponse = queryPost(new AccessRequest(), AuthResponse.class);
-        auth.updateAccessToken(authResponse.getToken());
-        return authResponse;
-    }
+    public McBase() {}
 
     boolean success(Response response) {
         return response.getStatus().getType().equals("Success");
     }
 
     <T extends Response> T queryGet(Request request, Class<T> clazz)  {
-        try {
-            String url = request.getUrl();
-            HttpRequest httpRequest = factory.buildGetRequest(new GenericUrl(url));
-            return query(httpRequest, clazz);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return createInstance(clazz);
+        HttpGet httpRequest = new HttpGet(request.getUrl());
+        return query(httpRequest, null, clazz);
     }
 
     <T extends Response> T queryPost(Request request, Class<T> clazz) {
-        try {
-            String url = request.getUrl();
-            HttpContent httpContent = request.getContent();
-            HttpRequest httpRequest = factory.buildPostRequest(new GenericUrl(url), httpContent);
-            return query(httpRequest, clazz);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return createInstance(clazz);
+        HttpEntity httpContent = request.getContent();
+        HttpPost httpRequest = new HttpPost(request.getUrl());
+        httpRequest.setEntity(httpContent);
+        return query(httpRequest, httpContent.getContentType().getValue(), clazz);
     }
 
     <T extends Response> T queryDelete(Request request, Class<T> clazz) {
-        try {
-            String url = request.getUrl();
-            HttpRequest httpRequest = factory.buildDeleteRequest(new GenericUrl(url));
-            return query(httpRequest, clazz);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return createInstance(clazz);
+        HttpDelete httpRequest = new HttpDelete(request.getUrl());
+        return query(httpRequest, null, clazz);
     }
 
     <T extends Response> T queryPut(Request request, Class<T> clazz) {
-        try {
-            String url = request.getUrl();
-            HttpContent httpContent = request.getContent();
-            HttpRequest httpRequest = factory.buildPutRequest(new GenericUrl(url), httpContent);
-            return query(httpRequest, clazz);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return createInstance(clazz);
+        HttpEntity httpContent = request.getContent();
+        HttpPut httpRequest = new HttpPut(request.getUrl());
+        httpRequest.setEntity(httpContent);
+        return query(httpRequest, httpContent.getContentType().getValue(), clazz);
     }
 
-    private <T extends Response> T query(HttpRequest request, Class<T> clazz) {
+    private <T extends Response> T query(HttpUriRequest request, String type, Class<T> clazz) {
         Gson gson = new Gson();
-        try {
-            setRequestHeaders(request);
-            return gson.fromJson(request.execute().parseAsString(), clazz);
-        } catch (HttpResponseException e) {
-            try {
-                Response response = gson.fromJson(e.getContent(), Response.class);
-                if(response != null && !response.getStatus().getErrors().isEmpty()
-                        && response.getStatus().getErrors().get(0).getErrorType().equals("JWTTokenExpired")) { // Authorization expired
-                    if(loginRefresh()) {
-                        return query(request, clazz);
-                    }
-                } else {
-                    System.out.println(email + ": " + clazz.getSimpleName() + " : " + e.getContent());
+        setRequestHeaders(request, type);
+        try(CloseableHttpClient client = builder.build()) {
+            HttpResponse response = client.execute(request);
+            T cResponse = gson.fromJson(EntityUtils.toString(response.getEntity()), clazz);
+            if(cResponse != null && cResponse.getStatus().getErrors().stream()
+                    .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
+                if(loginRefresh()) {
+                    return query(request, type, clazz);
                 }
-            } catch (JsonSyntaxException e2) {
-                System.out.println(e.getContent());
+            } else {
+                return cResponse;
             }
-        } catch (IOException e) {
+
+        } catch (JsonSyntaxException | IOException e) {
             System.out.println(e.getMessage());
         }
         return createInstance(clazz);
@@ -130,22 +104,20 @@ class McBase {
         return false;
     }
 
-    private void setRequestHeaders(HttpRequest request) {
+    private void setRequestHeaders(HttpUriRequest request, String type) {
         String token = !auth.getAccessToken().isEmpty()
                 ? auth.getAccessToken()
                 : "Basic NkRFVXlKT0thQm96OFFSRm00OXFxVklWUGowR1V6b0g6NWltaDZOS1UzdjVDVWlmVHZIUTdFeEY4ZXhrbWFOamI=";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
-        headers.set("authorization", token);
-        headers.set("accept-charset", "UTF-8");
-        headers.set("content-type", request.getContent() != null ? request.getContent().getType() : "application/json;");
-        headers.set("accept-language", "de-DE");
-        headers.setUserAgent("MCDSDK/15.0.44 (Android; 28; de-DE) GMA/7.6");
-        headers.set("mcd-sourceapp", "GMA");
-        headers.set("mcd-uuid", (rand.nextInt(90000) + 10000) + "c4d-e5df-4cbe-92e9-702ca00ddc4c"); // Can not be fully random?
-        headers.set("mcd-marketid", "DE");
-        request.setHeaders(headers);
+        request.setHeader("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
+        request.setHeader("authorization", token);
+        request.setHeader("accept-charset", "UTF-8");
+        request.setHeader("content-type", type != null ? type.replace("charset=UTF-8", "") : "application/json;");
+        request.setHeader("accept-language", "de-DE");
+        request.setHeader("user-agent", "MCDSDK/15.0.44 (Android; 28; de-DE) GMA/7.6");
+        request.setHeader("mcd-sourceapp", "GMA");
+        request.setHeader("mcd-uuid", (rand.nextInt(90000) + 10000) + "c4d-e5df-4cbe-92e9-702ca00ddc4c"); // Can not be fully random?
+        request.setHeader("mcd-marketid", "DE");
     }
 
     private <T> T createInstance(Class<T> clazz) {

@@ -7,11 +7,12 @@ public class Status {
 
     private final int code = -1;
     private final String message, type;
-    private final List<Error> errors = new ArrayList<>();
+    private final List<Error> errors;
 
-    public Status(String message, String type) {
+    public Status(String message, String type, List<Error> errors) {
         this.message = message;
         this.type = type;
+        this.errors = errors;
     }
 
     public int getCode() {
@@ -27,7 +28,7 @@ public class Status {
     }
 
     public List<Error> getErrors() {
-        return errors;
+        return errors != null ? errors : new ArrayList<>();
     }
 
     public static class Error {
