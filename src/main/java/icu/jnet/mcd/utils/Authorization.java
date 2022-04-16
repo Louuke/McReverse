@@ -1,4 +1,4 @@
-package icu.jnet.mcd.auth;
+package icu.jnet.mcd.utils;
 
 public class Authorization {
 

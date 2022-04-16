@@ -4,23 +4,23 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.api.request.Request;
-import icu.jnet.mcd.auth.Authorization;
+import icu.jnet.mcd.utils.Authorization;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
+import icu.jnet.mcd.utils.ProxyModel;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
-import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
@@ -32,14 +32,12 @@ class McBase {
     final Authorization auth = new Authorization();
     String email;
 
-    public McBase(HttpHost proxy, Credentials credentials) {
+    public McBase(ProxyModel proxy) {
+        Credentials credentials = new UsernamePasswordCredentials(proxy.getUser(), proxy.getPassword());
+        HttpHost proxyHost = new HttpHost(proxy.getHost(), proxy.getPort());
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT), credentials);
-        this.builder.setProxy(proxy).setDefaultCredentialsProvider(credsProvider);
-    }
-
-    public McBase(HttpHost proxy) {
-        this.builder.setProxy(proxy);
+        this.builder.setProxy(proxyHost).setDefaultCredentialsProvider(credsProvider);
     }
 
     public McBase() {}
