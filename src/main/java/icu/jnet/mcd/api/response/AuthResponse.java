@@ -7,10 +7,10 @@ public class AuthResponse extends Response {
     private HashMap<String, Object> response;
 
     public int getExpires() {
-        return (int) response.get("expires");
+        return response != null ? (int) response.get("expires") : 0;
     }
 
     public String getToken() {
-        return (String) response.get("token");
+        return response != null ? (String) response.get("token") : "";
     }
 }

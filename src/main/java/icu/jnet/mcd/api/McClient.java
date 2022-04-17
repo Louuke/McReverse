@@ -3,8 +3,6 @@ package icu.jnet.mcd.api;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 import icu.jnet.mcd.utils.ProxyModel;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.Credentials;
 
 public class McClient extends McBase {
 
