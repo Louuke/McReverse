@@ -1,4 +1,4 @@
-package icu.jnet.mcd.utils;
+package icu.jnet.mcd.model;
 
 public class ProxyModel {
 
