@@ -4,6 +4,9 @@ import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 import icu.jnet.mcd.model.ProxyModel;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
@@ -120,6 +123,14 @@ public class McClient extends McBase {
             }
         }
         return statusResponse;
+    }
+
+    public boolean usesMyMcDonalds() {
+        return queryGet(new ProfileRequest(), ProfileResponse.class).getInfo().getSubscriptions().stream()
+                .filter(sub -> sub.getOptInStatus().equals("Y")
+                        && Arrays.asList("23", "24", "25").contains(sub.getSubscriptionId())
+                        || sub.getOptInStatus().equals("N")
+                        && sub.getSubscriptionId().equals("21")).count() == 4;
     }
 
     private AuthResponse getAccessToken() {

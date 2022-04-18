@@ -16,11 +16,13 @@ public class ProfileResponse extends Response {
 
     public static class CustomerInformation {
 
-        private final List<ProfileRequest.Address> address = new ArrayList<>();
+        private ProfileRequest.Address[] address;
 
         private String hashedDcsId, languageCode, marketCode;
-        private Base base;
+        private ProfileRequest.Base base;
         private Devices[] devices;
+
+        private List<ProfileRequest.Subscription> subscriptions;
 
         public String getHashedDcsId() {
             return hashedDcsId;
@@ -34,32 +36,20 @@ public class ProfileResponse extends Response {
             return marketCode;
         }
 
-        public Base getBase() {
+        public ProfileRequest.Base getBase() {
             return base;
         }
 
         public String getZipCode() {
-            return address.get(0).getDetails().get(0).getAddressLineDetails().getZipCode();
+            return address != null ? address[0].getDetails().get(0).getAddressLineDetails().getZipCode() : "00000";
         }
 
         public Devices[] getDevices() {
             return devices;
         }
-    }
 
-    public static class Base {
-        private String firstName, lastName, username;
-
-        public String getFirstName() {
-            return firstName;
-        }
-
-        public String getLastName() {
-            return lastName;
-        }
-
-        public String getUsername() {
-            return username;
+        public List<ProfileRequest.Subscription> getSubscriptions() {
+            return subscriptions != null ? subscriptions : new ArrayList<>();
         }
     }
 

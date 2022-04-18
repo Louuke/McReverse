@@ -78,7 +78,7 @@ public class ProfileRequest implements Request {
         }
     }
 
-    private static class Subscription {
+    public static class Subscription {
         private final String optInStatus, subscriptionDesc, subscriptionId;
         private String optInDate, optOutDate;
 
@@ -93,14 +93,39 @@ public class ProfileRequest implements Request {
                 this.optOutDate = optDate;
             }
         }
+
+        public String getSubscriptionId() {
+            return subscriptionId;
+        }
+
+        public String getOptInStatus() {
+            return optInStatus;
+        }
+
+        public String getSubscriptionDesc() {
+            return subscriptionDesc;
+        }
     }
 
     private static class Audit {
         private final String registrationChannel = "M";
     }
 
-    private static class Base {
+    public static class Base {
         private final String firstName = "M", lastName = "M";
+        private String username;
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public String getUsername() {
+            return username;
+        }
     }
 
     private static class Device {
