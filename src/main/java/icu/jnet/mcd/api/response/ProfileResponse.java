@@ -11,7 +11,7 @@ public class ProfileResponse extends Response {
     private HashMap<String, CustomerInformation> response;
 
     public CustomerInformation getInfo() {
-        return response.get("customerInformation");
+        return response != null ? response.get("customerInformation") : new CustomerInformation();
     }
 
     public static class CustomerInformation {
