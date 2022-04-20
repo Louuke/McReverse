@@ -5,7 +5,6 @@ import icu.jnet.mcd.api.response.*;
 import icu.jnet.mcd.model.ProxyModel;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class McClient extends McBase {
 
@@ -109,7 +108,7 @@ public class McClient extends McBase {
     }
 
     public RaffleResponse participateRaffle() {
-        String token = auth.getAccessToken().replace("Bearer ", "");
+        String token = auth.getBareToken();
 
         // Find out, if we have participated
         RaffleResponse statusResponse = queryPost(new RaffleStatusRequest(token, email, userId), RaffleResponse.class);

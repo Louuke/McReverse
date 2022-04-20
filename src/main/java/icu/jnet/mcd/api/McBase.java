@@ -93,8 +93,7 @@ class McBase {
     }
 
     private boolean loginRefresh() {
-        Request request = new RefreshRequest(auth.getRefreshToken());
-        LoginResponse login = queryPost(request, LoginResponse.class);
+        LoginResponse login = queryPost(new RefreshRequest(auth.getRefreshToken()), LoginResponse.class);
         if(success(login)) {
             auth.updateAccessToken(login.getAccessToken());
             auth.updateRefreshToken(login.getRefreshToken());

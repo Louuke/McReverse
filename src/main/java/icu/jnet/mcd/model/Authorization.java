@@ -25,4 +25,8 @@ public class Authorization {
     public String getRefreshToken() {
         return refreshToken != null ? refreshToken : "";
     }
+
+    public String getBareToken() {
+        return getAccessToken().replace("Bearer ", "");
+    }
 }
