@@ -25,14 +25,14 @@ public class McClient extends McBase {
 
     public boolean login(String email, String password, String deviceId) {
         AuthResponse authResponse = getAccessToken();
+        setNotification();
         if(success(authResponse)) {
             LoginResponse login = queryPost(new LoginRequest(email, password, deviceId), LoginResponse.class);
             auth.updateAccessToken(login.getAccessToken());
             auth.updateRefreshToken(login.getRefreshToken());
             if(success(login)) {
-                Response locationResponse = setLocation(email);
                 ProfileResponse profileResponse = getProfile();
-                if(success(locationResponse) && success(profileResponse)) {
+                if(success(profileResponse)) {
                     this.email = email;
                     this.deviceId = deviceId;
                     this.userId = profileResponse.getInfo().getHashedDcsId();
@@ -48,7 +48,11 @@ public class McClient extends McBase {
     }
 
     public boolean register(String email, String password, String zipCode, String deviceId) {
-        return success(queryPost(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class));
+        AuthResponse authResponse = getAccessToken();
+        if(success(authResponse)) {
+            return success(queryPost(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class));
+        }
+        return false;
     }
 
     public boolean activateAccount(String email, String activationCode) {
@@ -138,7 +142,11 @@ public class McClient extends McBase {
         return authResponse;
     }
 
-    private Response setLocation(String email) {
+    public Response setLocation() {
         return queryPost(new LocationRequest(email), Response.class);
+    }
+
+    public Response setNotification() {
+        return queryPost(new NotificationRequest(), Response.class);
     }
 }
