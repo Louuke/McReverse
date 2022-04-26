@@ -24,9 +24,7 @@ public class McClient extends McBase {
     }
 
     public boolean login(String email, String password, String deviceId) {
-        AuthResponse authResponse = getAccessToken();
-        setNotification();
-        if(success(authResponse)) {
+        if(success(getAccessToken())) {
             LoginResponse login = queryPost(new LoginRequest(email, password, deviceId), LoginResponse.class);
             auth.updateAccessToken(login.getAccessToken());
             auth.updateRefreshToken(login.getRefreshToken());
@@ -48,11 +46,7 @@ public class McClient extends McBase {
     }
 
     public boolean register(String email, String password, String zipCode, String deviceId) {
-        AuthResponse authResponse = getAccessToken();
-        if(success(authResponse)) {
-            return success(queryPost(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class));
-        }
-        return false;
+        return success(getAccessToken()) && success(queryPost(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class));
     }
 
     public boolean activateAccount(String email, String activationCode) {
@@ -68,7 +62,7 @@ public class McClient extends McBase {
     }
 
     private boolean activate(String email, String activationCode, String deviceId, String type) {
-        return success(queryPut(new ActivationRequest(email, activationCode, deviceId, type), Response.class));
+        return success(getAccessToken()) && success(queryPut(new ActivationRequest(email, activationCode, deviceId, type), Response.class));
     }
 
     public Response deleteAccount() {
