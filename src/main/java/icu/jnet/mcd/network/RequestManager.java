@@ -8,12 +8,12 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class RequestManager {
+class RequestManager {
 
     private static final Map<String, Queue<HttpRequest>> restMap = new ConcurrentHashMap<>();
     private static final Map<String, Long> timeMap = new ConcurrentHashMap<>();
 
-    public static void addAndWait(HttpRequest request, ProxyModel proxy) {
+    static void addAndWait(HttpRequest request, ProxyModel proxy) {
         String host = getHost(proxy);
         if(!restMap.containsKey(host)) {
             Queue<HttpRequest> queue = new ConcurrentLinkedQueue<>();
@@ -29,7 +29,7 @@ public class RequestManager {
         }
     }
 
-    public static void removeRequest(HttpRequest request, ProxyModel proxy) {
+    static void removeRequest(HttpRequest request, ProxyModel proxy) {
         String host = getHost(proxy);
         timeMap.put(host, System.currentTimeMillis());
         restMap.get(host).remove(request);

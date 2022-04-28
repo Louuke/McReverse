@@ -97,6 +97,10 @@ public class McClient extends McBase {
         return queryGet(new RedeemRequest(propositionId, offerId), RedeemResponse.class);
     }
 
+    public BonusPointsResponse getPointsBonuses() {
+        return queryGet(new BonusPointsRequest(), BonusPointsResponse.class);
+    }
+
     public Response useMyMcDonalds(boolean b) {
         return queryPut(new ProfileRequest().useMyMcDonalds(b, deviceId), Response.class);
     }
