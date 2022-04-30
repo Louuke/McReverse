@@ -23,7 +23,7 @@ class RequestManager {
             restMap.get(host).add(request);
         }
 
-        while(timeMap.containsKey(host) && System.currentTimeMillis() - timeMap.get(host) <= 125
+        while(timeMap.containsKey(host) && System.currentTimeMillis() - timeMap.get(host) <= 225
             && restMap.get(host).peek() == request) {
             waitMill();
         }
