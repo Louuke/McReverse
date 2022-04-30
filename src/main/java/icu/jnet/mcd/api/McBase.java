@@ -112,7 +112,7 @@ class McBase {
         request.setHeader("accept-charset", "UTF-8");
         request.setHeader("content-type", type != null ? type.replace("charset=UTF-8", "") : "application/json;");
         request.setHeader("accept-language", "de-DE");
-        request.setHeader("user-agent", "MCDSDK/15.0.44 (Android; 28; de-DE) GMA/7.6");
+        request.setHeader("user-agent", "MCDSDK/19.0.57 (Android; 28; de-DE) GMA/7.7");
         request.setHeader("mcd-sourceapp", "GMA");
         request.setHeader("mcd-uuid", (rand.nextInt(90000) + 10000) + "c4d-e5df-4cbe-92e9-702ca00ddc4c"); // Can not be fully random?
         request.setHeader("mcd-marketid", "DE");

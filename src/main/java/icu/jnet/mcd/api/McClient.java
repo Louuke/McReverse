@@ -101,6 +101,10 @@ public class McClient extends McBase {
         return queryGet(new BonusPointsRequest(), BonusPointsResponse.class);
     }
 
+    public OptInResponse optInCampaign(int campaignId) {
+        return queryPost(new OptInRequest(campaignId), OptInResponse.class);
+    }
+
     public Response useMyMcDonalds(boolean b) {
         return queryPut(new ProfileRequest().useMyMcDonalds(b, deviceId), Response.class);
     }

@@ -56,7 +56,7 @@ public class RegisterRequest implements Request {
     }
 
     private static class Policies {
-        private HashMap<String, Boolean> acceptancePolicies = new HashMap<>();
+        private final HashMap<String, Boolean> acceptancePolicies = new HashMap<>();
 
         public Policies() {
             acceptancePolicies.put("1", true);
