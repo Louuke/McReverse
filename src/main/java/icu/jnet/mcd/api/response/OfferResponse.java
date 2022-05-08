@@ -165,7 +165,8 @@ public class OfferResponse extends Response {
     public static class RecurringInfo {
 
         private int currentDayRedemptionQuantity, currentMonthRedemptionQuantity, currentWeekRedemptionQuantity,
-                totalRedemptionQuantity;
+                totalRedemptionQuantity, maxRedemptionQuantity, maxRedemptionQuantityPerDay, maxRedemptionQuantityPerMonth,
+                maxRedemptionQuantityPerWeek;
 
         public int getCurrentDayRedemptionQuantity() {
             return currentDayRedemptionQuantity;
@@ -181,6 +182,22 @@ public class OfferResponse extends Response {
 
         public int getTotalRedemptionQuantity() {
             return totalRedemptionQuantity;
+        }
+
+        public int getMaxRedemptionQuantity() {
+            return maxRedemptionQuantity;
+        }
+
+        public int getMaxRedemptionQuantityPerDay() {
+            return maxRedemptionQuantityPerDay;
+        }
+
+        public int getMaxRedemptionQuantityPerMonth() {
+            return maxRedemptionQuantityPerMonth;
+        }
+
+        public int getMaxRedemptionQuantityPerWeek() {
+            return maxRedemptionQuantityPerWeek;
         }
     }
 }
