@@ -23,16 +23,13 @@ class RequestManager {
             restMap.get(host).add(request);
         }
 
-        while(timeMap.containsKey(host) && System.currentTimeMillis() - timeMap.get(host) <= 500
-            && restMap.get(host).peek() == request) {
+        while (timeMap.containsKey(host) && (System.currentTimeMillis() - timeMap.get(host) <= 250
+                || restMap.get(host).peek() != request)) {
             waitMill();
         }
-    }
 
-    static void removeRequest(HttpRequest request, ProxyModel proxy) {
-        String host = getHost(proxy);
         timeMap.put(host, System.currentTimeMillis());
-        restMap.get(host).remove(request);
+        restMap.get(host).poll();
     }
 
     private static String getHost(ProxyModel proxy) {

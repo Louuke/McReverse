@@ -22,9 +22,7 @@ public class DelayHttpClient implements Closeable {
 
     public CloseableHttpResponse execute(HttpUriRequest request) throws IOException {
         addAndWait(request, proxy);
-        CloseableHttpResponse response = client.execute(request);
-        removeRequest(request, proxy);
-        return response;
+        return client.execute(request);
     }
 
     @Override
