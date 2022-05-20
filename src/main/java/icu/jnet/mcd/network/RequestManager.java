@@ -3,6 +3,7 @@ package icu.jnet.mcd.network;
 import icu.jnet.mcd.model.ProxyModel;
 import org.apache.http.HttpRequest;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,7 +14,7 @@ class RequestManager {
     private static final Map<String, Queue<HttpRequest>> restMap = new ConcurrentHashMap<>();
     private static final Map<String, Long> timeMap = new ConcurrentHashMap<>();
 
-    static void addAndWait(HttpRequest request, ProxyModel proxy) {
+    static void addRequest(HttpRequest request, ProxyModel proxy) {
         String host = getHost(proxy);
         if(!restMap.containsKey(host)) {
             Queue<HttpRequest> queue = new ConcurrentLinkedQueue<>();
@@ -23,11 +24,14 @@ class RequestManager {
             restMap.get(host).add(request);
         }
 
-        while (timeMap.containsKey(host) && (System.currentTimeMillis() - timeMap.get(host) <= 200
+        while (timeMap.containsKey(host) && (System.currentTimeMillis() - timeMap.get(host) <= 100
                 || restMap.get(host).peek() != request)) {
             waitMill();
         }
+    }
 
+    static void removeLast(ProxyModel proxy) {
+        String host = getHost(proxy);
         timeMap.put(host, System.currentTimeMillis());
         restMap.get(host).poll();
     }
