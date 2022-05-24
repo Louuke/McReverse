@@ -1,5 +1,6 @@
 package icu.jnet.mcd.api;
 
+import com.google.gson.GsonBuilder;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 import icu.jnet.mcd.model.ProxyModel;
