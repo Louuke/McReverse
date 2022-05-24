@@ -76,11 +76,8 @@ class McBase {
     private <T extends Response> T query(HttpUriRequest request, String type, Class<T> clazz) {
         setRequestHeaders(request, type);
         try(DelayHttpClient client = new DelayHttpClient(builder.build(), proxy)) {
-            System.out.println("run");
             HttpResponse response = client.execute(request);
-            String s = EntityUtils.toString(response.getEntity());
-            System.out.println(s);
-            T cResponse = gson.fromJson(s, clazz);
+            T cResponse = gson.fromJson(EntityUtils.toString(response.getEntity()), clazz);
             if(cResponse != null && cResponse.getStatus().getErrors().stream()
                     .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
                 if(loginRefresh()) {
