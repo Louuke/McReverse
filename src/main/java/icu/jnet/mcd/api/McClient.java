@@ -1,6 +1,5 @@
 package icu.jnet.mcd.api;
 
-import com.google.gson.GsonBuilder;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 import icu.jnet.mcd.model.ProxyModel;
@@ -51,7 +50,7 @@ public class McClient extends McBase {
     }
 
     public boolean activateAccount(String email, String activationCode) {
-        return activate(email, activationCode, null, "email");
+        return activate(email, activationCode, deviceId, "email");
     }
 
     public boolean activateAccount(String email, String activationCode, String deviceId) {
