@@ -16,7 +16,7 @@ allprojects {
 ```
 ```java
 dependencies {
-    implementation 'com.github.JicuNull:MCReverse:32c4edd'
+    implementation 'com.github.JicuNull:MCReverse:main-SNAPSHOT'
 }
 ```
 Find more options here: **[Jitpack](https://jitpack.io/#JicuNull/MCReverse)**
