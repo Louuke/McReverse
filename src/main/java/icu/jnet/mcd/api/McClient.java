@@ -50,7 +50,7 @@ public class McClient extends McBase {
     }
 
     public boolean activateAccount(String email, String activationCode) {
-        return activate(email, activationCode, null, "email");
+        return activate(email, activationCode, deviceId, "email");
     }
 
     public boolean activateAccount(String email, String activationCode, String deviceId) {
