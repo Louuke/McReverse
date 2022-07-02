@@ -4,6 +4,8 @@ import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 import icu.jnet.mcd.model.ProxyModel;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class McClient extends McBase {
@@ -136,6 +138,14 @@ public class McClient extends McBase {
                         && Arrays.asList("23", "24", "25").contains(sub.getSubscriptionId())
                         || sub.getOptInStatus().equals("N")
                         && sub.getSubscriptionId().equals("21")).count() == 4;
+    }
+
+    public FlurryDownResponse getFlurryDownload() {
+        return queryGet(new FlurryDownload(userId, auth.getBareToken(), email, deviceId), FlurryDownResponse.class);
+    }
+
+    public FlurryUpResponse flurryUpload() {
+        return queryPut(new FlurryUpload(deviceId, auth.getBareToken(), userId, email), FlurryUpResponse.class);
     }
 
     private AuthResponse getAccessToken() {
