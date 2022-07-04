@@ -4,8 +4,6 @@ import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 import icu.jnet.mcd.model.ProxyModel;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class McClient extends McBase {

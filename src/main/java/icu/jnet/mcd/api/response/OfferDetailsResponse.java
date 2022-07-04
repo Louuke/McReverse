@@ -73,7 +73,11 @@ public class OfferDetailsResponse extends Response {
         }
 
         public String getName() {
-            return name;
+            return name != null ? name.split("\n")[0].strip() : "";
+        }
+
+        public String getPrice() {
+            return name != null ? name.split("\n")[1].strip() : "0";
         }
 
         public String getLongDescription() {

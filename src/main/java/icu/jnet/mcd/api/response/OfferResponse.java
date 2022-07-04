@@ -60,11 +60,11 @@ public class OfferResponse extends Response {
         }
 
         public String getName() {
-            return name != null ? name.split("\n")[0] : "";
+            return name != null ? name.split("\n")[0].strip() : "";
         }
 
         public String getPrice() {
-            return name != null ? name.split("\n")[1] : "0";
+            return name != null ? name.split("\n")[1].strip() : "0";
         }
 
         public String getOfferBucket() {
