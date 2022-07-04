@@ -80,6 +80,10 @@ public class OfferDetailsResponse extends Response {
             return name != null ? name.split("\n")[1].strip() : "0";
         }
 
+        public String getImageUrl() {
+            return "https://de-prod-us-cds-oceofferimages.s3.amazonaws.com/oce3-de-prod/offers/" + imageBaseName;
+        }
+
         public String getLongDescription() {
             return longDescription;
         }
