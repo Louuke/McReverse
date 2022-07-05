@@ -1,5 +1,6 @@
 package icu.jnet.mcd.api.response;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class OfferDetailsResponse extends Response {
@@ -105,11 +106,11 @@ public class OfferDetailsResponse extends Response {
         }
 
         public List<ProductSet> getProductSets() {
-            return productSets;
+            return productSets != null ? productSets : new ArrayList<>();
         }
 
         public List<String> getRestaurants() {
-            return restaurants;
+            return restaurants != null ? restaurants : new ArrayList<>();
         }
     }
 
@@ -118,15 +119,15 @@ public class OfferDetailsResponse extends Response {
         private List<String> dateConditions, dayOfWeekConditions, saleAmountConditions;
 
         public List<String> getDateConditions() {
-            return dateConditions;
+            return dateConditions != null ? dateConditions : new ArrayList<>();
         }
 
         public List<String> getDayOfWeekConditions() {
-            return dayOfWeekConditions;
+            return dayOfWeekConditions != null ? dayOfWeekConditions : new ArrayList<>();
         }
 
         public List<String> getSaleAmountConditions() {
-            return saleAmountConditions;
+            return saleAmountConditions != null ? saleAmountConditions : new ArrayList<>();
         }
     }
 
@@ -149,7 +150,7 @@ public class OfferDetailsResponse extends Response {
         }
 
         public List<String> getProducts() {
-            return products;
+            return products != null ? products : new ArrayList<>();
         }
 
         public int getQuantity() {
