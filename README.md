@@ -2,7 +2,7 @@
  Reverse engineered library for the **german** McDonald's API in Java 
 
 ## Used by McCoupon
-Please feel free to check out and use my website **[McCoupon.deals](https://www.mccoupon.deals)** the next time you 
+Please feel free to check out and use **[McCoupon.deals](https://www.mccoupon.deals)** the next time you 
 visit McDonald's to get access to basically unlimited amounts of coupons without using the app :)
 
 ### Gradle
