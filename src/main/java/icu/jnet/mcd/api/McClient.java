@@ -97,6 +97,10 @@ public class McClient extends McBase {
         return queryGet(new RedeemRequest(propositionId, offerId), RedeemResponse.class);
     }
 
+    public RedeemResponse getIdentificationCode() {
+        return queryGet(new IdentRequest(), RedeemResponse.class);
+    }
+
     public BonusPointsResponse getPointsBonuses() {
         return queryGet(new BonusPointsRequest(), BonusPointsResponse.class);
     }
