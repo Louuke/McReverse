@@ -96,6 +96,7 @@ class McBase {
             }
         } catch (JsonSyntaxException | IOException e) {
             System.out.println(e.getMessage());
+            request.abort();
         }
         return createInstance(clazz);
     }
