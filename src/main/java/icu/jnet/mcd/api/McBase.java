@@ -16,6 +16,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -27,7 +28,9 @@ import java.util.Random;
 
 class McBase {
 
-    private final HttpClientBuilder builder = HttpClientBuilder.create().disableCookieManagement();
+    private final RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(3 * 1000).build();
+    private final HttpClientBuilder builder = HttpClientBuilder.create()
+            .setDefaultRequestConfig(requestConfig).disableCookieManagement();
     private final Gson gson = new Gson();
     private final Random rand = new Random();
     private ProxyModel proxy;
@@ -43,6 +46,7 @@ class McBase {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT), credentials);
         builder.setProxy(proxyHost).setDefaultCredentialsProvider(credsProvider);
+        builder.setDefaultRequestConfig(requestConfig);
     }
 
     public McBase(String aToken) {
