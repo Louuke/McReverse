@@ -11,10 +11,6 @@ public class McClient extends McBase {
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
     private String deviceId = DEFAULT_DEVICE_ID, userId;
 
-    public McClient(ProxyModel proxy) {
-        super(proxy);
-    }
-
     public McClient(String aToken) {
         super(aToken);
     }

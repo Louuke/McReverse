@@ -1,21 +1,21 @@
 package icu.jnet.mcd.network;
 
+import com.google.api.client.http.HttpRequest;
 import icu.jnet.mcd.model.ProxyModel;
-import org.apache.http.HttpRequest;
 
-import java.time.Instant;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-class RequestManager {
+public class RequestManager {
+
+    private static final String host = "localhost";
 
     private static final Map<String, Queue<HttpRequest>> restMap = new ConcurrentHashMap<>();
     private static final Map<String, Long> timeMap = new ConcurrentHashMap<>();
 
-    static void addRequest(HttpRequest request, ProxyModel proxy) {
-        String host = getHost(proxy);
+    public static void addRequest(HttpRequest request) {
         if(!restMap.containsKey(host)) {
             Queue<HttpRequest> queue = new ConcurrentLinkedQueue<>();
             queue.add(request);
@@ -30,14 +30,9 @@ class RequestManager {
         }
     }
 
-    static void removeLast(ProxyModel proxy) {
-        String host = getHost(proxy);
+    public static void removeLast() {
         timeMap.put(host, System.currentTimeMillis());
         restMap.get(host).poll();
-    }
-
-    private static String getHost(ProxyModel proxy) {
-        return proxy != null ? proxy.getHost() : "localhost";
     }
 
     private static void waitMill() {
