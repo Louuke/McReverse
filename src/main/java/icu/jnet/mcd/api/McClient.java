@@ -15,8 +15,8 @@ public class McClient extends McBase {
         super(proxy);
     }
 
-    public McClient() {
-        super();
+    public McClient(String aToken) {
+        super(aToken);
     }
 
     public boolean login(String email, String password) {
