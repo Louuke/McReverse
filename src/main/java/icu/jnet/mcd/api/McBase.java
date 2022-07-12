@@ -25,12 +25,12 @@ import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 class McBase {
 
+    private final RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(8 * 1000).build();
     private final HttpClientBuilder builder = HttpClientBuilder.create()
-            .setConnectionTimeToLive(4, TimeUnit.SECONDS).disableCookieManagement();
+            .setDefaultRequestConfig(requestConfig).disableCookieManagement();
     private final Gson gson = new Gson();
     private final Random rand = new Random();
     private ProxyModel proxy;
@@ -46,7 +46,7 @@ class McBase {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT), credentials);
         builder.setProxy(proxyHost).setDefaultCredentialsProvider(credsProvider);
-        builder.setConnectionTimeToLive(4, TimeUnit.SECONDS);
+        builder.setDefaultRequestConfig(requestConfig);
     }
 
     public McBase(String aToken) {
