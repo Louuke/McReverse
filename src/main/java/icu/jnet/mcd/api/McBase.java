@@ -3,6 +3,7 @@ package icu.jnet.mcd.api;
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.api.request.Request;
 import icu.jnet.mcd.model.Authorization;
@@ -80,16 +81,21 @@ class McBase {
                 requestManager.addRequest(request);
                 return gson.fromJson(request.execute().parseAsString(), clazz);
             } catch (HttpResponseException e) {
-                Response response = gson.fromJson(e.getContent(), Response.class);
-                if(response != null && response.getStatus().getErrors().stream()
-                        .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
-                    if(loginRefresh()) {
-                        return query(request, clazz);
+                try {
+                    Response response = gson.fromJson(e.getContent(), Response.class);
+                    if(response != null && response.getStatus().getErrors().stream()
+                            .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
+                        if(loginRefresh()) {
+                            return query(request, clazz);
+                        }
                     }
+                } catch (JsonSyntaxException e2) {
+                    System.out.println(e.getContent());
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 sensorToken.setExpired();
+
             }
         }
         return createInstance(clazz);
