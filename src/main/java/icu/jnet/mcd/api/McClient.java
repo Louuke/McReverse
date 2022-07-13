@@ -4,6 +4,7 @@ import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class McClient extends McBase {
 
@@ -157,5 +158,15 @@ public class McClient extends McBase {
 
     public String getEmail() {
         return email;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof McClient && ((McClient) obj).getEmail().equals(getEmail());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(email);
     }
 }
