@@ -5,37 +5,36 @@ import icu.jnet.mcd.model.ProxyModel;
 
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RequestManager {
 
     private static final String host = "localhost";
 
-    private static final Map<String, Queue<HttpRequest>> restMap = new ConcurrentHashMap<>();
-    private static final Map<String, Long> timeMap = new ConcurrentHashMap<>();
+    private final Queue<HttpRequest> queue = new ConcurrentLinkedQueue<>();
 
-    public static void addRequest(HttpRequest request) {
-        if(!restMap.containsKey(host)) {
-            Queue<HttpRequest> queue = new ConcurrentLinkedQueue<>();
-            queue.add(request);
-            restMap.put(host, queue);
-        } else {
-            restMap.get(host).add(request);
-        }
+    public RequestManager() {
+        new Thread(() -> {
+            long last = 0;
+            while(true) {
+                long now = System.currentTimeMillis();
+                if(now - last > 300) {
+                    last = now;
+                    queue.poll();
+                }
+                waitMill();
+            }
+        }).start();
+    }
 
-        while (timeMap.containsKey(host) && (System.currentTimeMillis() - timeMap.get(host) <= 100
-                || restMap.get(host).peek() != request)) {
+    public void addRequest(HttpRequest request) {
+        queue.add(request);
+        while (queue.contains(request)) {
             waitMill();
         }
     }
 
-    public static void removeLast() {
-        timeMap.put(host, System.currentTimeMillis());
-        restMap.get(host).poll();
-    }
-
-    private static void waitMill() {
+    private void waitMill() {
         try {
             Thread.sleep(25);
         } catch (InterruptedException e) {

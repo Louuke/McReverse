@@ -9,16 +9,16 @@ import icu.jnet.mcd.api.request.Request;
 import icu.jnet.mcd.model.Authorization;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
+import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
 
-import static icu.jnet.mcd.network.RequestManager.*;
-
 class McBase {
 
     private final HttpRequestFactory factory;
+    private final RequestManager requestManager = new RequestManager();
     private final Gson gson = new Gson();
     private final Random rand = new Random();
     final Authorization auth = new Authorization();
@@ -84,10 +84,8 @@ class McBase {
     private <T extends Response> T query(HttpRequest request, Class<T> clazz) {
         try {
             setRequestHeaders(request);
-            //addRequest(request);
-            T t = gson.fromJson(request.execute().parseAsString(), clazz);
-            //removeLast();
-            return t;
+            requestManager.addRequest(request);
+            return gson.fromJson(request.execute().parseAsString(), clazz);
         } catch (HttpResponseException e) {
             try {
                 Response response = gson.fromJson(e.getContent(), Response.class);
