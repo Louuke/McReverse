@@ -154,4 +154,8 @@ public class McClient extends McBase {
     public Response setNotification() {
         return queryPost(new NotificationRequest(), Response.class);
     }
+
+    public String getEmail() {
+        return email;
+    }
 }
