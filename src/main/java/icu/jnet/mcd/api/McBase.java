@@ -3,12 +3,13 @@ package icu.jnet.mcd.api;
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.api.request.Request;
 import icu.jnet.mcd.model.Authorization;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
+import icu.jnet.mcd.model.SensorToken;
+import icu.jnet.mcd.model.listener.StateChangeListener;
 import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
@@ -17,19 +18,11 @@ import java.lang.reflect.InvocationTargetException;
 class McBase {
 
     private final RequestManager requestManager = new RequestManager();
+    private final SensorToken sensorToken = new SensorToken();
     private transient HttpRequestFactory factory;
     final Authorization auth = new Authorization();
-    private String aToken = "";
 
     String email;
-
-    public McBase(String aToken) {
-        this.aToken = aToken;
-    }
-
-    boolean success(Response response) {
-        return response.getStatus().getType().equals("Success");
-    }
 
     <T extends Response> T queryGet(Request request, Class<T> clazz)  {
         try {
@@ -79,13 +72,14 @@ class McBase {
 
     private <T extends Response> T query(HttpRequest request, Class<T> clazz) {
         Gson gson = new Gson();
-        try {
-            request.setReadTimeout(5000);
-            setRequestHeaders(request);
-            requestManager.addRequest(request);
-            return gson.fromJson(request.execute().parseAsString(), clazz);
-        } catch (HttpResponseException e) {
+
+        if(!needToken(request) || needToken(request) && sensorToken.isValid()) {
             try {
+                request.setReadTimeout(8000);
+                setRequestHeaders(request);
+                requestManager.addRequest(request);
+                return gson.fromJson(request.execute().parseAsString(), clazz);
+            } catch (HttpResponseException e) {
                 Response response = gson.fromJson(e.getContent(), Response.class);
                 if(response != null && response.getStatus().getErrors().stream()
                         .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
@@ -93,11 +87,10 @@ class McBase {
                         return query(request, clazz);
                     }
                 }
-            } catch (JsonSyntaxException e2) {
-                System.out.println(e.getContent());
+            } catch (IOException e) {
+                e.printStackTrace();
+                sensorToken.setExpired();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return createInstance(clazz);
     }
@@ -126,9 +119,10 @@ class McBase {
         headers.set("user-agent", "MCDSDK/19.0.60 (Android; 30; de-DE) GMA/7.7");
         headers.set("mcd-sourceapp", "GMA");
         headers.set("mcd-uuid", "ab65a26f-b02c-416d-a5e5-a32df5ba762d"); // Can not be fully random?
-        if(request.getUrl().toString().endsWith("login") || request.getUrl().toString().endsWith("profile")) {
+
+        if(needToken(request)) {
             headers.set("mcd-marketid", "DE");
-            headers.set("x-acf-sensor-data", aToken);
+            headers.set("x-acf-sensor-data", sensorToken.getToken());
         }
         request.setHeaders(headers);
     }
@@ -147,5 +141,21 @@ class McBase {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private boolean needToken(HttpRequest request) {
+        return request.getUrl().toString().endsWith("login") || request.getUrl().toString().endsWith("profile");
+    }
+
+    public boolean addChangeListener(StateChangeListener listener) {
+        return auth.addChangeListener(listener) && sensorToken.addChangeListener(listener);
+    }
+
+    public SensorToken getSensorToken() {
+        return sensorToken;
+    }
+
+    boolean success(Response response) {
+        return response.getStatus().getType().equals("Success");
     }
 }

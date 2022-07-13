@@ -1,6 +1,6 @@
 package icu.jnet.mcd.model;
 
-public class Authorization {
+public class Authorization extends StateChangeable {
 
     private String accessToken, refreshToken;
 
@@ -9,6 +9,7 @@ public class Authorization {
             return;
         }
         this.accessToken = "Bearer " + accessToken;
+        super.notifyListeners(this);
     }
 
     public void updateRefreshToken(String refreshToken) {
@@ -16,6 +17,7 @@ public class Authorization {
             return;
         }
         this.refreshToken = refreshToken;
+        super.notifyListeners(this);
     }
 
     public String getAccessToken() {

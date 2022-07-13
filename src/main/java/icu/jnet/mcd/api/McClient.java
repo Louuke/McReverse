@@ -2,7 +2,6 @@ package icu.jnet.mcd.api;
 
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
-import icu.jnet.mcd.model.ProxyModel;
 
 import java.util.Arrays;
 
@@ -10,10 +9,6 @@ public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
     private String deviceId = DEFAULT_DEVICE_ID, userId;
-
-    public McClient(String aToken) {
-        super(aToken);
-    }
 
     public boolean login(String email, String password) {
         return login(email, password, DEFAULT_DEVICE_ID);
