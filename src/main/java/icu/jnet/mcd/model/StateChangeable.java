@@ -11,7 +11,9 @@ public abstract class StateChangeable {
 
     protected <T> void notifyListeners(T source) {
         for(StateChangeListener listener : changeListeners) {
-            listener.changed(source);
+            if(listener != null) {
+                listener.changed(source);
+            }
         }
     }
 
