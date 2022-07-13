@@ -13,14 +13,11 @@ import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Random;
 
 class McBase {
 
-    private final HttpRequestFactory factory;
     private final RequestManager requestManager = new RequestManager();
-    private final Gson gson = new Gson();
-    private final Random rand = new Random();
+    private transient HttpRequestFactory factory;
     final Authorization auth = new Authorization();
     private String aToken = "";
 
@@ -28,7 +25,6 @@ class McBase {
 
     public McBase(String aToken) {
         this.aToken = aToken;
-        this.factory = new NetHttpTransport().createRequestFactory();
     }
 
     boolean success(Response response) {
@@ -38,7 +34,7 @@ class McBase {
     <T extends Response> T queryGet(Request request, Class<T> clazz)  {
         try {
             String url = request.getUrl();
-            HttpRequest httpRequest = factory.buildGetRequest(new GenericUrl(url));
+            HttpRequest httpRequest = getFactory().buildGetRequest(new GenericUrl(url));
             return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,7 +46,7 @@ class McBase {
         try {
             String url = request.getUrl();
             HttpContent httpContent = request.getContent();
-            HttpRequest httpRequest = factory.buildPostRequest(new GenericUrl(url), httpContent);
+            HttpRequest httpRequest = getFactory().buildPostRequest(new GenericUrl(url), httpContent);
             return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,7 +57,7 @@ class McBase {
     <T extends Response> T queryDelete(Request request, Class<T> clazz) {
         try {
             String url = request.getUrl();
-            HttpRequest httpRequest = factory.buildDeleteRequest(new GenericUrl(url));
+            HttpRequest httpRequest = getFactory().buildDeleteRequest(new GenericUrl(url));
             return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
@@ -73,7 +69,7 @@ class McBase {
         try {
             String url = request.getUrl();
             HttpContent httpContent = request.getContent();
-            HttpRequest httpRequest = factory.buildPutRequest(new GenericUrl(url), httpContent);
+            HttpRequest httpRequest = getFactory().buildPutRequest(new GenericUrl(url), httpContent);
             return query(httpRequest, clazz);
         } catch (IOException e) {
             e.printStackTrace();
@@ -82,7 +78,9 @@ class McBase {
     }
 
     private <T extends Response> T query(HttpRequest request, Class<T> clazz) {
+        Gson gson = new Gson();
         try {
+            request.setReadTimeout(5000);
             setRequestHeaders(request);
             requestManager.addRequest(request);
             return gson.fromJson(request.execute().parseAsString(), clazz);
@@ -133,6 +131,13 @@ class McBase {
             headers.set("x-acf-sensor-data", aToken);
         }
         request.setHeaders(headers);
+    }
+
+    private HttpRequestFactory getFactory() {
+        if(factory == null) {
+            factory = new NetHttpTransport().createRequestFactory();
+        }
+        return factory;
     }
 
     private <T> T createInstance(Class<T> clazz) {
