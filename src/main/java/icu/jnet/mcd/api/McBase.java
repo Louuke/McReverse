@@ -15,6 +15,7 @@ import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.stream.Stream;
 
 class McBase {
 
@@ -150,7 +151,8 @@ class McBase {
     }
 
     private boolean needToken(HttpRequest request) {
-        return request.getUrl().toString().endsWith("login") || request.getUrl().toString().endsWith("profile");
+        String url = request.getUrl().toString();
+        return Stream.of("profile", "login", "registration").anyMatch(url::endsWith);
     }
 
     public boolean addChangeListener(StateChangeListener listener) {
