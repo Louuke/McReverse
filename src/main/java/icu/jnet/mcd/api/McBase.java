@@ -152,7 +152,7 @@ class McBase {
 
     private boolean needToken(HttpRequest request) {
         String url = request.getUrl().toString();
-        return Stream.of("profile", "login", "registration").anyMatch(url::endsWith);
+        return Stream.of("profile", "login", "registration", "activation").anyMatch(url::endsWith);
     }
 
     public boolean addChangeListener(StateChangeListener listener) {
