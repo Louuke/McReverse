@@ -7,10 +7,10 @@ import java.util.List;
 
 public abstract class StateChangeable {
 
-    private final List<StateChangeListener> changeListeners = new ArrayList<>();
+    private transient List<StateChangeListener> changeListeners;
 
     protected <T> void notifyListeners(T source) {
-        for(StateChangeListener listener : changeListeners) {
+        for(StateChangeListener listener : getListeners()) {
             if(listener != null) {
                 listener.changed(source);
             }
@@ -18,10 +18,15 @@ public abstract class StateChangeable {
     }
 
     public boolean addChangeListener(StateChangeListener listener) {
-        return changeListeners.add(listener);
+        return getListeners().add(listener);
     }
 
     public boolean removeChangeListener(StateChangeListener listener) {
-        return changeListeners.remove(listener);
+        return getListeners().remove(listener);
+    }
+
+    private List<StateChangeListener> getListeners() {
+        changeListeners = changeListeners != null ? changeListeners : new ArrayList<>();
+        return changeListeners;
     }
 }

@@ -2,7 +2,7 @@ package icu.jnet.mcd.model;
 
 public class SensorToken extends StateChangeable {
 
-    private String token;
+    private String token = "";
     private boolean valid = false;
 
     public void setSensorToken(String token) {

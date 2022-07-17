@@ -96,7 +96,6 @@ class McBase {
             } catch (IOException e) {
                 //e.printStackTrace();
                 sensorToken.setExpired();
-
             }
         }
         return createInstance(clazz);
