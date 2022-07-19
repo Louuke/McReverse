@@ -90,6 +90,7 @@ class McBase {
                             return query(request, clazz);
                         }
                     }
+                    return clazz.cast(response);
                 } catch (JsonSyntaxException e2) {
                     System.out.println(e.getContent());
                 }
