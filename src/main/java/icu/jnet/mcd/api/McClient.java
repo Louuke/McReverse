@@ -109,37 +109,12 @@ public class McClient extends McBase {
         return queryPut(new ProfileRequest().setZipCode(zipCode), Response.class);
     }
 
-    public RaffleResponse participateRaffle() {
-        String token = auth.getBareToken();
-
-        // Find out, if we have participated
-        RaffleResponse statusResponse = queryPost(new RaffleStatusRequest(token, email, userId), RaffleResponse.class);
-
-        if(!statusResponse.hasParticipated()) {
-            Request bigRequest = new RafflePartRequest(token, email, userId, deviceId);
-            RaffleResponse partResponse = queryPut(bigRequest, RaffleResponse.class);
-
-            if(partResponse.hasParticipated()) {
-                return partResponse;
-            }
-        }
-        return statusResponse;
-    }
-
     public boolean usesMyMcDonalds() {
         return queryGet(new ProfileRequest(), ProfileResponse.class).getInfo().getSubscriptions().stream()
                 .filter(sub -> sub.getOptInStatus().equals("Y")
                         && Arrays.asList("23", "24", "25").contains(sub.getSubscriptionId())
                         || sub.getOptInStatus().equals("N")
                         && sub.getSubscriptionId().equals("21")).count() == 4;
-    }
-
-    public FlurryDownResponse getFlurryDownload() {
-        return queryGet(new FlurryDownload(userId, auth.getBareToken(), email, deviceId), FlurryDownResponse.class);
-    }
-
-    public FlurryUpResponse flurryUpload() {
-        return queryPut(new FlurryUpload(deviceId, auth.getBareToken(), userId, email), FlurryUpResponse.class);
     }
 
     private AuthResponse getAccessToken() {

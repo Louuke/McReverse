@@ -1,11 +1,17 @@
 package icu.jnet.mcd.api.response;
 
+import icu.jnet.mcd.api.response.status.Status;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class OfferDetailsResponse extends Response {
 
     private Response response;
+
+    public OfferDetailsResponse(Status status) {
+        super(status);
+    }
 
     public Response getResponse() {
         return response;
