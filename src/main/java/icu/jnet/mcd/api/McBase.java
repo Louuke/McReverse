@@ -86,13 +86,15 @@ class McBase {
             } catch (HttpResponseException e) {
                 try {
                     Response response = gson.fromJson(e.getContent(), Response.class);
-                    if(response.getStatus().getErrors().stream()
-                            .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
-                        if(loginRefresh()) {
-                            return query(request, clazz);
+                    if(response != null) {
+                        if(response.getStatus().getErrors().stream()
+                                .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
+                            if(loginRefresh()) {
+                                return query(request, clazz);
+                            }
                         }
+                        return createInstance(clazz, response.getStatus());
                     }
-                    return createInstance(clazz, response.getStatus());
                 } catch (JsonSyntaxException e2) {
                     System.out.println(e.getContent());
                 }
