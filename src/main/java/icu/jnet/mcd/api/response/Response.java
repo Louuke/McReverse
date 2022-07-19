@@ -15,6 +15,6 @@ public class Response {
     public Response() {}
 
     public Status getStatus() {
-        return status != null ? status : new Status("IOException", "Error", new ArrayList<>());
+        return status != null ? status : new Status();
     }
 }

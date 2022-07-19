@@ -6,6 +6,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.api.request.Request;
+import icu.jnet.mcd.api.response.RedeemResponse;
+import icu.jnet.mcd.api.response.status.Status;
 import icu.jnet.mcd.model.Authorization;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
@@ -84,13 +86,13 @@ class McBase {
             } catch (HttpResponseException e) {
                 try {
                     Response response = gson.fromJson(e.getContent(), Response.class);
-                    if(response != null && response.getStatus().getErrors().stream()
+                    if(response.getStatus().getErrors().stream()
                             .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
                         if(loginRefresh()) {
                             return query(request, clazz);
                         }
                     }
-                    return clazz.cast(response);
+                    return createInstance(clazz, response.getStatus());
                 } catch (JsonSyntaxException e2) {
                     System.out.println(e.getContent());
                 }
@@ -141,9 +143,13 @@ class McBase {
         return factory;
     }
 
-    private <T> T createInstance(Class<T> clazz) {
+    private <T extends Response> T createInstance(Class<T> clazz) {
+        return createInstance(clazz, new Status());
+    }
+
+    private <T extends Response> T createInstance(Class<T> clazz, Status status) {
         try {
-            return clazz.getConstructor().newInstance();
+            return clazz.getConstructor(Status.class).newInstance(status);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }

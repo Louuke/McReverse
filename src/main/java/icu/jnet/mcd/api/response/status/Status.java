@@ -15,6 +15,12 @@ public class Status {
         this.errors = errors;
     }
 
+    public Status() {
+        this.message = "Unknown";
+        this.type = "";
+        this.errors = new ArrayList<>();
+    }
+
     public int getCode() {
         return code;
     }
