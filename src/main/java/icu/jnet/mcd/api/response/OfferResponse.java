@@ -1,5 +1,7 @@
 package icu.jnet.mcd.api.response;
 
+import icu.jnet.mcd.api.response.status.Status;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +9,10 @@ import java.util.List;
 public class OfferResponse extends Response {
 
     private HashMap<String, List<Offer>> response;
+
+    public OfferResponse(Status status) {
+        super(status);
+    }
 
     public List<Offer> getOffers() {
         return response != null ? response.get("offers") : new ArrayList<>();
@@ -60,11 +66,11 @@ public class OfferResponse extends Response {
         }
 
         public String getName() {
-            return name.split("\n")[0];
+            return name != null ? name.split("\n")[0].strip() : "";
         }
 
         public String getPrice() {
-            return name.split("\n")[1];
+            return name != null ? name.split("\n")[1].strip() : "0";
         }
 
         public String getOfferBucket() {

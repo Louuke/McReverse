@@ -1,10 +1,17 @@
 package icu.jnet.mcd.api.response;
 
+import icu.jnet.mcd.api.response.status.Status;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class OfferDetailsResponse extends Response {
 
     private Response response;
+
+    public OfferDetailsResponse(Status status) {
+        super(status);
+    }
 
     public Response getResponse() {
         return response;
@@ -73,7 +80,15 @@ public class OfferDetailsResponse extends Response {
         }
 
         public String getName() {
-            return name;
+            return name != null ? name.split("\n")[0].strip() : "";
+        }
+
+        public String getPrice() {
+            return name != null ? name.split("\n")[1].strip() : "0";
+        }
+
+        public String getImageUrl() {
+            return "https://de-prod-us-cds-oceofferimages.s3.amazonaws.com/oce3-de-prod/offers/" + imageBaseName;
         }
 
         public String getLongDescription() {
@@ -97,11 +112,11 @@ public class OfferDetailsResponse extends Response {
         }
 
         public List<ProductSet> getProductSets() {
-            return productSets;
+            return productSets != null ? productSets : new ArrayList<>();
         }
 
         public List<String> getRestaurants() {
-            return restaurants;
+            return restaurants != null ? restaurants : new ArrayList<>();
         }
     }
 
@@ -110,15 +125,15 @@ public class OfferDetailsResponse extends Response {
         private List<String> dateConditions, dayOfWeekConditions, saleAmountConditions;
 
         public List<String> getDateConditions() {
-            return dateConditions;
+            return dateConditions != null ? dateConditions : new ArrayList<>();
         }
 
         public List<String> getDayOfWeekConditions() {
-            return dayOfWeekConditions;
+            return dayOfWeekConditions != null ? dayOfWeekConditions : new ArrayList<>();
         }
 
         public List<String> getSaleAmountConditions() {
-            return saleAmountConditions;
+            return saleAmountConditions != null ? saleAmountConditions : new ArrayList<>();
         }
     }
 
@@ -141,7 +156,7 @@ public class OfferDetailsResponse extends Response {
         }
 
         public List<String> getProducts() {
-            return products;
+            return products != null ? products : new ArrayList<>();
         }
 
         public int getQuantity() {

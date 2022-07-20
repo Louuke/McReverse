@@ -1,48 +1,28 @@
 package icu.jnet.mcd.network;
 
-import icu.jnet.mcd.model.ProxyModel;
-import org.apache.http.HttpRequest;
+import com.google.api.client.http.HttpRequest;
 
-import java.time.Instant;
-import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-class RequestManager {
+public class RequestManager {
 
-    private static final Map<String, Queue<HttpRequest>> restMap = new ConcurrentHashMap<>();
-    private static final Map<String, Long> timeMap = new ConcurrentHashMap<>();
+    private long last = 0;
 
-    static void addRequest(HttpRequest request, ProxyModel proxy) {
-        String host = getHost(proxy);
-        if(!restMap.containsKey(host)) {
-            Queue<HttpRequest> queue = new ConcurrentLinkedQueue<>();
-            queue.add(request);
-            restMap.put(host, queue);
-        } else {
-            restMap.get(host).add(request);
-        }
+    private final Queue<HttpRequest> queue = new ConcurrentLinkedQueue<>();
 
-        while (timeMap.containsKey(host) && (System.currentTimeMillis() - timeMap.get(host) <= 100
-                || restMap.get(host).peek() != request)) {
+    public void addRequest(HttpRequest request) {
+        queue.add(request);
+        while (!(last == 0 || (System.currentTimeMillis() - last > 300 && queue.peek() == request))) {
             waitMill();
         }
+        last = System.currentTimeMillis();
+        queue.poll();
     }
 
-    static void removeLast(ProxyModel proxy) {
-        String host = getHost(proxy);
-        timeMap.put(host, System.currentTimeMillis());
-        restMap.get(host).poll();
-    }
-
-    private static String getHost(ProxyModel proxy) {
-        return proxy != null ? proxy.getHost() : "localhost";
-    }
-
-    private static void waitMill() {
+    private void waitMill() {
         try {
-            Thread.sleep(25);
+            Thread.sleep(50);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

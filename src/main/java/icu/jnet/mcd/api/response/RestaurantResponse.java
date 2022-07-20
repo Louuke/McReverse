@@ -1,11 +1,17 @@
 package icu.jnet.mcd.api.response;
 
+import icu.jnet.mcd.api.response.status.Status;
+
 import java.util.HashMap;
 import java.util.List;
 
 public class RestaurantResponse extends Response {
 
     private HashMap<String, List<Restaurant>> response;
+
+    public RestaurantResponse(Status status) {
+        super(status);
+    }
 
     public List<Restaurant> getRestaurants() {
         return response.get("restaurants");

@@ -1,93 +1,107 @@
 package icu.jnet.mcd.api;
 
+import com.google.api.client.http.*;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.api.request.Request;
+import icu.jnet.mcd.api.response.RedeemResponse;
+import icu.jnet.mcd.api.response.status.Status;
 import icu.jnet.mcd.model.Authorization;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
-import icu.jnet.mcd.model.ProxyModel;
-import icu.jnet.mcd.network.DelayHttpClient;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.*;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import icu.jnet.mcd.model.SensorToken;
+import icu.jnet.mcd.model.listener.StateChangeListener;
+import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Random;
+import java.util.stream.Stream;
 
 class McBase {
 
-    private final HttpClientBuilder builder = HttpClientBuilder.create().disableCookieManagement();
-    private final Gson gson = new Gson();
-    private final Random rand = new Random();
-    private ProxyModel proxy;
+    private final RequestManager requestManager = new RequestManager();
+    private final SensorToken sensorToken = new SensorToken();
+    private transient HttpRequestFactory factory;
     final Authorization auth = new Authorization();
+
     String email;
 
-    public McBase(ProxyModel proxy) {
-        this.proxy = proxy;
-        Credentials credentials = new UsernamePasswordCredentials(proxy.getUser(), proxy.getPassword());
-        HttpHost proxyHost = new HttpHost(proxy.getHost(), proxy.getPort());
-        CredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT), credentials);
-        builder.setProxy(proxyHost).setDefaultCredentialsProvider(credsProvider);
-    }
-
-    public McBase() {}
-
-    boolean success(Response response) {
-        return response.getStatus().getType().equals("Success");
-    }
-
     <T extends Response> T queryGet(Request request, Class<T> clazz)  {
-        HttpGet httpRequest = new HttpGet(request.getUrl());
-        return query(httpRequest, null, clazz);
+        try {
+            String url = request.getUrl();
+            HttpRequest httpRequest = getFactory().buildGetRequest(new GenericUrl(url));
+            return query(httpRequest, clazz);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return createInstance(clazz);
     }
 
     <T extends Response> T queryPost(Request request, Class<T> clazz) {
-        HttpEntity httpContent = request.getContent();
-        HttpPost httpRequest = new HttpPost(request.getUrl());
-        httpRequest.setEntity(httpContent);
-        return query(httpRequest, httpContent.getContentType().getValue(), clazz);
+        try {
+            String url = request.getUrl();
+            HttpContent httpContent = request.getContent();
+            HttpRequest httpRequest = getFactory().buildPostRequest(new GenericUrl(url), httpContent);
+            return query(httpRequest, clazz);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return createInstance(clazz);
     }
 
     <T extends Response> T queryDelete(Request request, Class<T> clazz) {
-        HttpDelete httpRequest = new HttpDelete(request.getUrl());
-        return query(httpRequest, null, clazz);
+        try {
+            String url = request.getUrl();
+            HttpRequest httpRequest = getFactory().buildDeleteRequest(new GenericUrl(url));
+            return query(httpRequest, clazz);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return createInstance(clazz);
     }
 
     <T extends Response> T queryPut(Request request, Class<T> clazz) {
-        HttpEntity httpContent = request.getContent();
-        HttpPut httpRequest = new HttpPut(request.getUrl());
-        httpRequest.setEntity(httpContent);
-        return query(httpRequest, httpContent.getContentType().getValue(), clazz);
+        try {
+            String url = request.getUrl();
+            HttpContent httpContent = request.getContent();
+            HttpRequest httpRequest = getFactory().buildPutRequest(new GenericUrl(url), httpContent);
+            return query(httpRequest, clazz);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return createInstance(clazz);
     }
 
-    private <T extends Response> T query(HttpUriRequest request, String type, Class<T> clazz) {
-        setRequestHeaders(request, type);
-        try(DelayHttpClient client = new DelayHttpClient(builder.build(), proxy)) {
-            HttpResponse response = client.execute(request);
-            T cResponse = gson.fromJson(EntityUtils.toString(response.getEntity()), clazz);
-            if(cResponse != null && cResponse.getStatus().getErrors().stream()
-                    .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
-                if(loginRefresh()) {
-                    return query(request, type, clazz);
+    private <T extends Response> T query(HttpRequest request, Class<T> clazz) {
+        Gson gson = new Gson();
+
+        if(!needToken(request) || needToken(request) && sensorToken.isValid()) {
+            try {
+                request.setReadTimeout(8000);
+                setRequestHeaders(request);
+                requestManager.addRequest(request);
+                return gson.fromJson(request.execute().parseAsString(), clazz);
+            } catch (HttpResponseException e) {
+                try {
+                    Response response = gson.fromJson(e.getContent(), Response.class);
+                    if(response != null) {
+                        if(response.getStatus().getErrors().stream()
+                                .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
+                            if(loginRefresh()) {
+                                return query(request, clazz);
+                            }
+                        }
+                        return createInstance(clazz, response.getStatus());
+                    }
+                } catch (JsonSyntaxException e2) {
+                    System.out.println(e.getContent());
                 }
-            } else {
-                return cResponse;
+            } catch (IOException e) {
+                //e.printStackTrace();
+                sensorToken.setExpired();
             }
-        } catch (JsonSyntaxException | IOException e) {
-            System.out.println(e.getMessage());
         }
         return createInstance(clazz);
     }
@@ -102,27 +116,62 @@ class McBase {
         return false;
     }
 
-    private void setRequestHeaders(HttpUriRequest request, String type) {
+    private void setRequestHeaders(HttpRequest request) {
         String token = !auth.getAccessToken().isEmpty()
                 ? auth.getAccessToken()
                 : "Basic NkRFVXlKT0thQm96OFFSRm00OXFxVklWUGowR1V6b0g6NWltaDZOS1UzdjVDVWlmVHZIUTdFeEY4ZXhrbWFOamI=";
 
-        request.setHeader("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
-        request.setHeader("authorization", token);
-        request.setHeader("accept-charset", "UTF-8");
-        request.setHeader("content-type", type != null ? type.replace("charset=UTF-8", "") : "application/json;");
-        request.setHeader("accept-language", "de-DE");
-        request.setHeader("user-agent", "MCDSDK/19.0.57 (Android; 30; de-DE) GMA/7.7");
-        request.setHeader("mcd-sourceapp", "GMA");
-        request.setHeader("mcd-uuid", (rand.nextInt(90000) + 10000) + "c4d-e5df-4cbe-92e9-702ca00ddc4c"); // Can not be fully random?
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
+        headers.set("authorization", token);
+        headers.set("accept-charset", "UTF-8");
+        headers.set("content-type", request.getContent() != null ? request.getContent().getType() : "application/json;");
+        headers.set("accept-language", "de-DE");
+        headers.set("user-agent", "MCDSDK/19.0.60 (Android; 30; de-DE) GMA/7.7");
+        headers.set("mcd-sourceapp", "GMA");
+        headers.set("mcd-uuid", "ab65a26f-b02c-416d-a5e5-a32df5ba762d"); // Can not be fully random?
+
+        if(needToken(request)) {
+            headers.set("mcd-marketid", "DE");
+            headers.set("x-acf-sensor-data", sensorToken.getToken());
+        }
+        request.setHeaders(headers);
     }
 
-    private <T> T createInstance(Class<T> clazz) {
+    private HttpRequestFactory getFactory() {
+        if(factory == null) {
+            factory = new NetHttpTransport().createRequestFactory();
+        }
+        return factory;
+    }
+
+    private <T extends Response> T createInstance(Class<T> clazz) {
+        return createInstance(clazz, new Status());
+    }
+
+    private <T extends Response> T createInstance(Class<T> clazz, Status status) {
         try {
-            return clazz.getConstructor().newInstance();
+            return clazz.getConstructor(Status.class).newInstance(status);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private boolean needToken(HttpRequest request) {
+        String url = request.getUrl().toString();
+        return Stream.of("profile", "login", "registration", "activation").anyMatch(url::endsWith);
+    }
+
+    public boolean addChangeListener(StateChangeListener listener) {
+        return auth.addChangeListener(listener) && sensorToken.addChangeListener(listener);
+    }
+
+    public SensorToken getSensorToken() {
+        return sensorToken;
+    }
+
+    boolean success(Response response) {
+        return response.getStatus().getType().equals("Success");
     }
 }

@@ -1,6 +1,7 @@
 package icu.jnet.mcd.api.response;
 
 import icu.jnet.mcd.api.request.ProfileRequest;
+import icu.jnet.mcd.api.response.status.Status;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +10,10 @@ import java.util.List;
 public class ProfileResponse extends Response {
 
     private HashMap<String, CustomerInformation> response;
+
+    public ProfileResponse(Status status) {
+        super(status);
+    }
 
     public CustomerInformation getInfo() {
         return response != null ? response.get("customerInformation") : new CustomerInformation();

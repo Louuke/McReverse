@@ -6,15 +6,13 @@ import java.util.ArrayList;
 
 public class Response {
 
-    private Status status;
+    private final Status status;
 
     public Response(Status status) {
         this.status = status;
     }
 
-    public Response() {}
-
     public Status getStatus() {
-        return status != null ? status : new Status("IOException", "Error", new ArrayList<>());
+        return status != null ? status : new Status();
     }
 }

@@ -2,22 +2,14 @@ package icu.jnet.mcd.api;
 
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
-import icu.jnet.mcd.model.ProxyModel;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
     private String deviceId = DEFAULT_DEVICE_ID, userId;
-
-    public McClient(ProxyModel proxy) {
-        super(proxy);
-    }
-
-    public McClient() {
-        super();
-    }
 
     public boolean login(String email, String password) {
         return login(email, password, DEFAULT_DEVICE_ID);
@@ -97,6 +89,10 @@ public class McClient extends McBase {
         return queryGet(new RedeemRequest(propositionId, offerId), RedeemResponse.class);
     }
 
+    public RedeemResponse getIdentificationCode() {
+        return queryGet(new IdentRequest(), RedeemResponse.class);
+    }
+
     public BonusPointsResponse getPointsBonuses() {
         return queryGet(new BonusPointsRequest(), BonusPointsResponse.class);
     }
@@ -111,23 +107,6 @@ public class McClient extends McBase {
 
     public Response setZipCode(String zipCode) {
         return queryPut(new ProfileRequest().setZipCode(zipCode), Response.class);
-    }
-
-    public RaffleResponse participateRaffle() {
-        String token = auth.getBareToken();
-
-        // Find out, if we have participated
-        RaffleResponse statusResponse = queryPost(new RaffleStatusRequest(token, email, userId), RaffleResponse.class);
-
-        if(!statusResponse.hasParticipated()) {
-            Request bigRequest = new RafflePartRequest(token, email, userId, deviceId);
-            RaffleResponse partResponse = queryPut(bigRequest, RaffleResponse.class);
-
-            if(partResponse.hasParticipated()) {
-                return partResponse;
-            }
-        }
-        return statusResponse;
     }
 
     public boolean usesMyMcDonalds() {
@@ -150,5 +129,19 @@ public class McClient extends McBase {
 
     public Response setNotification() {
         return queryPost(new NotificationRequest(), Response.class);
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof McClient && ((McClient) obj).getEmail().equals(getEmail());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(email);
     }
 }
