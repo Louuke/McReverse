@@ -9,9 +9,11 @@ public class RequestManager {
 
     private long last = 0;
 
-    private final Queue<HttpRequest> queue = new ConcurrentLinkedQueue<>();
+    private transient Queue<HttpRequest> queue;
 
     public void addRequest(HttpRequest request) {
+        initQueue();
+
         queue.add(request);
         while (!(last == 0 || (System.currentTimeMillis() - last > 300 && queue.peek() == request))) {
             waitMill();
@@ -25,6 +27,12 @@ public class RequestManager {
             Thread.sleep(50);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void initQueue() {
+        if(queue == null) {
+            queue = new ConcurrentLinkedQueue<>();
         }
     }
 }

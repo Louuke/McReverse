@@ -22,7 +22,7 @@ class McBase {
 
     private final RequestManager requestManager = new RequestManager();
     private final SensorToken sensorToken = new SensorToken();
-    private static HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
+    private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     final Authorization auth = new Authorization();
 
     String email;
