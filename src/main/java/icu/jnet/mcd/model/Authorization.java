@@ -17,7 +17,6 @@ public class Authorization extends StateChangeable {
             return;
         }
         this.refreshToken = refreshToken;
-        super.notifyListeners(this);
     }
 
     public String getAccessToken() {
