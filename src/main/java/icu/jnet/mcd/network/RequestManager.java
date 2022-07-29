@@ -7,32 +7,36 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RequestManager {
 
-    private long last = 0;
+    private static Queue<HttpRequest> queue;
 
-    private transient Queue<HttpRequest> queue;
-
-    public void addRequest(HttpRequest request) {
+    public static void addRequest(HttpRequest request) {
         initQueue();
 
         queue.add(request);
-        while (!(last == 0 || (System.currentTimeMillis() - last > 300 && queue.peek() == request))) {
-            waitMill();
-        }
-        last = System.currentTimeMillis();
-        queue.poll();
-    }
-
-    private void waitMill() {
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while (queue.contains(request)) {
+            waitMill(100);
         }
     }
 
-    private void initQueue() {
+    private static void initQueue() {
         if(queue == null) {
             queue = new ConcurrentLinkedQueue<>();
+            startPolling();
+        }
+    }
+
+    private static void startPolling() {
+        new Thread(() -> {
+            waitMill(400);
+            queue.poll();
+        }).start();
+    }
+
+    private static void waitMill(long mill) {
+        try {
+            Thread.sleep(mill);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

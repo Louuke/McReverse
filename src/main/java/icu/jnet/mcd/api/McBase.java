@@ -18,9 +18,10 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Stream;
 
+import static icu.jnet.mcd.network.RequestManager.addRequest;
+
 class McBase {
 
-    private final RequestManager requestManager = new RequestManager();
     private final SensorToken sensorToken = new SensorToken();
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     final Authorization auth = new Authorization();
@@ -80,7 +81,7 @@ class McBase {
             try {
                 request.setReadTimeout(8000);
                 setRequestHeaders(request);
-                requestManager.addRequest(request);
+                addRequest(request);
                 return gson.fromJson(request.execute().parseAsString(), clazz);
             } catch (HttpResponseException e) {
                 try {
