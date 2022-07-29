@@ -17,10 +17,10 @@ public class RedeemResponse extends Response {
     }
 
     public String getExpirationTime() {
-        return response.get("expirationTime");
+        return response != null ? response.get("expirationTime") : "1970-01-01T00:00:00Z";
     }
 
     public String getCode() {
-        return response.get("randomCode");
+        return response != null ? response.get("randomCode") : "";
     }
 }

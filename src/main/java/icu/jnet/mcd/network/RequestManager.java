@@ -16,10 +16,14 @@ public class RequestManager {
         return instance;
     }
 
-    public void addRequest(HttpRequest request) {
+    public void enqueue(HttpRequest request) {
         queue.add(request);
         while (queue.contains(request)) {
-            Utils.waitMill(100);
+            Utils.waitMill(50);
         }
+    }
+
+    public void setRequestsPerSecond(double rps) {
+        queue.setWait((long) (1000 / rps));
     }
 }

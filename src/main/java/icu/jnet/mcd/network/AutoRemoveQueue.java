@@ -8,6 +8,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class AutoRemoveQueue<E> extends ConcurrentLinkedQueue<E> {
 
     private Thread thread;
+    private long wait;
+
+    public AutoRemoveQueue() {
+        this.wait = 330;
+    }
 
     @Override
     public boolean add(E e) {
@@ -27,11 +32,15 @@ public class AutoRemoveQueue<E> extends ConcurrentLinkedQueue<E> {
         if(thread == null || !thread.isAlive()) {
             thread = new Thread(() -> {
                 while(!isEmpty()) {
-                    Utils.waitMill(400);
+                    Utils.waitMill(wait);
                     poll();
                 }
             });
             thread.start();
         }
+    }
+
+    public void setWait(long wait) {
+        this.wait = wait;
     }
 }

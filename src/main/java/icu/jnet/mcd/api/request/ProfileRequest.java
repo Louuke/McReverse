@@ -1,5 +1,7 @@
 package icu.jnet.mcd.api.request;
 
+import icu.jnet.mcd.annotation.SensorRequired;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -7,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SensorRequired
 public class ProfileRequest implements Request {
 
     private final CustomerInformation customerInformation = new CustomerInformation();
