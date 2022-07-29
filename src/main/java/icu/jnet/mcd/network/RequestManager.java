@@ -1,18 +1,13 @@
 package icu.jnet.mcd.network;
 
 import com.google.api.client.http.HttpRequest;
-
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import icu.jnet.mcd.helper.Utils;
 
 public class RequestManager {
 
-    private final Queue<HttpRequest> queue = new ConcurrentLinkedQueue<>();
-    private static RequestManager instance;
+    private final AutoRemoveQueue<HttpRequest> queue = new AutoRemoveQueue<>();
 
-    private RequestManager() {
-        startPolling();
-    }
+    private static RequestManager instance;
 
     public static RequestManager getInstance() {
         if(instance == null) {
@@ -24,24 +19,7 @@ public class RequestManager {
     public void addRequest(HttpRequest request) {
         queue.add(request);
         while (queue.contains(request)) {
-            waitMill(100);
-        }
-    }
-
-    private void startPolling() {
-        new Thread(() -> {
-            while(true) {
-                waitMill(400);
-                queue.poll();
-            }
-        }).start();
-    }
-
-    private void waitMill(long mill) {
-        try {
-            Thread.sleep(mill);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            Utils.waitMill(100);
         }
     }
 }
