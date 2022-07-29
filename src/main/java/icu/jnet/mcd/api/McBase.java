@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Stream;
 
-import static icu.jnet.mcd.network.RequestManager.addRequest;
-
 class McBase {
 
     private final SensorToken sensorToken = new SensorToken();
@@ -81,7 +79,7 @@ class McBase {
             try {
                 request.setReadTimeout(8000);
                 setRequestHeaders(request);
-                addRequest(request);
+                RequestManager.getInstance().addRequest(request);
                 return gson.fromJson(request.execute().parseAsString(), clazz);
             } catch (HttpResponseException e) {
                 try {
