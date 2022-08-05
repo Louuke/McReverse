@@ -11,6 +11,7 @@ import icu.jnet.mcd.model.Authorization;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
 import icu.jnet.mcd.model.SensorToken;
+import icu.jnet.mcd.model.UserInfo;
 import icu.jnet.mcd.model.listener.StateChangeListener;
 import icu.jnet.mcd.network.RequestManager;
 
@@ -23,9 +24,8 @@ class McBase {
     private static final RequestManager reqManager = RequestManager.getInstance();
     private static final Gson gson = new Gson();
     private final SensorToken sensorToken = new SensorToken();
-    final Authorization auth = new Authorization();
-
-    String email;
+    private final Authorization authorization = new Authorization();
+    private final UserInfo userInfo = new UserInfo();
 
     <T extends Response> T queryGet(Request request, Class<T> clazz)  {
         try {
@@ -108,18 +108,18 @@ class McBase {
     }
 
     private boolean loginRefresh() {
-        LoginResponse login = queryPost(new RefreshRequest(auth.getRefreshToken()), LoginResponse.class);
+        LoginResponse login = queryPost(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class);
         if(success(login)) {
-            auth.updateRefreshToken(login.getRefreshToken());
-            auth.updateAccessToken(login.getAccessToken());
+            authorization.updateRefreshToken(login.getRefreshToken());
+            authorization.updateAccessToken(login.getAccessToken());
             return true;
         }
         return false;
     }
 
     private void setRequestHeaders(HttpRequest request, Request mcdRequest) {
-        String token = !auth.getAccessToken().isEmpty()
-                ? auth.getAccessToken()
+        String token = !authorization.getAccessToken().isEmpty()
+                ? authorization.getAccessToken()
                 : "Basic NkRFVXlKT0thQm96OFFSRm00OXFxVklWUGowR1V6b0g6NWltaDZOS1UzdjVDVWlmVHZIUTdFeEY4ZXhrbWFOamI=";
 
         HttpHeaders headers = new HttpHeaders();
@@ -153,15 +153,23 @@ class McBase {
     }
 
     public boolean addChangeListener(StateChangeListener listener) {
-        return auth.addChangeListener(listener) && sensorToken.addChangeListener(listener);
+        return authorization.addChangeListener(listener) && sensorToken.addChangeListener(listener);
+    }
+
+    boolean success(Response response) {
+        return response.getStatus().getType().equals("Success");
     }
 
     public SensorToken getSensorToken() {
         return sensorToken;
     }
 
-    boolean success(Response response) {
-        return response.getStatus().getType().equals("Success");
+    public Authorization getAuthorization() {
+        return authorization;
+    }
+
+    public UserInfo getUserInfo() {
+        return userInfo;
     }
 
     public void setRequestsPerSecond(double rps) {
