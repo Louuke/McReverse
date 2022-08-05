@@ -18,7 +18,7 @@ import icu.jnet.mcd.network.RequestManager;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-class McBase {
+public class McBase {
 
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     private static final RequestManager reqManager = RequestManager.getInstance();
