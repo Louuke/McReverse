@@ -172,6 +172,10 @@ class McBase {
         return userInfo;
     }
 
+    public String getEmail() {
+        return getUserInfo().getEmail();
+    }
+
     public void setRequestsPerSecond(double rps) {
         reqManager.setRequestsPerSecond(rps);
     }

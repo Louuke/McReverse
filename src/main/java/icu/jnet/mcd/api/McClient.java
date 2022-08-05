@@ -124,7 +124,7 @@ public class McClient extends McBase {
     }
 
     public Response setLocation() {
-        return queryPost(new LocationRequest(getUserInfo().getEmail()), Response.class);
+        return queryPost(new LocationRequest(getEmail()), Response.class);
     }
 
     public Response setNotification() {
@@ -136,11 +136,11 @@ public class McClient extends McBase {
         if(!(obj instanceof McClient)) {
             return false;
         }
-        return ((McClient) obj).getUserInfo().getEmail().equals(getUserInfo().getEmail());
+        return ((McClient) obj).getEmail().equals(getEmail());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getUserInfo().getEmail());
+        return Objects.hashCode(getEmail());
     }
 }
