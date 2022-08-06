@@ -9,7 +9,6 @@ import java.util.Objects;
 public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
-    private String deviceId = DEFAULT_DEVICE_ID, userId;
 
     public boolean login(String email, String password) {
         return login(email, password, DEFAULT_DEVICE_ID);
@@ -18,14 +17,15 @@ public class McClient extends McBase {
     public boolean login(String email, String password, String deviceId) {
         if(success(getAccessToken())) {
             LoginResponse login = queryPost(new LoginRequest(email, password, deviceId), LoginResponse.class);
-            auth.updateAccessToken(login.getAccessToken());
-            auth.updateRefreshToken(login.getRefreshToken());
+            getAuthorization().updateAccessToken(login.getAccessToken());
+            getAuthorization().updateRefreshToken(login.getRefreshToken());
             if(success(login)) {
                 ProfileResponse profileResponse = getProfile();
                 if(success(profileResponse)) {
-                    this.email = email;
-                    this.deviceId = deviceId;
-                    this.userId = profileResponse.getInfo().getHashedDcsId();
+                    getUserInfo()
+                            .setEmail(email)
+                            .setDeviceId(deviceId)
+                            .setUserId(profileResponse.getInfo().getHashedDcsId());
                     return true;
                 }
             }
@@ -42,7 +42,7 @@ public class McClient extends McBase {
     }
 
     public boolean activateAccount(String email, String activationCode) {
-        return activate(email, activationCode, deviceId, "email");
+        return activate(email, activationCode, DEFAULT_DEVICE_ID, "email");
     }
 
     public boolean activateAccount(String email, String activationCode, String deviceId) {
@@ -102,7 +102,7 @@ public class McClient extends McBase {
     }
 
     public Response useMyMcDonalds(boolean b) {
-        return queryPut(new ProfileRequest().useMyMcDonalds(b, deviceId), Response.class);
+        return queryPut(new ProfileRequest().useMyMcDonalds(b, getUserInfo().getDeviceId()), Response.class);
     }
 
     public Response setZipCode(String zipCode) {
@@ -119,29 +119,28 @@ public class McClient extends McBase {
 
     private AuthResponse getAccessToken() {
         AuthResponse authResponse = queryPost(new AccessRequest(), AuthResponse.class);
-        auth.updateAccessToken(authResponse.getToken());
+        getAuthorization().updateAccessToken(authResponse.getToken());
         return authResponse;
     }
 
     public Response setLocation() {
-        return queryPost(new LocationRequest(email), Response.class);
+        return queryPost(new LocationRequest(getEmail()), Response.class);
     }
 
     public Response setNotification() {
         return queryPost(new NotificationRequest(), Response.class);
     }
 
-    public String getEmail() {
-        return email;
-    }
-
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof McClient && ((McClient) obj).getEmail().equals(getEmail());
+        if(!(obj instanceof McClient)) {
+            return false;
+        }
+        return ((McClient) obj).getEmail().equals(getEmail());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(email);
+        return Objects.hashCode(getEmail());
     }
 }

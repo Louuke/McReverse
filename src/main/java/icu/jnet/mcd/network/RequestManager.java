@@ -1,30 +1,29 @@
 package icu.jnet.mcd.network;
 
 import com.google.api.client.http.HttpRequest;
-
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import icu.jnet.mcd.helper.Utils;
 
 public class RequestManager {
 
-    private long last = 0;
+    private final AutoRemoveQueue<HttpRequest> queue = new AutoRemoveQueue<>();
 
-    private final Queue<HttpRequest> queue = new ConcurrentLinkedQueue<>();
+    private static RequestManager instance;
 
-    public void addRequest(HttpRequest request) {
-        queue.add(request);
-        while (!(last == 0 || (System.currentTimeMillis() - last > 300 && queue.peek() == request))) {
-            waitMill();
+    public static RequestManager getInstance() {
+        if(instance == null) {
+            instance = new RequestManager();
         }
-        last = System.currentTimeMillis();
-        queue.poll();
+        return instance;
     }
 
-    private void waitMill() {
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public void enqueue(HttpRequest request) {
+        queue.add(request);
+        while (queue.contains(request)) {
+            Utils.waitMill(50);
         }
+    }
+
+    public void setRequestsPerSecond(double rps) {
+        queue.setWait((long) (1000 / rps));
     }
 }

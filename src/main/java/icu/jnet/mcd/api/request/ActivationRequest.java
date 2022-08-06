@@ -1,5 +1,8 @@
 package icu.jnet.mcd.api.request;
 
+import icu.jnet.mcd.annotation.SensorRequired;
+
+@SensorRequired
 public class ActivationRequest implements Request {
 
     private final String activationCode, deviceId;

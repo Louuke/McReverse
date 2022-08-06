@@ -6,33 +6,32 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.api.request.Request;
-import icu.jnet.mcd.api.response.RedeemResponse;
 import icu.jnet.mcd.api.response.status.Status;
 import icu.jnet.mcd.model.Authorization;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
 import icu.jnet.mcd.model.SensorToken;
+import icu.jnet.mcd.model.UserInfo;
 import icu.jnet.mcd.model.listener.StateChangeListener;
 import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.stream.Stream;
 
-class McBase {
+public class McBase {
 
-    private final RequestManager requestManager = new RequestManager();
+    private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
+    private static final RequestManager reqManager = RequestManager.getInstance();
+    private static final Gson gson = new Gson();
     private final SensorToken sensorToken = new SensorToken();
-    private transient HttpRequestFactory factory;
-    final Authorization auth = new Authorization();
-
-    String email;
+    private final Authorization authorization = new Authorization();
+    private final UserInfo userInfo = new UserInfo();
 
     <T extends Response> T queryGet(Request request, Class<T> clazz)  {
         try {
             String url = request.getUrl();
-            HttpRequest httpRequest = getFactory().buildGetRequest(new GenericUrl(url));
-            return query(httpRequest, clazz);
+            HttpRequest httpRequest = factory.buildGetRequest(new GenericUrl(url));
+            return query(httpRequest, clazz, request);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,8 +42,8 @@ class McBase {
         try {
             String url = request.getUrl();
             HttpContent httpContent = request.getContent();
-            HttpRequest httpRequest = getFactory().buildPostRequest(new GenericUrl(url), httpContent);
-            return query(httpRequest, clazz);
+            HttpRequest httpRequest = factory.buildPostRequest(new GenericUrl(url), httpContent);
+            return query(httpRequest, clazz, request);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,8 +53,8 @@ class McBase {
     <T extends Response> T queryDelete(Request request, Class<T> clazz) {
         try {
             String url = request.getUrl();
-            HttpRequest httpRequest = getFactory().buildDeleteRequest(new GenericUrl(url));
-            return query(httpRequest, clazz);
+            HttpRequest httpRequest = factory.buildDeleteRequest(new GenericUrl(url));
+            return query(httpRequest, clazz, request);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -66,59 +65,61 @@ class McBase {
         try {
             String url = request.getUrl();
             HttpContent httpContent = request.getContent();
-            HttpRequest httpRequest = getFactory().buildPutRequest(new GenericUrl(url), httpContent);
-            return query(httpRequest, clazz);
+            HttpRequest httpRequest = factory.buildPutRequest(new GenericUrl(url), httpContent);
+            return query(httpRequest, clazz, request);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return createInstance(clazz);
     }
 
-    private <T extends Response> T query(HttpRequest request, Class<T> clazz) {
-        Gson gson = new Gson();
-
-        if(!needToken(request) || needToken(request) && sensorToken.isValid()) {
-            try {
-                request.setReadTimeout(8000);
-                setRequestHeaders(request);
-                requestManager.addRequest(request);
-                return gson.fromJson(request.execute().parseAsString(), clazz);
-            } catch (HttpResponseException e) {
-                try {
-                    Response response = gson.fromJson(e.getContent(), Response.class);
-                    if(response != null) {
-                        if(response.getStatus().getErrors().stream()
-                                .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
-                            if(loginRefresh()) {
-                                return query(request, clazz);
-                            }
-                        }
-                        return createInstance(clazz, response.getStatus());
-                    }
-                } catch (JsonSyntaxException e2) {
-                    System.out.println(e.getContent());
-                }
-            } catch (IOException e) {
-                //e.printStackTrace();
-                sensorToken.setExpired();
+    private <T extends Response> T query(HttpRequest request, Class<T> clazz, Request mcdRequest) {
+        try {
+            request.setReadTimeout(8000);
+            setRequestHeaders(request, mcdRequest);
+            reqManager.enqueue(request);
+            return gson.fromJson(request.execute().parseAsString(), clazz);
+        } catch (HttpResponseException e) {
+            Response errorResponse = createErrorResponse(e);
+            if(errorResponse != null) {
+                return handleHttpError(errorResponse, request, clazz, mcdRequest);
             }
-        }
+        } catch (IOException ignored) {}
         return createInstance(clazz);
     }
 
+    private <T extends Response> T handleHttpError(Response errorResponse, HttpRequest request, Class<T> clazz, Request mcdRequest) {
+        if(errorResponse.getStatus().getErrors().stream()
+                .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
+            if(loginRefresh()) {
+                return query(request, clazz, mcdRequest);
+            }
+        }
+        return createInstance(clazz, errorResponse.getStatus());
+    }
+
+    private Response createErrorResponse(HttpResponseException exception) {
+        try {
+            return gson.fromJson(exception.getContent(), Response.class);
+        } catch (JsonSyntaxException ignored) {
+            System.err.println(exception.getContent());
+        }
+        return null;
+    }
+
     private boolean loginRefresh() {
-        LoginResponse login = queryPost(new RefreshRequest(auth.getRefreshToken()), LoginResponse.class);
+        LoginResponse login = queryPost(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class);
         if(success(login)) {
-            auth.updateAccessToken(login.getAccessToken());
-            auth.updateRefreshToken(login.getRefreshToken());
+            authorization.updateRefreshToken(login.getRefreshToken());
+            authorization.updateAccessToken(login.getAccessToken());
             return true;
         }
         return false;
     }
 
-    private void setRequestHeaders(HttpRequest request) {
-        String token = !auth.getAccessToken().isEmpty()
-                ? auth.getAccessToken()
+    private void setRequestHeaders(HttpRequest request, Request mcdRequest) {
+        String token = !authorization.getAccessToken().isEmpty()
+                ? authorization.getAccessToken()
                 : "Basic NkRFVXlKT0thQm96OFFSRm00OXFxVklWUGowR1V6b0g6NWltaDZOS1UzdjVDVWlmVHZIUTdFeEY4ZXhrbWFOamI=";
 
         HttpHeaders headers = new HttpHeaders();
@@ -131,18 +132,11 @@ class McBase {
         headers.set("mcd-sourceapp", "GMA");
         headers.set("mcd-uuid", "ab65a26f-b02c-416d-a5e5-a32df5ba762d"); // Can not be fully random?
 
-        if(needToken(request)) {
+        if(mcdRequest.isSensorRequired()) {
             headers.set("mcd-marketid", "DE");
             headers.set("x-acf-sensor-data", sensorToken.getToken());
         }
         request.setHeaders(headers);
-    }
-
-    private HttpRequestFactory getFactory() {
-        if(factory == null) {
-            factory = new NetHttpTransport().createRequestFactory();
-        }
-        return factory;
     }
 
     private <T extends Response> T createInstance(Class<T> clazz) {
@@ -158,20 +152,31 @@ class McBase {
         return null;
     }
 
-    private boolean needToken(HttpRequest request) {
-        String url = request.getUrl().toString();
-        return Stream.of("profile", "login", "registration", "activation").anyMatch(url::endsWith);
+    public boolean addChangeListener(StateChangeListener listener) {
+        return authorization.addChangeListener(listener) && sensorToken.addChangeListener(listener);
     }
 
-    public boolean addChangeListener(StateChangeListener listener) {
-        return auth.addChangeListener(listener) && sensorToken.addChangeListener(listener);
+    boolean success(Response response) {
+        return response.getStatus().getType().equals("Success");
     }
 
     public SensorToken getSensorToken() {
         return sensorToken;
     }
 
-    boolean success(Response response) {
-        return response.getStatus().getType().equals("Success");
+    public Authorization getAuthorization() {
+        return authorization;
+    }
+
+    public UserInfo getUserInfo() {
+        return userInfo;
+    }
+
+    public String getEmail() {
+        return getUserInfo().getEmail();
+    }
+
+    public void setRequestsPerSecond(double rps) {
+        reqManager.setRequestsPerSecond(rps);
     }
 }
