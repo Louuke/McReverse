@@ -11,7 +11,7 @@ public class AutoRemoveQueue<E> extends ConcurrentLinkedQueue<E> {
     private long wait;
 
     public AutoRemoveQueue() {
-        this.wait = 330;
+        this.wait = 200;
     }
 
     @Override

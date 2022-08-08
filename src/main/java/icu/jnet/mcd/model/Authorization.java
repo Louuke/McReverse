@@ -4,12 +4,14 @@ public class Authorization extends StateChangeable {
 
     private String accessToken, refreshToken;
 
-    public void updateAccessToken(String accessToken) {
+    public void updateAccessToken(String accessToken, boolean notify) {
         if(accessToken == null) {
             return;
         }
         this.accessToken = "Bearer " + accessToken;
-        super.notifyListeners(this);
+        if(notify) {
+            super.notifyListeners(this);
+        }
     }
 
     public void updateRefreshToken(String refreshToken) {

@@ -10,20 +10,22 @@ import icu.jnet.mcd.api.response.status.Status;
 import icu.jnet.mcd.model.Authorization;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
-import icu.jnet.mcd.model.SensorToken;
 import icu.jnet.mcd.model.UserInfo;
-import icu.jnet.mcd.model.listener.StateChangeListener;
+import icu.jnet.mcd.model.listener.ClientStateListener;
 import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class McBase {
 
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     private static final RequestManager reqManager = RequestManager.getInstance();
     private static final Gson gson = new Gson();
-    private final SensorToken sensorToken = new SensorToken();
+    private final transient List<ClientStateListener> stateListener = new ArrayList<>();
     private final Authorization authorization = new Authorization();
     private final UserInfo userInfo = new UserInfo();
 
@@ -94,6 +96,7 @@ public class McBase {
             if(loginRefresh()) {
                 return query(request, clazz, mcdRequest);
             }
+            notifyExpirationListeners();
         }
         return createInstance(clazz, errorResponse.getStatus());
     }
@@ -111,7 +114,7 @@ public class McBase {
         LoginResponse login = queryPost(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class);
         if(success(login)) {
             authorization.updateRefreshToken(login.getRefreshToken());
-            authorization.updateAccessToken(login.getAccessToken());
+            authorization.updateAccessToken(login.getAccessToken(), true);
             return true;
         }
         return false;
@@ -134,7 +137,7 @@ public class McBase {
 
         if(mcdRequest.isSensorRequired()) {
             headers.set("mcd-marketid", "DE");
-            headers.set("x-acf-sensor-data", sensorToken.getToken());
+            headers.set("x-acf-sensor-data", getSensorToken());
         }
         request.setHeaders(headers);
     }
@@ -152,16 +155,13 @@ public class McBase {
         return null;
     }
 
-    public boolean addChangeListener(StateChangeListener listener) {
-        return authorization.addChangeListener(listener) && sensorToken.addChangeListener(listener);
+    public void addStateListener(ClientStateListener listener) {
+        stateListener.add(listener);
+        authorization.addStateListener(listener);
     }
 
     boolean success(Response response) {
         return response.getStatus().getType().equals("Success");
-    }
-
-    public SensorToken getSensorToken() {
-        return sensorToken;
     }
 
     public Authorization getAuthorization() {
@@ -178,5 +178,17 @@ public class McBase {
 
     public void setRequestsPerSecond(double rps) {
         reqManager.setRequestsPerSecond(rps);
+    }
+
+    private String getSensorToken() {
+        return stateListener.stream().map(ClientStateListener::tokenRequired)
+                .filter(Objects::nonNull)
+                .findAny().orElse("");
+    }
+
+    private void notifyExpirationListeners() {
+        for(ClientStateListener listener : stateListener) {
+            listener.loginExpired();
+        }
     }
 }

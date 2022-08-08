@@ -17,9 +17,9 @@ public class McClient extends McBase {
     public boolean login(String email, String password, String deviceId) {
         if(success(getAccessToken())) {
             LoginResponse login = queryPost(new LoginRequest(email, password, deviceId), LoginResponse.class);
-            getAuthorization().updateAccessToken(login.getAccessToken());
-            getAuthorization().updateRefreshToken(login.getRefreshToken());
             if(success(login)) {
+                getAuthorization().updateAccessToken(login.getAccessToken(), true);
+                getAuthorization().updateRefreshToken(login.getRefreshToken());
                 ProfileResponse profileResponse = getProfile();
                 if(success(profileResponse)) {
                     getUserInfo()
@@ -119,7 +119,7 @@ public class McClient extends McBase {
 
     private AuthResponse getAccessToken() {
         AuthResponse authResponse = queryPost(new AccessRequest(), AuthResponse.class);
-        getAuthorization().updateAccessToken(authResponse.getToken());
+        getAuthorization().updateAccessToken(authResponse.getToken(), false);
         return authResponse;
     }
 
