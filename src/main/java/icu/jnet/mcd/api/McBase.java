@@ -133,7 +133,7 @@ public class McBase {
         headers.set("accept-charset", "UTF-8");
         headers.set("content-type", request.getContent() != null ? request.getContent().getType() : "application/json;");
         headers.set("accept-language", "de-DE");
-        headers.set("user-agent", "MCDSDK/19.0.60 (Android; 30; de-DE) GMA/7.8");
+        headers.set("user-agent", "MCDSDK/22.0.20 (Android; 30; de-DE) GMA/7.8");
         headers.set("mcd-sourceapp", "GMA");
         headers.set("mcd-uuid", (rand.nextInt(90000) + 10000) + "c4d-e5df-4cbe-92e9-702ca00ddc4c");
 
