@@ -84,11 +84,7 @@ public class McBase {
             if(errorResponse != null) {
                 return handleHttpError(errorResponse, request, clazz, mcdRequest);
             }
-            System.out.println(e.getContent());
-            System.out.println(gson.toJson(this));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
         return createInstance(clazz);
     }
 
