@@ -16,10 +16,7 @@ import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 public class McBase {
 
@@ -134,7 +131,7 @@ public class McBase {
         headers.set("accept-language", "de-DE");
         headers.set("user-agent", "MCDSDK/22.0.20 (Android; 30; de-DE) GMA/7.8");
         headers.set("mcd-sourceapp", "GMA");
-        headers.set("mcd-uuid", userInfo.getUuid());
+        headers.set("mcd-uuid", UUID.randomUUID());
 
         if(mcdRequest.isSensorRequired()) {
             headers.set("mcd-marketid", "DE");
