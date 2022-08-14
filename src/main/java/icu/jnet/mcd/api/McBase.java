@@ -19,12 +19,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 public class McBase {
 
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     private static final RequestManager reqManager = RequestManager.getInstance();
     private static final Gson gson = new Gson();
+    private static final Random rand = new Random();
     private final transient List<ClientStateListener> stateListener = new ArrayList<>();
     private final Authorization authorization = new Authorization();
     private final UserInfo userInfo = new UserInfo();
@@ -131,9 +133,9 @@ public class McBase {
         headers.set("accept-charset", "UTF-8");
         headers.set("content-type", request.getContent() != null ? request.getContent().getType() : "application/json;");
         headers.set("accept-language", "de-DE");
-        headers.set("user-agent", "MCDSDK/19.0.60 (Android; 30; de-DE) GMA/7.7");
+        headers.set("user-agent", "MCDSDK/19.0.60 (Android; 30; de-DE) GMA/7.8");
         headers.set("mcd-sourceapp", "GMA");
-        headers.set("mcd-uuid", "ab65a26f-b02c-416d-a5e5-a32df5ba762d"); // Can not be fully random?
+        headers.set("mcd-uuid", (rand.nextInt(90000) + 10000) + "c4d-e5df-4cbe-92e9-702ca00ddc4c");
 
         if(mcdRequest.isSensorRequired()) {
             headers.set("mcd-marketid", "DE");
