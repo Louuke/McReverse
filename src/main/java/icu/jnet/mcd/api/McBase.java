@@ -26,7 +26,6 @@ public class McBase {
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     private static final RequestManager reqManager = RequestManager.getInstance();
     private static final Gson gson = new Gson();
-    private static final Random rand = new Random();
     private final transient List<ClientStateListener> stateListener = new ArrayList<>();
     private final Authorization authorization = new Authorization();
     private final UserInfo userInfo = new UserInfo();
@@ -135,7 +134,7 @@ public class McBase {
         headers.set("accept-language", "de-DE");
         headers.set("user-agent", "MCDSDK/22.0.20 (Android; 30; de-DE) GMA/7.8");
         headers.set("mcd-sourceapp", "GMA");
-        headers.set("mcd-uuid", (rand.nextInt(90000) + 10000) + "c4d-e5df-4cbe-92e9-702ca00ddc4c");
+        headers.set("mcd-uuid", userInfo.getUuid());
 
         if(mcdRequest.isSensorRequired()) {
             headers.set("mcd-marketid", "DE");
