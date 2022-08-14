@@ -95,6 +95,7 @@ public class McBase {
                 return query(request, clazz, mcdRequest);
             }
             notifyExpirationListeners();
+            System.out.println(gson.toJson(request));
         }
         return createInstance(clazz, errorResponse.getStatus());
     }
@@ -115,6 +116,7 @@ public class McBase {
             authorization.updateAccessToken(login.getAccessToken(), true);
             return true;
         }
+        System.out.println(gson.toJson(login));
         return false;
     }
 

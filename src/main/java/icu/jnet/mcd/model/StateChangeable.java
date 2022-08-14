@@ -9,7 +9,7 @@ public abstract class StateChangeable {
 
     private final transient List<ClientStateListener> stateListener = new ArrayList<>();
 
-    protected <T> void notifyListeners(T source) {
+    protected <T extends StateChangeable> void notifyListeners(T source) {
         for(ClientStateListener listener : stateListener) {
             if(listener != null) {
                 listener.changed(source);
