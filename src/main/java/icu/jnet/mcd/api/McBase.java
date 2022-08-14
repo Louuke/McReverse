@@ -84,7 +84,10 @@ public class McBase {
             if(errorResponse != null) {
                 return handleHttpError(errorResponse, request, clazz, mcdRequest);
             }
-        } catch (IOException ignored) {}
+            System.out.println(e.getContent());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return createInstance(clazz);
     }
 
@@ -95,7 +98,6 @@ public class McBase {
                 return query(request, clazz, mcdRequest);
             }
             notifyExpirationListeners();
-            System.out.println(gson.toJson(request));
         }
         return createInstance(clazz, errorResponse.getStatus());
     }
