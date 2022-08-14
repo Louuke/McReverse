@@ -85,6 +85,7 @@ public class McBase {
                 return handleHttpError(errorResponse, request, clazz, mcdRequest);
             }
             System.out.println(e.getContent());
+            System.out.println(gson.toJson(this));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -118,7 +119,6 @@ public class McBase {
             authorization.updateAccessToken(login.getAccessToken(), true);
             return true;
         }
-        System.out.println(gson.toJson(login));
         return false;
     }
 
