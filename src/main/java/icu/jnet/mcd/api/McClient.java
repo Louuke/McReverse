@@ -18,8 +18,8 @@ public class McClient extends McBase {
         if(success(getAccessToken())) {
             LoginResponse login = queryPost(new LoginRequest(email, password, deviceId), LoginResponse.class);
             if(success(login)) {
-                getAuthorization().updateAccessToken(login.getAccessToken(), true);
                 getAuthorization().updateRefreshToken(login.getRefreshToken());
+                getAuthorization().updateAccessToken(login.getAccessToken(), true);
                 ProfileResponse profileResponse = getProfile();
                 if(success(profileResponse)) {
                     getUserInfo()

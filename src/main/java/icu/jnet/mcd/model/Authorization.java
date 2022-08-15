@@ -1,10 +1,12 @@
 package icu.jnet.mcd.model;
 
+import java.time.Instant;
 import java.util.Objects;
 
 public class Authorization extends StateChangeable {
 
     private String accessToken, refreshToken;
+    private long lastUpdate = Instant.now().getEpochSecond();
 
     public void updateAccessToken(String accessToken, boolean notify) {
         if(accessToken == null) {
@@ -12,6 +14,7 @@ public class Authorization extends StateChangeable {
         }
         this.accessToken = "Bearer " + accessToken;
         if(notify) {
+            this.lastUpdate = Instant.now().getEpochSecond();
             super.notifyListeners(this);
         }
     }
@@ -33,6 +36,10 @@ public class Authorization extends StateChangeable {
 
     public String getBareToken() {
         return getAccessToken().replace("Bearer ", "");
+    }
+
+    public long getLastUpdate() {
+        return lastUpdate;
     }
 
     @Override
