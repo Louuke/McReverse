@@ -10,11 +10,7 @@ public abstract class StateChangeable {
     private final transient List<ClientStateListener> stateListener = new ArrayList<>();
 
     protected <T extends StateChangeable> void notifyListeners(T source) {
-        for(ClientStateListener listener : stateListener) {
-            if(listener != null) {
-                listener.changed(source);
-            }
-        }
+        stateListener.forEach(listener -> listener.changed(source));
     }
 
     public void addStateListener(ClientStateListener listener) {

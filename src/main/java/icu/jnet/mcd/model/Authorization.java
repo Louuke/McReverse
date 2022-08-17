@@ -13,8 +13,8 @@ public class Authorization extends StateChangeable {
             return;
         }
         this.accessToken = "Bearer " + accessToken;
+        this.lastUpdate = Instant.now().getEpochSecond();
         if(notify) {
-            this.lastUpdate = Instant.now().getEpochSecond();
             super.notifyListeners(this);
         }
     }

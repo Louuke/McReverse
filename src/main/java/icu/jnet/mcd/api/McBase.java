@@ -185,8 +185,6 @@ public class McBase {
     }
 
     private void notifyExpirationListeners() {
-        for(ClientStateListener listener : stateListener) {
-            listener.loginExpired();
-        }
+        stateListener.forEach(listener -> listener.loginExpired(authorization));
     }
 }
