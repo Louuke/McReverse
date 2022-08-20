@@ -6,10 +6,11 @@ import icu.jnet.mcd.api.response.status.Status;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProfileResponse extends Response {
 
-    private HashMap<String, CustomerInformation> response;
+    private Map<String, CustomerInformation> response;
 
     public ProfileResponse(Status status) {
         super(status);

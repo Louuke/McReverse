@@ -1,5 +1,6 @@
 package icu.jnet.mcd.api.response;
 
+import icu.jnet.mcd.api.entity.offer.Conditions;
 import icu.jnet.mcd.api.response.status.Status;
 
 import java.util.ArrayList;
@@ -117,23 +118,6 @@ public class OfferDetailsResponse extends Response {
 
         public List<String> getRestaurants() {
             return restaurants != null ? restaurants : new ArrayList<>();
-        }
-    }
-
-    public static class Conditions {
-
-        private List<String> dateConditions, dayOfWeekConditions, saleAmountConditions;
-
-        public List<String> getDateConditions() {
-            return dateConditions != null ? dateConditions : new ArrayList<>();
-        }
-
-        public List<String> getDayOfWeekConditions() {
-            return dayOfWeekConditions != null ? dayOfWeekConditions : new ArrayList<>();
-        }
-
-        public List<String> getSaleAmountConditions() {
-            return saleAmountConditions != null ? saleAmountConditions : new ArrayList<>();
         }
     }
 
