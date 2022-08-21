@@ -21,6 +21,7 @@ public class McClient extends McBase {
             ProfileResponse profileResponse = getProfile();
             if(profileResponse.success()) {
                 getUserInfo().setEmail(email).setDeviceId(deviceId).setUserId(profileResponse.getResponse().getHashedDcsId());
+                updateId();
                 return true;
             }
         }
