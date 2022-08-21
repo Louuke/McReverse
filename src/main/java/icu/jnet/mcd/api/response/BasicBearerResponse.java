@@ -17,6 +17,6 @@ public class BasicBearerResponse extends Response {
     }
 
     public String getToken() {
-        return response != null ? "Bearer " + response.get("token") : "";
+        return response != null ? (String) response.get("token") : "";
     }
 }

@@ -7,7 +7,6 @@ import com.google.gson.stream.JsonWriter;
 import icu.jnet.mcd.api.entity.PojoEntity;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 public class EntityAdapterFactory implements TypeAdapterFactory {
 
@@ -27,23 +26,13 @@ public class EntityAdapterFactory implements TypeAdapterFactory {
             @Override
             public T read(JsonReader in) throws IOException {
                 T pojo = delegateAdapter.read(in);
-                updateId((PojoEntity) pojo);
+                ((PojoEntity) pojo).updateId();
                 return pojo;
             }
         };
     }
 
-    private void updateId(PojoEntity entity) {
-        try {
-            Field id = PojoEntity.class.getDeclaredField("_id");
-            id.setAccessible(true);
-            id.set(entity, entity.hashCode());
-        } catch (NoSuchFieldException ex) {
-            ex.printStackTrace();
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 
     private boolean isEntity(Class<?> clazz) {
         if(clazz.getSuperclass() != null) {

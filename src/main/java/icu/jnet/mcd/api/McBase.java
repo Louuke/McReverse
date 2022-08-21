@@ -8,6 +8,7 @@ import com.google.gson.JsonSyntaxException;
 import icu.jnet.mcd.annotation.BasicBearerRequired;
 import icu.jnet.mcd.annotation.BasicAuth;
 import icu.jnet.mcd.annotation.SensorRequired;
+import icu.jnet.mcd.api.entity.PojoEntity;
 import icu.jnet.mcd.api.login.Authorization;
 import icu.jnet.mcd.api.request.BasicBearerRequest;
 import icu.jnet.mcd.api.request.RefreshRequest;
@@ -25,7 +26,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-public class McBase {
+public class McBase extends PojoEntity {
 
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     private static final RequestManager reqManager = RequestManager.getInstance();
@@ -132,9 +133,9 @@ public class McBase {
         if (mcdRequest.hasAnnotation(BasicAuth.class)) {
             return "Basic NkRFVXlKT0thQm96OFFSRm00OXFxVklWUGowR1V6b0g6NWltaDZOS1UzdjVDVWlmVHZIUTdFeEY4ZXhrbWFOamI=";
         } else if (mcdRequest.hasAnnotation(BasicBearerRequired.class)) {
-            return getBasicBearer().getToken();
+            return "Bearer " + getBasicBearer().getToken();
         }
-        return authorization.getAccessToken();
+        return "Bearer " + authorization.getAccessToken();
     }
 
     private void setRequestHeaders(HttpRequest request, Request mcdRequest) {

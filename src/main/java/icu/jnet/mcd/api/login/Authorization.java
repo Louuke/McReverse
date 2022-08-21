@@ -4,18 +4,14 @@ import java.util.Objects;
 
 public class Authorization {
 
-    private String accessToken, refreshToken;
+    private final String accessToken = "", refreshToken = "";
 
     public String getAccessToken() {
-        return accessToken != null ? "Bearer " + accessToken : "";
+        return accessToken;
     }
 
     public String getRefreshToken() {
-        return refreshToken != null ? refreshToken : "";
-    }
-
-    public String getBareToken() {
-        return getAccessToken().replace("Bearer ", "");
+        return refreshToken;
     }
 
     @Override

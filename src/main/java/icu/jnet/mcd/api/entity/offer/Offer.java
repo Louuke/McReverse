@@ -3,13 +3,15 @@ package icu.jnet.mcd.api.entity.offer;
 import com.google.gson.annotations.SerializedName;
 import icu.jnet.mcd.api.entity.PojoEntity;
 
+import java.util.regex.Pattern;
+
 public class Offer extends PojoEntity {
 
+    private static final Pattern pricePattern = Pattern.compile("\\d+,\\d\\d");
+    private static final Pattern clockPattern = Pattern.compile("\\d\\d-\\d\\d");
     @SerializedName("conditions") private Conditions conditions;
     @SerializedName("punchInfo") private PunchInfo punchInfo;
     @SerializedName("recurringInfo") private RecurringInfo recurringInfo;
-    @SerializedName("CreationDateUtc") private String creationDateUTC;
-    @SerializedName("name") private String fullName;
     @SerializedName("extendToEOD") private boolean extendToEOD;
     @SerializedName("isArchived") private boolean archived;
     @SerializedName("isDynamicExpiration") private boolean dynamicExpiration;
@@ -17,10 +19,22 @@ public class Offer extends PojoEntity {
     @SerializedName("isRedeemed") private boolean redeemed;
     @SerializedName("isSLPOffer") private boolean slpOffer;
     @SerializedName("isvalidTotalOrder") private boolean validTotalOrder;
-    private String imageBaseLanguage, imageBaseName, localValidFrom, localValidTo, longDescription, offerBucket,
-            shortDescription, validFromUTC, validToUTC;
-    private int colorCodingInfo, offerPropositionId, offerType, redemptionMode;
-    private long offerId;
+    @SerializedName("imageBaseLanguage") private String imageBaseLanguage;
+    @SerializedName("imageBaseName") private String imageBaseName;
+    @SerializedName("localValidFrom") private String localValidFrom;
+    @SerializedName("localValidTo") private String localValidTo;
+    @SerializedName("longDescription") private String longDescription;
+    @SerializedName("offerBucket") private String offerBucket;
+    @SerializedName("shortDescription") private String shortDescription;
+    @SerializedName("validFromUTC") private String validFromUTC;
+    @SerializedName("validToUTC") private String validToUTC;
+    @SerializedName("CreationDateUtc") private String creationDateUTC;
+    @SerializedName("name") private String fullName;
+    @SerializedName("colorCodingInfo") private int colorCodingInfo;
+    @SerializedName("offerPropositionId") private int offerPropositionId;
+    @SerializedName("offerType") private int offerType;
+    @SerializedName("redemptionMode") private int redemptionMode;
+    @SerializedName("offerId") private long offerId;
 
     public Conditions getConditions() {
         return conditions;
@@ -88,6 +102,22 @@ public class Offer extends PojoEntity {
 
     public String getImageUrl() {
         return "https://de-prod-us-cds-oceofferimages.s3.amazonaws.com/oce3-de-prod/offers/" + imageBaseName;
+    }
+
+    public Integer getPriceCents() {
+        return pricePattern.matcher(getPrice()).results()
+                .map(result -> result.group().replace(",", ""))
+                .map(Integer::parseInt).findAny().orElse(0);
+    }
+
+    public Integer getAvailableHourFrom() {
+        return clockPattern.matcher(getPrice()).results()
+                .map(result -> Integer.parseInt(result.group().split("-")[0])).findAny().orElse(0);
+    }
+
+    public Integer getAvailableHourTo() {
+        return clockPattern.matcher(getPrice()).results()
+                .map(result -> Integer.parseInt(result.group().split("-")[1])).findAny().orElse(23);
     }
 
     public boolean isExtendToEOD() {
