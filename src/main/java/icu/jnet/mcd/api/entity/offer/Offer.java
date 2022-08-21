@@ -1,11 +1,10 @@
 package icu.jnet.mcd.api.entity.offer;
 
 import com.google.gson.annotations.SerializedName;
-import icu.jnet.mcd.api.entity.PojoEntity;
 
 import java.util.regex.Pattern;
 
-public class Offer extends PojoEntity {
+public class Offer {
 
     private static final Pattern pricePattern = Pattern.compile("\\d+,\\d\\d");
     private static final Pattern clockPattern = Pattern.compile("\\d\\d-\\d\\d");
