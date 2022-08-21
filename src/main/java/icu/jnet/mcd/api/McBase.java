@@ -3,15 +3,22 @@ package icu.jnet.mcd.api;
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import icu.jnet.mcd.annotation.BasicBearerRequired;
+import icu.jnet.mcd.annotation.BasicAuth;
+import icu.jnet.mcd.annotation.SensorRequired;
+import icu.jnet.mcd.api.login.Authorization;
+import icu.jnet.mcd.api.request.BasicBearerRequest;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.api.request.Request;
+import icu.jnet.mcd.api.response.BasicBearerResponse;
 import icu.jnet.mcd.api.response.status.Status;
-import icu.jnet.mcd.model.Authorization;
+import icu.jnet.mcd.helper.EntityAdapterFactory;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
-import icu.jnet.mcd.model.UserInfo;
-import icu.jnet.mcd.model.listener.ClientStateListener;
+import icu.jnet.mcd.utils.UserInfo;
+import icu.jnet.mcd.utils.listener.ClientStateListener;
 import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
@@ -22,10 +29,10 @@ public class McBase {
 
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     private static final RequestManager reqManager = RequestManager.getInstance();
-    private static final Gson gson = new Gson();
+    private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new EntityAdapterFactory()).create();
     private final transient List<ClientStateListener> stateListener = new ArrayList<>();
-    private final Authorization authorization = new Authorization();
     private final UserInfo userInfo = new UserInfo();
+    private Authorization authorization = new Authorization();
 
     <T extends Response> T queryGet(Request request, Class<T> clazz)  {
         try {
@@ -89,12 +96,12 @@ public class McBase {
     }
 
     private <T extends Response> T handleHttpError(Response errorResponse, HttpRequest request, Class<T> clazz, Request mcdRequest) {
-        if(errorResponse.getStatus().getErrors().stream()
-                .anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) { // Authorization expired
+        // Authorization expired
+        if(errorResponse.getStatus().getErrors().stream().anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) {
             if(loginRefresh()) {
                 return query(request, clazz, mcdRequest);
             }
-            notifyExpirationListeners();
+            notifyListener("expired");
         }
         return createInstance(clazz, errorResponse.getStatus());
     }
@@ -110,22 +117,30 @@ public class McBase {
 
     private boolean loginRefresh() {
         LoginResponse login = queryPost(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class);
-        if(success(login)) {
-            authorization.updateRefreshToken(login.getRefreshToken());
-            authorization.updateAccessToken(login.getAccessToken(), true);
+        if(login.success()) {
+            setAuthorization(login.getResponse());
             return true;
         }
         return false;
     }
 
-    private void setRequestHeaders(HttpRequest request, Request mcdRequest) {
-        String token = !authorization.getAccessToken().isEmpty()
-                ? authorization.getAccessToken()
-                : "Basic NkRFVXlKT0thQm96OFFSRm00OXFxVklWUGowR1V6b0g6NWltaDZOS1UzdjVDVWlmVHZIUTdFeEY4ZXhrbWFOamI=";
+    private BasicBearerResponse getBasicBearer() {
+        return queryPost(new BasicBearerRequest(), BasicBearerResponse.class);
+    }
 
+    private String getToken(Request mcdRequest) {
+        if (mcdRequest.hasAnnotation(BasicAuth.class)) {
+            return "Basic NkRFVXlKT0thQm96OFFSRm00OXFxVklWUGowR1V6b0g6NWltaDZOS1UzdjVDVWlmVHZIUTdFeEY4ZXhrbWFOamI=";
+        } else if (mcdRequest.hasAnnotation(BasicBearerRequired.class)) {
+            return getBasicBearer().getToken();
+        }
+        return authorization.getAccessToken();
+    }
+
+    private void setRequestHeaders(HttpRequest request, Request mcdRequest) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
-        headers.set("authorization", token);
+        headers.set("authorization", getToken(mcdRequest));
         headers.set("accept-charset", "UTF-8");
         headers.set("content-type", request.getContent() != null ? request.getContent().getType() : "application/json;");
         headers.set("accept-language", "de-DE");
@@ -133,7 +148,7 @@ public class McBase {
         headers.set("mcd-sourceapp", "GMA");
         headers.set("mcd-uuid", UUID.randomUUID());
 
-        if(mcdRequest.isSensorRequired()) {
+        if(mcdRequest.hasAnnotation(SensorRequired.class)) {
             headers.set("mcd-marketid", "DE");
             headers.set("x-acf-sensor-data", getSensorToken());
         }
@@ -153,25 +168,12 @@ public class McBase {
         return null;
     }
 
-    public void addStateListener(ClientStateListener listener) {
-        stateListener.add(listener);
-        authorization.addStateListener(listener);
-    }
-
-    boolean success(Response response) {
-        return response.getStatus().getType().equals("Success");
-    }
-
-    public Authorization getAuthorization() {
-        return authorization;
-    }
-
     public UserInfo getUserInfo() {
         return userInfo;
     }
 
     public String getEmail() {
-        return getUserInfo().getEmail();
+        return userInfo.getEmail();
     }
 
     public void setRequestsPerSecond(double rps) {
@@ -180,11 +182,26 @@ public class McBase {
 
     private String getSensorToken() {
         return stateListener.stream().map(ClientStateListener::tokenRequired)
-                .filter(Objects::nonNull)
-                .findAny().orElse("");
+                .filter(Objects::nonNull).findAny().orElse("");
     }
 
-    private void notifyExpirationListeners() {
-        stateListener.forEach(listener -> listener.loginExpired(authorization));
+    public void addStateListener(ClientStateListener listener) {
+        stateListener.add(listener);
+    }
+
+    public Authorization getAuthorization() {
+        return authorization;
+    }
+
+    void setAuthorization(Authorization authorization) {
+        this.authorization = authorization;
+        notifyListener("changed");
+    }
+
+    void notifyListener(String type) {
+        switch (type) {
+            case "expired": stateListener.forEach(listener -> listener.loginExpired(authorization)); break;
+            case "changed": stateListener.forEach(listener -> listener.authChanged(authorization)); break;
+        }
     }
 }

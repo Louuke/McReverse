@@ -15,19 +15,13 @@ public class McClient extends McBase {
     }
 
     public boolean login(String email, String password, String deviceId) {
-        if(success(getAccessToken())) {
-            LoginResponse login = queryPost(new LoginRequest(email, password, deviceId), LoginResponse.class);
-            if(success(login)) {
-                getAuthorization().updateRefreshToken(login.getRefreshToken());
-                getAuthorization().updateAccessToken(login.getAccessToken(), true);
-                ProfileResponse profileResponse = getProfile();
-                if(success(profileResponse)) {
-                    getUserInfo()
-                            .setEmail(email)
-                            .setDeviceId(deviceId)
-                            .setUserId(profileResponse.getInfo().getHashedDcsId());
-                    return true;
-                }
+        LoginResponse login = queryPost(new LoginRequest(email, password, deviceId), LoginResponse.class);
+        if(login.success()) {
+            setAuthorization(login.getResponse());
+            ProfileResponse profileResponse = getProfile();
+            if(profileResponse.success()) {
+                getUserInfo().setEmail(email).setDeviceId(deviceId).setUserId(profileResponse.getResponse().getHashedDcsId());
+                return true;
             }
         }
         return false;
@@ -38,7 +32,7 @@ public class McClient extends McBase {
     }
 
     public boolean register(String email, String password, String zipCode, String deviceId) {
-        return success(getAccessToken()) && success(queryPost(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class));
+        return queryPost(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class).success();
     }
 
     public boolean activateAccount(String email, String activationCode) {
@@ -54,7 +48,7 @@ public class McClient extends McBase {
     }
 
     private boolean activate(String email, String activationCode, String deviceId, String type) {
-        return success(getAccessToken()) && success(queryPut(new ActivationRequest(email, activationCode, deviceId, type), Response.class));
+        return queryPut(new ActivationRequest(email, activationCode, deviceId, type), Response.class).success();
     }
 
     public Response deleteAccount() {
@@ -102,7 +96,7 @@ public class McClient extends McBase {
     }
 
     public Response useMyMcDonalds(boolean b) {
-        return queryPut(new ProfileRequest().useMyMcDonalds(b, getUserInfo().getDeviceId()), Response.class);
+        return queryPut(new ProfileRequest().useMyMcDonalds(b), Response.class);
     }
 
     public Response setZipCode(String zipCode) {
@@ -110,17 +104,11 @@ public class McClient extends McBase {
     }
 
     public boolean usesMyMcDonalds() {
-        return queryGet(new ProfileRequest(), ProfileResponse.class).getInfo().getSubscriptions().stream()
+        return queryGet(new ProfileRequest(), ProfileResponse.class).getResponse().getSubscriptions().stream()
                 .filter(sub -> sub.getOptInStatus().equals("Y")
                         && Arrays.asList("23", "24", "25").contains(sub.getSubscriptionId())
                         || sub.getOptInStatus().equals("N")
                         && sub.getSubscriptionId().equals("21")).count() == 4;
-    }
-
-    private AuthResponse getAccessToken() {
-        AuthResponse authResponse = queryPost(new AccessRequest(), AuthResponse.class);
-        getAuthorization().updateAccessToken(authResponse.getToken(), false);
-        return authResponse;
     }
 
     public Response setLocation() {

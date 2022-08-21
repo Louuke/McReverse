@@ -1,10 +1,12 @@
 package icu.jnet.mcd.api.request;
 
+import icu.jnet.mcd.annotation.BasicBearerRequired;
 import icu.jnet.mcd.annotation.SensorRequired;
 
 import java.util.HashMap;
 
 @SensorRequired
+@BasicBearerRequired
 public class RegisterRequest implements Request {
 
     private Policies policies = new Policies();

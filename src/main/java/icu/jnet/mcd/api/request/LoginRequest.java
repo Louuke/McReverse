@@ -1,11 +1,13 @@
 package icu.jnet.mcd.api.request;
 
+import icu.jnet.mcd.annotation.BasicBearerRequired;
 import icu.jnet.mcd.annotation.SensorRequired;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @SensorRequired
+@BasicBearerRequired
 public class LoginRequest implements Request {
 
     private final ClientInfo clientInfo;

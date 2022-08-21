@@ -1,4 +1,4 @@
-package icu.jnet.mcd.model;
+package icu.jnet.mcd.utils;
 
 public class UserInfo {
     private String email = "", deviceId = "", userId = "";

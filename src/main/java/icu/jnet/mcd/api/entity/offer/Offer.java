@@ -1,12 +1,13 @@
 package icu.jnet.mcd.api.entity.offer;
 
 import com.google.gson.annotations.SerializedName;
+import icu.jnet.mcd.api.entity.PojoEntity;
 
-public class Offer {
+public class Offer extends PojoEntity {
 
-    private Conditions conditions;
-    private PunchInfo punchInfo;
-    private RecurringInfo recurringInfo;
+    @SerializedName("conditions") private Conditions conditions;
+    @SerializedName("punchInfo") private PunchInfo punchInfo;
+    @SerializedName("recurringInfo") private RecurringInfo recurringInfo;
     @SerializedName("CreationDateUtc") private String creationDateUTC;
     @SerializedName("name") private String fullName;
     @SerializedName("extendToEOD") private boolean extendToEOD;
@@ -109,7 +110,7 @@ public class Offer {
         return redeemed;
     }
 
-    public boolean isSLPOffer() {
+    public boolean isSlpOffer() {
         return slpOffer;
     }
 
@@ -135,5 +136,19 @@ public class Offer {
 
     public long getOfferId() {
         return offerId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof Offer)) {
+            return false;
+        }
+        Offer offer = (Offer) o;
+        return offer.getOfferPropositionId() == offerPropositionId;
+    }
+
+    @Override
+    public int hashCode() {
+        return offerPropositionId;
     }
 }

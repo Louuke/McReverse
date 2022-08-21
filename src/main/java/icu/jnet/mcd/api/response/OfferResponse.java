@@ -16,11 +16,7 @@ public class OfferResponse extends Response {
         super(status);
     }
 
-    public Map<String, List<Offer>> getResponse() {
-        return response != null ? response : new HashMap<>();
-    }
-
-    public List<Offer> getOffers() {
+    public List<Offer> getResponse() {
         return response != null ? response.get("offers") : new ArrayList<>();
     }
 }
