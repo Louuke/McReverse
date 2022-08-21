@@ -10,11 +10,11 @@ public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
 
-    public boolean login(String email, String password) {
+    public LoginResponse login(String email, String password) {
         return login(email, password, DEFAULT_DEVICE_ID);
     }
 
-    public boolean login(String email, String password, String deviceId) {
+    public LoginResponse login(String email, String password, String deviceId) {
         LoginResponse login = queryPost(new LoginRequest(email, password, deviceId), LoginResponse.class);
         if(login.success()) {
             setAuthorization(login.getResponse());
@@ -22,34 +22,33 @@ public class McClient extends McBase {
             if(profileResponse.success()) {
                 getUserInfo().setEmail(email).setDeviceId(deviceId).setUserId(profileResponse.getResponse().getHashedDcsId());
                 updateId();
-                return true;
             }
         }
-        return false;
+        return login;
     }
 
-    public boolean register(String email, String password, String zipCode) {
+    public Response register(String email, String password, String zipCode) {
         return register(email, password, zipCode, DEFAULT_DEVICE_ID);
     }
 
-    public boolean register(String email, String password, String zipCode, String deviceId) {
-        return queryPost(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class).success();
+    public Response register(String email, String password, String zipCode, String deviceId) {
+        return queryPost(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class);
     }
 
-    public boolean activateAccount(String email, String activationCode) {
+    public Response activateAccount(String email, String activationCode) {
         return activate(email, activationCode, DEFAULT_DEVICE_ID, "email");
     }
 
-    public boolean activateAccount(String email, String activationCode, String deviceId) {
+    public Response activateAccount(String email, String activationCode, String deviceId) {
         return activate(email, activationCode, deviceId, "email");
     }
 
-    public boolean activateDevice(String email, String activationCode, String deviceId) {
+    public Response activateDevice(String email, String activationCode, String deviceId) {
         return activate(email, activationCode, deviceId, "device");
     }
 
-    private boolean activate(String email, String activationCode, String deviceId, String type) {
-        return queryPut(new ActivationRequest(email, activationCode, deviceId, type), Response.class).success();
+    private Response activate(String email, String activationCode, String deviceId, String type) {
+        return queryPut(new ActivationRequest(email, activationCode, deviceId, type), Response.class);
     }
 
     public Response deleteAccount() {
@@ -118,6 +117,10 @@ public class McClient extends McBase {
 
     public Response setNotification() {
         return queryPost(new NotificationRequest(), Response.class);
+    }
+
+    public LoginResponse verifyNextToken() {
+        return queryPost(new SensorVerifyRequest(), LoginResponse.class);
     }
 
     @Override

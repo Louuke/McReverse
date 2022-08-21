@@ -15,6 +15,10 @@ public interface Request {
     }
 
     default boolean hasAnnotation(Class<? extends Annotation> clazz) {
-        return getClass().isAnnotationPresent(clazz);
+        return getClass().isAnnotationPresent(clazz) || getClass().getSuperclass().isAnnotationPresent(clazz);
+    }
+
+    default int getReadTimeout() {
+        return 6000;
     }
 }

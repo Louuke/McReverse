@@ -1,17 +1,17 @@
-package icu.jnet.mcd.api.login;
+package icu.jnet.mcd.api.entity.login;
 
 import java.util.Objects;
 
 public class Authorization {
 
-    private final String accessToken = "", refreshToken = "";
+    private String accessToken, refreshToken;
 
     public String getAccessToken() {
-        return accessToken;
+        return accessToken != null ? accessToken : "";
     }
 
     public String getRefreshToken() {
-        return refreshToken;
+        return refreshToken != null ? refreshToken : "";
     }
 
     @Override

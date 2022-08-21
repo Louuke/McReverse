@@ -1,6 +1,6 @@
 package icu.jnet.mcd.network;
 
-import icu.jnet.mcd.helper.Utils;
+import icu.jnet.mcd.utils.Utils;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;

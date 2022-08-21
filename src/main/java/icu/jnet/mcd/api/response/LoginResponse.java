@@ -1,10 +1,7 @@
 package icu.jnet.mcd.api.response;
 
-import icu.jnet.mcd.api.login.Authorization;
+import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.api.response.status.Status;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class LoginResponse extends Response {
 

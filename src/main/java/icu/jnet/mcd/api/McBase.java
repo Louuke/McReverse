@@ -9,13 +9,13 @@ import icu.jnet.mcd.annotation.BasicBearerRequired;
 import icu.jnet.mcd.annotation.BasicAuth;
 import icu.jnet.mcd.annotation.SensorRequired;
 import icu.jnet.mcd.api.entity.PojoEntity;
-import icu.jnet.mcd.api.login.Authorization;
+import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.api.request.BasicBearerRequest;
 import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.api.request.Request;
 import icu.jnet.mcd.api.response.BasicBearerResponse;
 import icu.jnet.mcd.api.response.status.Status;
-import icu.jnet.mcd.helper.EntityAdapterFactory;
+import icu.jnet.mcd.utils.EntityAdapterFactory;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
 import icu.jnet.mcd.utils.UserInfo;
@@ -28,9 +28,9 @@ import java.util.*;
 
 public class McBase extends PojoEntity {
 
+    private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new EntityAdapterFactory()).create();
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     private static final RequestManager reqManager = RequestManager.getInstance();
-    private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new EntityAdapterFactory()).create();
     private final transient List<ClientStateListener> stateListener = new ArrayList<>();
     private final UserInfo userInfo = new UserInfo();
     private Authorization authorization = new Authorization();
@@ -83,7 +83,7 @@ public class McBase extends PojoEntity {
 
     private <T extends Response> T query(HttpRequest request, Class<T> clazz, Request mcdRequest) {
         try {
-            request.setReadTimeout(8000);
+            request.setReadTimeout(mcdRequest.getReadTimeout());
             setRequestHeaders(request, mcdRequest);
             reqManager.enqueue(request);
             return gson.fromJson(request.execute().parseAsString(), clazz);
@@ -182,8 +182,7 @@ public class McBase extends PojoEntity {
     }
 
     private String getSensorToken() {
-        return stateListener.stream().map(ClientStateListener::tokenRequired)
-                .filter(Objects::nonNull).findAny().orElse("");
+        return stateListener.stream().map(ClientStateListener::tokenRequired).filter(Objects::nonNull).findAny().orElse("");
     }
 
     public void addStateListener(ClientStateListener listener) {

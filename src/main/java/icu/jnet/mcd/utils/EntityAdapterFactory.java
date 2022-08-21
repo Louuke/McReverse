@@ -1,4 +1,4 @@
-package icu.jnet.mcd.helper;
+package icu.jnet.mcd.utils;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -31,8 +31,6 @@ public class EntityAdapterFactory implements TypeAdapterFactory {
             }
         };
     }
-
-
 
     private boolean isEntity(Class<?> clazz) {
         if(clazz.getSuperclass() != null) {
