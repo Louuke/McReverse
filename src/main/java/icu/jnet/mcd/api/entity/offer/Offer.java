@@ -119,7 +119,7 @@ public class Offer {
                 .map(result -> Integer.parseInt(result.group().split("-")[1])).findAny().orElse(23);
     }
 
-    private boolean hasUsesLeft(Offer offer) {
+    public boolean hasUsesLeft(Offer offer) {
         int dayRedemption = offer.getRecurringInfo().getCurrentDayRedemptionQuantity();
         int maxRedemption = offer.getRecurringInfo().getMaxRedemptionQuantityPerDay();
         return maxRedemption == 0 || dayRedemption < maxRedemption;
