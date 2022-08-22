@@ -17,4 +17,9 @@ public class RedeemResponse extends Response {
     public Code getResponse() {
         return response;
     }
+
+    @Override
+    public boolean success() {
+        return getStatus().getType().equals("Absolute Success");
+    }
 }
