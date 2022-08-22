@@ -76,11 +76,11 @@ public class Offer {
     }
 
     public String getName() {
-        return fullName != null ? fullName.split("\n")[0].strip() : "";
+        return fullName.contains("\n") ? fullName.split("\n")[0].strip() : fullName;
     }
 
     public String getPrice() {
-        return fullName != null ? fullName.split("\n")[1].strip() : "0";
+        return fullName.contains("\n") ? fullName.split("\n")[1].strip() : "0";
     }
 
     public String getOfferBucket() {
