@@ -12,7 +12,7 @@ public class Code {
         return expirationTime != null ? expirationTime : "1970-01-01T00:00:00Z";
     }
 
-    public String getCode() {
+    public String getRandomCode() {
         return randomCode != null ? randomCode : "";
     }
 }

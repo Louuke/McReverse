@@ -19,4 +19,9 @@ public class OfferResponse extends Response {
     public List<Offer> getResponse() {
         return response != null ? response.get("offers") : new ArrayList<>();
     }
+
+    @Override
+    public boolean success() {
+        return getStatus().getType().equals("Absolute Success");
+    }
 }
