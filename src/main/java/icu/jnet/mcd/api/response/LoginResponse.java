@@ -1,6 +1,6 @@
 package icu.jnet.mcd.api.response;
 
-import icu.jnet.mcd.api.entity.login.Authorization;
+import icu.jnet.mcd.api.entity.response.Authorization;
 import icu.jnet.mcd.api.response.status.Status;
 
 public class LoginResponse extends Response {

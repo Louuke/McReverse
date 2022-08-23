@@ -1,4 +1,4 @@
-package icu.jnet.mcd.api.entity.login;
+package icu.jnet.mcd.api.entity.response;
 
 import java.util.Objects;
 

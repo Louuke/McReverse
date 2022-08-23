@@ -1,7 +1,7 @@
 package icu.jnet.mcd.utils.listener;
 
 
-import icu.jnet.mcd.api.entity.login.Authorization;
+import icu.jnet.mcd.api.entity.response.Authorization;
 
 public interface ClientStateListener {
 

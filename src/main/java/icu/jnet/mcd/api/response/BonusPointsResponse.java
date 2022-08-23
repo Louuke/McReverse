@@ -1,6 +1,6 @@
 package icu.jnet.mcd.api.response;
 
-import icu.jnet.mcd.api.entity.bonus.BonusPoints;
+import icu.jnet.mcd.api.entity.response.BonusPoints;
 import icu.jnet.mcd.api.response.status.Status;
 
 import java.util.ArrayList;

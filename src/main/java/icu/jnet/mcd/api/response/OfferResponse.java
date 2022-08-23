@@ -1,10 +1,9 @@
 package icu.jnet.mcd.api.response;
 
-import icu.jnet.mcd.api.entity.offer.Offer;
+import icu.jnet.mcd.api.entity.response.Offer;
 import icu.jnet.mcd.api.response.status.Status;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

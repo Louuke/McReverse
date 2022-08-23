@@ -1,4 +1,4 @@
-package icu.jnet.mcd.api.entity.details;
+package icu.jnet.mcd.api.entity.components;
 
 import java.util.ArrayList;
 import java.util.List;

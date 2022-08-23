@@ -1,4 +1,4 @@
-package icu.jnet.mcd.api.entity.profile;
+package icu.jnet.mcd.api.entity.components;
 
 public class Devices {
 

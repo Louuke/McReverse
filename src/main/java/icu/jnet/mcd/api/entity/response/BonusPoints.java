@@ -1,4 +1,4 @@
-package icu.jnet.mcd.api.entity.bonus;
+package icu.jnet.mcd.api.entity.response;
 
 public class BonusPoints {
 

@@ -1,25 +1,22 @@
 package icu.jnet.mcd.api.request;
 
 import icu.jnet.mcd.annotation.SensorRequired;
-import icu.jnet.mcd.api.entity.profile.Address;
-import icu.jnet.mcd.api.entity.profile.Base;
-import icu.jnet.mcd.api.entity.profile.CustomerInformation;
-import icu.jnet.mcd.api.entity.profile.Subscription;
+import icu.jnet.mcd.api.entity.components.Address;
+import icu.jnet.mcd.api.entity.response.Profile;
+import icu.jnet.mcd.api.entity.components.Subscription;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @SensorRequired
 public class ProfileRequest implements Request {
 
-    private final CustomerInformation customerInformation = new CustomerInformation();
+    private final Profile profile = new Profile();
 
     public ProfileRequest setZipCode(String zipCode) {
-        customerInformation.setAddress(new Address(zipCode));
+        profile.setAddress(new Address(zipCode));
         return this;
     }
 
@@ -30,7 +27,7 @@ public class ProfileRequest implements Request {
         subscriptions.add(new Subscription(time, b ? "Y" : "N", "Personal Marketing", "23"));
         subscriptions.add(new Subscription(time, b ? "Y" : "N", "Loyalty Enrollment", "24"));
         subscriptions.add(new Subscription(time, b ? "Y" : "N", "Loyalty Communication", "25"));
-        customerInformation.setSubscriptions(subscriptions);
+        profile.setSubscriptions(subscriptions);
         return this;
     }
 

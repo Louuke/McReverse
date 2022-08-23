@@ -1,9 +1,11 @@
-package icu.jnet.mcd.api.entity.profile;
+package icu.jnet.mcd.api.entity.response;
+
+import icu.jnet.mcd.api.entity.components.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomerInformation {
+public class Profile {
 
     private final Object[] phone = new Object[0];
     private final Base base = new Base();

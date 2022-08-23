@@ -1,10 +1,7 @@
 package icu.jnet.mcd.api.response;
 
-import icu.jnet.mcd.api.entity.redeem.Code;
+import icu.jnet.mcd.api.entity.response.Code;
 import icu.jnet.mcd.api.response.status.Status;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class RedeemResponse extends Response {
 
