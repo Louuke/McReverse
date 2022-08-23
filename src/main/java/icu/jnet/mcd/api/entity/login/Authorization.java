@@ -21,10 +21,9 @@ public class Authorization {
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof Authorization)) {
+        if(!(obj instanceof Authorization auth)) {
             return false;
         }
-        Authorization auth = (Authorization) obj;
         return auth.getAccessToken().equals(accessToken) && auth.getRefreshToken().equals(refreshToken);
     }
 }

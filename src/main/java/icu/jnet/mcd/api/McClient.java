@@ -124,10 +124,10 @@ public class McClient extends McBase {
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof McClient)) {
+        if(!(obj instanceof McClient client)) {
             return false;
         }
-        return ((McClient) obj).getEmail().equals(getEmail());
+        return client.getEmail().equals(getEmail());
     }
 
     @Override

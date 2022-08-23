@@ -198,8 +198,8 @@ public class McBase {
 
     void notifyListener(String type) {
         switch (type) {
-            case "expired": stateListener.forEach(listener -> listener.loginExpired(authorization)); break;
-            case "changed": stateListener.forEach(listener -> listener.authChanged(authorization)); break;
+            case "expired" -> stateListener.forEach(listener -> listener.loginExpired(authorization));
+            case "changed" -> stateListener.forEach(listener -> listener.authChanged(authorization));
         }
     }
 }
