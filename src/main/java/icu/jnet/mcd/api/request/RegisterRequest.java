@@ -2,7 +2,6 @@ package icu.jnet.mcd.api.request;
 
 import icu.jnet.mcd.annotation.BasicBearerRequired;
 import icu.jnet.mcd.annotation.SensorRequired;
-import icu.jnet.mcd.api.entity.components.Audit;
 
 import java.util.HashMap;
 
@@ -10,8 +9,8 @@ import java.util.HashMap;
 @BasicBearerRequired
 public class RegisterRequest implements Request {
 
-    private final Policies policies = new Policies();
-    private final Audit audit = new Audit();
+    private Policies policies = new Policies();
+    private Audit audit = new Audit();
     private Device device;
     private Address address;
     private Credentials credentials;
@@ -36,6 +35,10 @@ public class RegisterRequest implements Request {
         private Address(String zipCode) {
             this.zipCode = zipCode;
         }
+    }
+
+    private static class Audit {
+        private final String registrationChannel = "M";
     }
 
     private static class Credentials {

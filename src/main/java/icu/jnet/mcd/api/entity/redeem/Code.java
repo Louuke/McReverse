@@ -1,4 +1,4 @@
-package icu.jnet.mcd.api.entity.response;
+package icu.jnet.mcd.api.entity.redeem;
 
 public class Code {
 

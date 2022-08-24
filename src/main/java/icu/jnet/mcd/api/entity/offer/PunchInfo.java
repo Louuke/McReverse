@@ -1,4 +1,4 @@
-package icu.jnet.mcd.api.entity.components;
+package icu.jnet.mcd.api.entity.offer;
 
 public class PunchInfo {
 

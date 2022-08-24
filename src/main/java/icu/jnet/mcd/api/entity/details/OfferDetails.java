@@ -1,10 +1,11 @@
-package icu.jnet.mcd.api.entity.response;
+package icu.jnet.mcd.api.entity.details;
 
 import com.google.gson.annotations.SerializedName;
-import icu.jnet.mcd.api.entity.components.ProductSet;
+import icu.jnet.mcd.api.entity.offer.Offer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class OfferDetails extends Offer {
 
@@ -31,9 +32,10 @@ public class OfferDetails extends Offer {
 
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof OfferDetails details)) {
+        if(!(o instanceof OfferDetails)) {
             return false;
         }
+        OfferDetails details = (OfferDetails) o;
         return details.getOfferPropositionId() == getOfferPropositionId();
     }
 

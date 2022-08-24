@@ -1,9 +1,6 @@
-package icu.jnet.mcd.api.entity.response;
+package icu.jnet.mcd.api.entity.offer;
 
 import com.google.gson.annotations.SerializedName;
-import icu.jnet.mcd.api.entity.components.Conditions;
-import icu.jnet.mcd.api.entity.components.PunchInfo;
-import icu.jnet.mcd.api.entity.components.RecurringInfo;
 
 import java.util.regex.Pattern;
 
@@ -178,9 +175,10 @@ public class Offer {
 
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof Offer offer)) {
+        if(!(o instanceof Offer)) {
             return false;
         }
+        Offer offer = (Offer) o;
         return offer.getOfferPropositionId() == offerPropositionId;
     }
 
