@@ -2,6 +2,7 @@ package icu.jnet.mcd.api.entity.offer;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.time.LocalTime;
 import java.util.regex.Pattern;
 
 public class Offer {
@@ -34,6 +35,8 @@ public class Offer {
     @SerializedName("offerType") private int offerType;
     @SerializedName("redemptionMode") private int redemptionMode;
     @SerializedName("offerId") private long offerId;
+    private String shortName;
+    private String price;
 
     public Conditions getConditions() {
         return conditions;
@@ -75,12 +78,12 @@ public class Offer {
         return fullName;
     }
 
-    public String getName() {
-        return fullName.contains("\n") ? fullName.split("\n")[0].strip() : fullName;
+    public String getShortName() {
+        return shortName;
     }
 
     public String getPrice() {
-        return fullName.contains("\n") ? fullName.split("\n")[1].strip() : "0";
+        return price;
     }
 
     public String getOfferBucket() {
@@ -104,19 +107,23 @@ public class Offer {
     }
 
     public Integer getPriceCents() {
-        return pricePattern.matcher(getPrice()).results()
+        return pricePattern.matcher(price).results()
                 .map(result -> result.group().replace(",", ""))
                 .map(Integer::parseInt).findAny().orElse(0);
     }
 
     public Integer getAvailableHourFrom() {
-        return clockPattern.matcher(getPrice()).results()
+        return clockPattern.matcher(price).results()
                 .map(result -> Integer.parseInt(result.group().split("-")[0])).findAny().orElse(0);
     }
 
     public Integer getAvailableHourTo() {
         return clockPattern.matcher(getPrice()).results()
                 .map(result -> Integer.parseInt(result.group().split("-")[1])).findAny().orElse(23);
+    }
+
+    public boolean isAvailable() {
+        return getAvailableHourFrom() <= LocalTime.now().getHour() && LocalTime.now().getHour() <= getAvailableHourTo();
     }
 
     public boolean hasUsesLeft() {
@@ -175,10 +182,9 @@ public class Offer {
 
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof Offer)) {
+        if(!(o instanceof Offer offer)) {
             return false;
         }
-        Offer offer = (Offer) o;
         return offer.getOfferPropositionId() == offerPropositionId;
     }
 

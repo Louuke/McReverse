@@ -16,6 +16,7 @@ import icu.jnet.mcd.api.response.BasicBearerResponse;
 import icu.jnet.mcd.api.response.status.Status;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
+import icu.jnet.mcd.utils.OfferAdapterFactory;
 import icu.jnet.mcd.utils.UserInfo;
 import icu.jnet.mcd.utils.listener.ClientStateListener;
 import icu.jnet.mcd.network.RequestManager;
@@ -28,7 +29,7 @@ public class McBase {
 
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     private static final RequestManager reqManager = RequestManager.getInstance();
-    private static final Gson gson = new Gson();
+    private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapterFactory()).create();
     private final transient List<ClientStateListener> stateListener = new ArrayList<>();
     private final UserInfo userInfo = new UserInfo();
     private Authorization authorization = new Authorization();

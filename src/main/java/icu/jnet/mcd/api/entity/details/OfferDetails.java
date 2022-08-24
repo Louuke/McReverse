@@ -32,10 +32,9 @@ public class OfferDetails extends Offer {
 
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof OfferDetails)) {
+        if(!(o instanceof OfferDetails details)) {
             return false;
         }
-        OfferDetails details = (OfferDetails) o;
         return details.getOfferPropositionId() == getOfferPropositionId();
     }
 
