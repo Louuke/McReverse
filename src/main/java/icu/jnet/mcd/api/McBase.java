@@ -46,11 +46,15 @@ public class McBase {
     }
 
     <T extends Response> T queryPost(Request request, Class<T> clazz) {
+        return queryPost(request, clazz, true);
+    }
+
+    <T extends Response> T queryPost(Request request, Class<T> clazz, boolean retry) {
         try {
             String url = request.getUrl();
             HttpContent httpContent = request.getContent();
             HttpRequest httpRequest = factory.buildPostRequest(new GenericUrl(url), httpContent);
-            return query(httpRequest, clazz, request, true);
+            return query(httpRequest, clazz, request, retry);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -116,7 +120,7 @@ public class McBase {
     }
 
     private boolean loginRefresh() {
-        LoginResponse login = queryPost(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class);
+        LoginResponse login = queryPost(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class, false);
         if(login.success()) {
             setAuthorization(login.getResponse());
             return true;
