@@ -38,7 +38,7 @@ public class McBase {
         try {
             String url = request.getUrl();
             HttpRequest httpRequest = factory.buildGetRequest(new GenericUrl(url));
-            return query(httpRequest, clazz, request, true);
+            return query(httpRequest, clazz, request);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -46,15 +46,11 @@ public class McBase {
     }
 
     <T extends Response> T queryPost(Request request, Class<T> clazz) {
-        return queryPost(request, clazz, true);
-    }
-
-    <T extends Response> T queryPost(Request request, Class<T> clazz, boolean retry) {
         try {
             String url = request.getUrl();
             HttpContent httpContent = request.getContent();
             HttpRequest httpRequest = factory.buildPostRequest(new GenericUrl(url), httpContent);
-            return query(httpRequest, clazz, request, retry);
+            return query(httpRequest, clazz, request);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,7 +61,7 @@ public class McBase {
         try {
             String url = request.getUrl();
             HttpRequest httpRequest = factory.buildDeleteRequest(new GenericUrl(url));
-            return query(httpRequest, clazz, request, true);
+            return query(httpRequest, clazz, request);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,14 +73,14 @@ public class McBase {
             String url = request.getUrl();
             HttpContent httpContent = request.getContent();
             HttpRequest httpRequest = factory.buildPutRequest(new GenericUrl(url), httpContent);
-            return query(httpRequest, clazz, request, true);
+            return query(httpRequest, clazz, request);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return createInstance(clazz);
     }
 
-    private <T extends Response> T query(HttpRequest request, Class<T> clazz, Request mcdRequest, boolean retry) {
+    private <T extends Response> T query(HttpRequest request, Class<T> clazz, Request mcdRequest) {
         try {
             request.setReadTimeout(mcdRequest.getReadTimeout());
             setRequestHeaders(request, mcdRequest);
@@ -92,7 +88,7 @@ public class McBase {
             return gson.fromJson(request.execute().parseAsString(), clazz);
         } catch (HttpResponseException e) {
             Response errorResponse = createErrorResponse(e);
-            if(retry && errorResponse != null) {
+            if(errorResponse != null) {
                 return handleHttpError(errorResponse, request, clazz, mcdRequest);
             }
         } catch (IOException ignored) {}
@@ -103,7 +99,7 @@ public class McBase {
         // Authorization expired
         if(errorResponse.getStatus().getErrors().stream().anyMatch(error -> error.getErrorType().equals("JWTTokenExpired"))) {
             if(loginRefresh()) {
-                return query(request, clazz, mcdRequest, false);
+                return query(request, clazz, mcdRequest);
             }
             notifyListener("expired");
         }
@@ -120,7 +116,7 @@ public class McBase {
     }
 
     private boolean loginRefresh() {
-        LoginResponse login = queryPost(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class, false);
+        LoginResponse login = queryPost(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class);
         if(login.success()) {
             setAuthorization(login.getResponse());
             return true;
