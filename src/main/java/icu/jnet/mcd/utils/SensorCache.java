@@ -1,18 +1,11 @@
 package icu.jnet.mcd.utils;
 
-import icu.jnet.mcd.api.McClient;
-import icu.jnet.mcd.utils.listener.ClientStateListener;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SensorCache {
 
     private final Queue<String> sensorQueue = new ConcurrentLinkedQueue<>();
-    private final List<ClientStateListener> stateListener = new ArrayList<>();
     private static SensorCache instance;
 
     private SensorCache() {}
@@ -24,17 +17,16 @@ public class SensorCache {
         return instance;
     }
 
-    public synchronized String getSensorToken() {
-        if(sensorQueue.isEmpty()) {
-            String token = queryToken();
-            addToQueue(token);
-            verifyToken(token);
-        }
+    public void saveSensorToken(String token) {
+        addToQueue(token);
+    }
+
+    public String pollToken() {
         return sensorQueue.poll();
     }
 
-    private String queryToken() {
-        return stateListener.stream().map(ClientStateListener::tokenRequired).filter(Objects::nonNull).findAny().orElse("");
+    public boolean isTokenAvailable() {
+        return !sensorQueue.isEmpty();
     }
 
     private void addToQueue(String token) {
@@ -42,18 +34,5 @@ public class SensorCache {
         for(int i = 0; i < usage; i++) {
             sensorQueue.add(token);
         }
-    }
-
-    private void verifyToken(String token) {
-        if(token.isEmpty()) {
-            return;
-        }
-        McClient client = new McClient();
-        stateListener.forEach(client::addStateListener);
-        client.verifyNextToken();
-    }
-
-    public void addStateListener(ClientStateListener listener) {
-        stateListener.add(listener);
     }
 }

@@ -16,9 +16,11 @@ import icu.jnet.mcd.api.response.BasicBearerResponse;
 import icu.jnet.mcd.api.response.status.Status;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
+import icu.jnet.mcd.utils.ClientVerifier;
 import icu.jnet.mcd.utils.OfferAdapterFactory;
-import icu.jnet.mcd.utils.SensorCache;
 import icu.jnet.mcd.utils.UserInfo;
+import icu.jnet.mcd.utils.listener.Action;
+import icu.jnet.mcd.utils.listener.ClientActionModel;
 import icu.jnet.mcd.utils.listener.ClientStateListener;
 import icu.jnet.mcd.network.RequestManager;
 
@@ -30,9 +32,8 @@ public class McBase {
 
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     private static final RequestManager reqManager = RequestManager.getInstance();
-    private static final SensorCache sensorCache = SensorCache.getInstance();
     private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapterFactory()).create();
-    private final transient List<ClientStateListener> stateListener = new ArrayList<>();
+    private final transient ClientActionModel clientAction = new ClientActionModel();
     private final UserInfo userInfo = new UserInfo();
     private Authorization authorization = new Authorization();
 
@@ -103,7 +104,7 @@ public class McBase {
             if(loginRefresh()) {
                 return query(request, clazz, mcdRequest);
             }
-            notifyListener("expired", "At request: " + mcdRequest.getUrl());
+            clientAction.notifyListener(Action.JWT_ERROR, "At request: " + mcdRequest.getUrl());
         }
         return createInstance(clazz, errorResponse.getStatus());
     }
@@ -121,6 +122,7 @@ public class McBase {
         LoginResponse login = queryPost(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class);
         if(login.success()) {
             setAuthorization(login.getResponse());
+            clientAction.notifyListener(Action.AUTHORIZATION_CHANGED, authorization);
             return true;
         }
         return false;
@@ -152,7 +154,7 @@ public class McBase {
 
         if(mcdRequest.hasAnnotation(SensorRequired.class)) {
             headers.set("mcd-marketid", "DE");
-            headers.set("x-acf-sensor-data", sensorCache.getSensorToken());
+            headers.set("x-acf-sensor-data", clientAction.getSensorToken());
         }
         request.setHeaders(headers);
     }
@@ -183,23 +185,14 @@ public class McBase {
     }
 
     public void addStateListener(ClientStateListener listener) {
-        stateListener.add(listener);
-        sensorCache.addStateListener(listener);
+        clientAction.addStateListener(listener);
     }
 
     public Authorization getAuthorization() {
         return authorization;
     }
 
-    void setAuthorization(Authorization authorization) {
+    public void setAuthorization(Authorization authorization) {
         this.authorization = authorization;
-        notifyListener("changed", null);
-    }
-
-    void notifyListener(String type, String message) {
-        switch (type) {
-            case "expired" -> stateListener.forEach(listener -> listener.loginExpired(authorization, message));
-            case "changed" -> stateListener.forEach(listener -> listener.authChanged(authorization));
-        }
     }
 }

@@ -2,13 +2,18 @@ package icu.jnet.mcd.api;
 
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
+import icu.jnet.mcd.utils.ClientVerifier;
+import icu.jnet.mcd.utils.listener.ClientStateListener;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-public class McClient extends McBase {
-
+public class McClient extends McBase implements ClientStateListener  {
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
+
+    public McClient() {
+        new ClientVerifier(this);
+    }
 
     public LoginResponse login(String email, String password) {
         return login(email, password, DEFAULT_DEVICE_ID);

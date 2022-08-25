@@ -21,4 +21,8 @@ public class PointsResponse extends Response {
         return response != null ? response.get("lifeTimePoints") : 0;
     }
 
+    @Override
+    public boolean success() {
+        return getStatus().getType().equals("Absolute Success");
+    }
 }
