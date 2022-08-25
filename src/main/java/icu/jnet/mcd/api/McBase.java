@@ -101,7 +101,7 @@ public class McBase {
             if(loginRefresh()) {
                 return query(request, clazz, mcdRequest);
             }
-            notifyListener("expired");
+            notifyListener("expired", "At request: " + mcdRequest.getUrl());
         }
         return createInstance(clazz, errorResponse.getStatus());
     }
@@ -194,12 +194,12 @@ public class McBase {
 
     void setAuthorization(Authorization authorization) {
         this.authorization = authorization;
-        notifyListener("changed");
+        notifyListener("changed", null);
     }
 
-    void notifyListener(String type) {
+    void notifyListener(String type, String message) {
         switch (type) {
-            case "expired" -> stateListener.forEach(listener -> listener.loginExpired(authorization));
+            case "expired" -> stateListener.forEach(listener -> listener.loginExpired(authorization, message));
             case "changed" -> stateListener.forEach(listener -> listener.authChanged(authorization));
         }
     }

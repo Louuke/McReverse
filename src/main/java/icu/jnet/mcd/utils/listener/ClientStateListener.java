@@ -5,7 +5,7 @@ import icu.jnet.mcd.api.entity.login.Authorization;
 
 public interface ClientStateListener {
 
-    default void loginExpired(Authorization expiredAuth) {}
+    default void loginExpired(Authorization expiredAuth, String message) {}
 
     default void authChanged(Authorization newAuth) {}
 
