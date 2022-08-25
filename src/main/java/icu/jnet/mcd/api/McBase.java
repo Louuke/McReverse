@@ -17,6 +17,7 @@ import icu.jnet.mcd.api.response.status.Status;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
 import icu.jnet.mcd.utils.OfferAdapterFactory;
+import icu.jnet.mcd.utils.SensorCache;
 import icu.jnet.mcd.utils.UserInfo;
 import icu.jnet.mcd.utils.listener.ClientStateListener;
 import icu.jnet.mcd.network.RequestManager;
@@ -29,6 +30,7 @@ public class McBase {
 
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
     private static final RequestManager reqManager = RequestManager.getInstance();
+    private static final SensorCache sensorCache = SensorCache.getInstance();
     private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapterFactory()).create();
     private final transient List<ClientStateListener> stateListener = new ArrayList<>();
     private final UserInfo userInfo = new UserInfo();
@@ -150,7 +152,7 @@ public class McBase {
 
         if(mcdRequest.hasAnnotation(SensorRequired.class)) {
             headers.set("mcd-marketid", "DE");
-            headers.set("x-acf-sensor-data", getSensorToken());
+            headers.set("x-acf-sensor-data", sensorCache.getSensorToken());
         }
         request.setHeaders(headers);
     }
@@ -180,12 +182,9 @@ public class McBase {
         reqManager.setRequestsPerSecond(rps);
     }
 
-    private String getSensorToken() {
-        return stateListener.stream().map(ClientStateListener::tokenRequired).filter(Objects::nonNull).findAny().orElse("");
-    }
-
     public void addStateListener(ClientStateListener listener) {
         stateListener.add(listener);
+        sensorCache.addStateListener(listener);
     }
 
     public Authorization getAuthorization() {
