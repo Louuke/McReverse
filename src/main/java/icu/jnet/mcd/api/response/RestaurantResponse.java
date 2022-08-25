@@ -4,10 +4,11 @@ import icu.jnet.mcd.api.response.status.Status;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RestaurantResponse extends Response {
 
-    private HashMap<String, List<Restaurant>> response;
+    private Map<String, List<Restaurant>> response;
 
     public RestaurantResponse(Status status) {
         super(status);

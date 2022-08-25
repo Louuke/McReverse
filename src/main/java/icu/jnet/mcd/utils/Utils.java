@@ -1,4 +1,4 @@
-package icu.jnet.mcd.helper;
+package icu.jnet.mcd.utils;
 
 public class Utils {
 

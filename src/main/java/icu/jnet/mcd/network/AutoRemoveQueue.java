@@ -1,6 +1,6 @@
 package icu.jnet.mcd.network;
 
-import icu.jnet.mcd.helper.Utils;
+import icu.jnet.mcd.utils.Utils;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -11,7 +11,7 @@ public class AutoRemoveQueue<E> extends ConcurrentLinkedQueue<E> {
     private long wait;
 
     public AutoRemoveQueue() {
-        this.wait = 330;
+        this.wait = 200;
     }
 
     @Override

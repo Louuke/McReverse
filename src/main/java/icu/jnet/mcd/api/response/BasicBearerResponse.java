@@ -4,11 +4,11 @@ import icu.jnet.mcd.api.response.status.Status;
 
 import java.util.HashMap;
 
-public class AuthResponse extends Response {
+public class BasicBearerResponse extends Response {
 
     private HashMap<String, Object> response;
 
-    public AuthResponse(Status status) {
+    public BasicBearerResponse(Status status) {
         super(status);
     }
 

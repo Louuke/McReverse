@@ -1,7 +1,7 @@
 package icu.jnet.mcd.network;
 
 import com.google.api.client.http.HttpRequest;
-import icu.jnet.mcd.helper.Utils;
+import icu.jnet.mcd.utils.Utils;
 
 public class RequestManager {
 
