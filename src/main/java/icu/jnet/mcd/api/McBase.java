@@ -124,7 +124,7 @@ public class McBase {
             clientAction.notifyListener(Action.AUTHORIZATION_CHANGED, login.getResponse());
             return true;
         }
-        System.out.println("Refresh false");
+        System.out.println("Refresh false: " + login.getStatus().getType());
         return false;
     }
 
