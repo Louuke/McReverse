@@ -89,6 +89,9 @@ public class McBase {
             reqManager.enqueue(request);
             return gson.fromJson(request.execute().parseAsString(), clazz);
         } catch (HttpResponseException e) {
+            e.printStackTrace();
+            System.out.println(e.getContent());
+            System.out.println(e.getMessage());
             Response errorResponse = createErrorResponse(e);
             if(errorResponse != null) {
                 return handleHttpError(errorResponse, request, clazz, mcdRequest);
