@@ -2,28 +2,28 @@ package icu.jnet.mcd.utils;
 
 import icu.jnet.mcd.api.McClient;
 import icu.jnet.mcd.api.entity.login.Authorization;
+import icu.jnet.mcd.utils.listener.ClientActionModel;
 import icu.jnet.mcd.utils.listener.ClientStateListener;
 
 public class ClientVerifier implements ClientStateListener{
 
-    private final McClient client;
 
-    public ClientVerifier(McClient client) {
-        client.addStateListener(this);
-        this.client = client;
+    public ClientVerifier(ClientActionModel clientAction) {
+        clientAction.addStateListener(this);
     }
 
     @Override
-    public void authChanged() {
+    public void authChanged(Authorization authorization) {
+        McClient client = new McClient();
+        client.setAuthorization(authorization);
         client.getPoints();
     }
 
     @Override
     public void newSensorToken(String token) {
-        if(token == null || token.isEmpty()) {
-            return;
+        if(token != null && !token.isEmpty()) {
+            McClient client = new McClient();
+            client.verifyNextToken();
         }
-        McClient client = new McClient();
-        client.verifyNextToken();
     }
 }

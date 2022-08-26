@@ -1,5 +1,6 @@
 package icu.jnet.mcd.utils.listener;
 
+import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.utils.SensorCache;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class ClientActionModel {
     public <T> void notifyListener(Action action, T payload) {
         switch (action) {
             case JWT_ERROR -> stateListener.forEach(listener -> listener.loginExpired((String) payload));
-            case AUTHORIZATION_CHANGED -> stateListener.forEach(ClientStateListener::authChanged);
+            case AUTHORIZATION_CHANGED -> stateListener.forEach(listener -> listener.authChanged((Authorization) payload));
             case NEW_SENSOR_TOKEN -> stateListener.forEach(listener -> listener.newSensorToken((String) payload));
         }
     }

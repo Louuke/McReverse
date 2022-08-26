@@ -37,6 +37,10 @@ public class McBase {
     private final UserInfo userInfo = new UserInfo();
     private Authorization authorization = new Authorization();
 
+    public McBase() {
+        new ClientVerifier(clientAction);
+    }
+
     <T extends Response> T queryGet(Request request, Class<T> clazz)  {
         try {
             String url = request.getUrl();
