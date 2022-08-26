@@ -93,7 +93,9 @@ public class McBase {
             if(errorResponse != null) {
                 return handleHttpError(errorResponse, request, clazz, mcdRequest);
             }
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+            ignored.printStackTrace();
+        }
         return createInstance(clazz);
     }
 
@@ -103,7 +105,6 @@ public class McBase {
             if(loginRefresh()) {
                 return query(request, clazz, mcdRequest);
             }
-            clientAction.notifyListener(Action.JWT_ERROR, "At request: " + mcdRequest.getUrl());
         }
         return createInstance(clazz, errorResponse.getStatus());
     }
@@ -113,6 +114,7 @@ public class McBase {
             return gson.fromJson(exception.getContent(), Response.class);
         } catch (JsonSyntaxException ignored) {
             System.err.println(exception.getContent());
+            clientAction.notifyListener(Action.VALIDATION_ERROR, null);
         }
         return null;
     }
@@ -124,7 +126,6 @@ public class McBase {
             clientAction.notifyListener(Action.AUTHORIZATION_CHANGED, login.getResponse());
             return true;
         }
-        System.out.println("Refresh false: " + login.getStatus().getType());
         return false;
     }
 
