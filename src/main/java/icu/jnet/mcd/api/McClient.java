@@ -2,7 +2,6 @@ package icu.jnet.mcd.api;
 
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
-import icu.jnet.mcd.utils.ClientVerifier;
 import icu.jnet.mcd.utils.listener.ClientStateListener;
 
 import java.util.Arrays;

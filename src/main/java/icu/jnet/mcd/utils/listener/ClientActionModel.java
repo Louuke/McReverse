@@ -1,5 +1,6 @@
 package icu.jnet.mcd.utils.listener;
 
+import icu.jnet.mcd.api.McClient;
 import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.utils.SensorCache;
 
@@ -16,6 +17,7 @@ public class ClientActionModel {
         if(!sensorCache.isTokenAvailable()) {
             String token = queryToken();
             sensorCache.saveSensorToken(token);
+            verifyToken(token);
             notifyListener(Action.NEW_SENSOR_TOKEN, token);
         }
         return sensorCache.pollToken();
@@ -38,5 +40,12 @@ public class ClientActionModel {
                 .map(ClientStateListener::tokenRequired)
                 .filter(Objects::nonNull)
                 .findAny().orElse("");
+    }
+
+    private void verifyToken(String token) {
+        if(token != null && !token.isEmpty()) {
+            McClient client = new McClient();
+            client.verifyNextToken();
+        }
     }
 }

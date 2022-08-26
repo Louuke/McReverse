@@ -16,7 +16,6 @@ import icu.jnet.mcd.api.response.BasicBearerResponse;
 import icu.jnet.mcd.api.response.status.Status;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.api.response.LoginResponse;
-import icu.jnet.mcd.utils.ClientVerifier;
 import icu.jnet.mcd.utils.OfferAdapterFactory;
 import icu.jnet.mcd.utils.UserInfo;
 import icu.jnet.mcd.utils.listener.Action;
@@ -36,10 +35,6 @@ public class McBase {
     private final transient ClientActionModel clientAction = new ClientActionModel();
     private final UserInfo userInfo = new UserInfo();
     private Authorization authorization = new Authorization();
-
-    public McBase() {
-        new ClientVerifier(clientAction);
-    }
 
     <T extends Response> T queryGet(Request request, Class<T> clazz)  {
         try {
@@ -126,9 +121,10 @@ public class McBase {
         LoginResponse login = queryPost(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class);
         if(login.success()) {
             setAuthorization(login.getResponse());
-            clientAction.notifyListener(Action.AUTHORIZATION_CHANGED, authorization);
+            clientAction.notifyListener(Action.AUTHORIZATION_CHANGED, login.getResponse());
             return true;
         }
+        System.out.println("Refresh false");
         return false;
     }
 
