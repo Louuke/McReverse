@@ -86,7 +86,7 @@ public class McBase {
         try {
             request.setReadTimeout(mcdRequest.getReadTimeout());
             setRequestHeaders(request, mcdRequest);
-            //reqManager.enqueue(request);
+            reqManager.enqueue(request);
             return gson.fromJson(request.execute().parseAsString(), clazz);
         } catch (HttpResponseException e) {
             Response errorResponse = createErrorResponse(e);

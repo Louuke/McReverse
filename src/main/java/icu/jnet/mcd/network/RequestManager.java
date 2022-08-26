@@ -5,7 +5,7 @@ import icu.jnet.mcd.utils.Utils;
 
 public class RequestManager {
 
-    private final AutoRemoveQueue<HttpRequest> queue = new AutoRemoveQueue<>();
+    private final AutoRemoveQueue<WrappedRequest> queue = new AutoRemoveQueue<>();
 
     private static RequestManager instance;
 
@@ -17,13 +17,18 @@ public class RequestManager {
     }
 
     public void enqueue(HttpRequest request) {
-        queue.add(request);
-        while (queue.contains(request)) {
+        WrappedRequest wrapped = new WrappedRequest(request);
+        queue.add(wrapped);
+        while (queue.contains(wrapped)) {
             Utils.waitMill(50);
         }
     }
 
     public void setRequestsPerSecond(double rps) {
         queue.setWait((long) (1000 / rps));
+    }
+
+    private record WrappedRequest(HttpRequest request) {
+
     }
 }
