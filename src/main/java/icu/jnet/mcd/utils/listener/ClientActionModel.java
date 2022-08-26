@@ -28,6 +28,7 @@ public class ClientActionModel {
             case JWT_ERROR -> stateListener.forEach(listener -> listener.loginExpired((String) payload));
             case AUTHORIZATION_CHANGED -> stateListener.forEach(listener -> listener.authChanged((Authorization) payload));
             case NEW_SENSOR_TOKEN -> stateListener.forEach(listener -> listener.newSensorToken((String) payload));
+            case VALIDATION_ERROR -> stateListener.forEach(ClientStateListener::validationError);
         }
     }
 
