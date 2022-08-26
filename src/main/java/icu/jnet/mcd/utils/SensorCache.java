@@ -30,7 +30,7 @@ public class SensorCache {
     }
 
     private void addToQueue(String token) {
-        int usage = !token.isEmpty() ? 20 : 1;
+        int usage = !token.isEmpty() ? 15 : 1;
         for(int i = 0; i < usage; i++) {
             sensorQueue.add(token);
         }

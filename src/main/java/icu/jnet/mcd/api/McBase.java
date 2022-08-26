@@ -93,9 +93,7 @@ public class McBase {
             if(errorResponse != null) {
                 return handleHttpError(errorResponse, request, clazz, mcdRequest);
             }
-        } catch (IOException ignored) {
-            ignored.printStackTrace();
-        }
+        } catch (IOException ignored) {}
         return createInstance(clazz);
     }
 
