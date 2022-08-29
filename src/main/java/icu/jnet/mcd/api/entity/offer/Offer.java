@@ -123,7 +123,7 @@ public class Offer {
     }
 
     public boolean isAvailable() {
-        return getAvailableHourFrom() <= LocalTime.now().getHour() && LocalTime.now().getHour() <= getAvailableHourTo();
+        return getAvailableHourFrom() <= LocalTime.now().getHour() && LocalTime.now().getHour() < getAvailableHourTo();
     }
 
     public boolean hasUsesLeft() {
