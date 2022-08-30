@@ -179,10 +179,6 @@ public class McBase {
         return userInfo.getEmail();
     }
 
-    public void setRequestsPerSecond(double rps) {
-        reqManager.setRequestsPerSecond(rps);
-    }
-
     public void addStateListener(ClientStateListener listener) {
         clientAction.addStateListener(listener);
     }

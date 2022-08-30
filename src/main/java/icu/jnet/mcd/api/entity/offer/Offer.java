@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName;
 import java.time.LocalTime;
 import java.util.regex.Pattern;
 
+import static icu.jnet.mcd.api.response.McClientSettings.ZONE_ID;
+
 public class Offer {
 
     private static final Pattern pricePattern = Pattern.compile("\\d+,\\d\\d");
@@ -123,7 +125,8 @@ public class Offer {
     }
 
     public boolean isAvailable() {
-        return getAvailableHourFrom() <= LocalTime.now().getHour() && LocalTime.now().getHour() < getAvailableHourTo();
+        return getAvailableHourFrom() <= LocalTime.now(ZONE_ID).getHour()
+                && LocalTime.now(ZONE_ID).getHour() < getAvailableHourTo();
     }
 
     public boolean hasUsesLeft() {
