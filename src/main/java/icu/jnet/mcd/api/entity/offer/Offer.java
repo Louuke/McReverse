@@ -121,7 +121,7 @@ public class Offer {
 
     public Integer getAvailableHourTo() {
         return clockPattern.matcher(getPrice()).results()
-                .map(result -> Integer.parseInt(result.group().split("-")[1])).findAny().orElse(23);
+                .map(result -> Integer.parseInt(result.group().split("-")[1])).findAny().orElse(24);
     }
 
     public boolean isAvailable() {
