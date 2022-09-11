@@ -1,6 +1,6 @@
 package icu.jnet.mcd.api.request;
 
-public class RedeemRequest implements Request {
+public class RedeemRequest extends Request {
 
     private final int propositionId;
     private final long offerId;

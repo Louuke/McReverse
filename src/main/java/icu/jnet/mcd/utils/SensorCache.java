@@ -1,36 +1,29 @@
 package icu.jnet.mcd.utils;
 
+import icu.jnet.mcd.utils.listener.Action;
+import icu.jnet.mcd.utils.listener.ClientActionModel;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SensorCache {
 
-    private final Queue<String> sensorQueue = new ConcurrentLinkedQueue<>();
-    private static SensorCache instance;
+    private static final Queue<String> sensorQueue = new ConcurrentLinkedQueue<>();
+    private final ClientActionModel actionModel;
 
-    private SensorCache() {}
+    public SensorCache(ClientActionModel actionModel) {
+        this.actionModel = actionModel;
+    }
 
-    public static SensorCache getInstance() {
-        if(instance == null) {
-            instance = new SensorCache();
+    public String getSensorToken() {
+        if(sensorQueue.isEmpty()) {
+            addToQueue(actionModel.notifyListener(Action.TOKEN_REQUIRED, String.class));
         }
-        return instance;
-    }
-
-    public void saveSensorToken(String token) {
-        addToQueue(token);
-    }
-
-    public String pollToken() {
         return sensorQueue.poll();
     }
 
-    public boolean isTokenAvailable() {
-        return !sensorQueue.isEmpty();
-    }
-
     private void addToQueue(String token) {
-        int usage = !token.isEmpty() ? 15 : 1;
+        int usage = !token.isEmpty() ? 15 : 2;
         for(int i = 0; i < usage; i++) {
             sensorQueue.add(token);
         }

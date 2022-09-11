@@ -1,6 +1,6 @@
 package icu.jnet.mcd.api.request;
 
-public class OptInRequest implements Request {
+public class OptInRequest extends Request {
 
     private final int campaignId;
 

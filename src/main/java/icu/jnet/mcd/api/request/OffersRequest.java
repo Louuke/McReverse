@@ -1,6 +1,6 @@
 package icu.jnet.mcd.api.request;
 
-public class OffersRequest implements Request {
+public class OffersRequest extends Request {
 
     @Override
     public String getUrl() {

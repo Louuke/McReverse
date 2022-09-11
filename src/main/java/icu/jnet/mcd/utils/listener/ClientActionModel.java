@@ -1,52 +1,36 @@
 package icu.jnet.mcd.utils.listener;
 
-import icu.jnet.mcd.api.McClient;
-import icu.jnet.mcd.api.entity.login.Authorization;
-import icu.jnet.mcd.utils.SensorCache;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class ClientActionModel {
 
-    private static final SensorCache sensorCache = SensorCache.getInstance();
     private final List<ClientStateListener> stateListener = new ArrayList<>();
 
-    public String getSensorToken() {
-        if(!sensorCache.isTokenAvailable()) {
-            String token = queryToken();
-            sensorCache.saveSensorToken(token);
-            verifyToken(token);
-            notifyListener(Action.NEW_SENSOR_TOKEN, token);
-        }
-        return sensorCache.pollToken();
+    public void notifyListener(Action action) {
+        switch (action) {
+            case AUTHORIZATION_CHANGED -> stateListener.forEach(ClientStateListener::authChanged);
+            case JWT_INVALID -> stateListener.forEach(ClientStateListener::jwtIsInvalid);
+        };
     }
 
-    public <T> void notifyListener(Action action, T payload) {
-        switch (action) {
-            case JWT_ERROR -> stateListener.forEach(listener -> listener.loginExpired((String) payload));
-            case AUTHORIZATION_CHANGED -> stateListener.forEach(listener -> listener.authChanged((Authorization) payload));
-            case NEW_SENSOR_TOKEN -> stateListener.forEach(listener -> listener.newSensorToken((String) payload));
-            case VALIDATION_ERROR -> stateListener.forEach(ClientStateListener::validationError);
-        }
+    public <T> T notifyListener(Action action, Class<T> returnType) {
+        return returnType.cast(switch (action) {
+            case JWT_EXPIRED -> stateListener.stream()
+                    .map(ClientStateListener::jwtExpired)
+                    .filter(Objects::nonNull).findAny().orElse(null);
+            case TOKEN_REQUIRED -> stateListener.stream()
+                    .map(ClientStateListener::tokenRequired)
+                    .filter(Objects::nonNull).findAny().orElse("");
+            case BASIC_BEARER_REQUIRED -> stateListener.stream()
+                    .map(ClientStateListener::basicBearerRequired)
+                    .filter(Objects::nonNull).findAny().orElse("");
+            default -> null;
+        });
     }
 
     public void addStateListener(ClientStateListener listener) {
         stateListener.add(listener);
-    }
-
-    private String queryToken() {
-        return stateListener.stream()
-                .map(ClientStateListener::tokenRequired)
-                .filter(Objects::nonNull)
-                .findAny().orElse("");
-    }
-
-    private void verifyToken(String token) {
-        if(token != null && !token.isEmpty()) {
-            McClient client = new McClient();
-            client.verifyNextToken();
-        }
     }
 }

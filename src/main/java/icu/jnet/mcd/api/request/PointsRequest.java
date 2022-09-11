@@ -1,6 +1,6 @@
 package icu.jnet.mcd.api.request;
 
-public class PointsRequest implements Request {
+public class PointsRequest extends Request {
 
     @Override
     public String getUrl() {

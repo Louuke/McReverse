@@ -1,13 +1,13 @@
 package icu.jnet.mcd.api.request;
 
-import icu.jnet.mcd.annotation.BasicBearerRequired;
+import icu.jnet.mcd.annotation.Auth;
 import icu.jnet.mcd.annotation.SensorRequired;
 
 import java.util.HashMap;
 
 @SensorRequired
-@BasicBearerRequired
-public class RegisterRequest implements Request {
+@Auth(type = Auth.Type.BasicBearer)
+public class RegisterRequest extends Request {
 
     private Policies policies = new Policies();
     private Audit audit = new Audit();

@@ -1,21 +1,28 @@
 package icu.jnet.mcd.api;
 
+import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
+import icu.jnet.mcd.utils.listener.Action;
 import icu.jnet.mcd.utils.listener.ClientStateListener;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-public class McClient extends McBase implements ClientStateListener  {
+public class McClient extends McBase implements ClientStateListener {
+
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
+
+    public McClient() {
+        addStateListener(this);
+    }
 
     public LoginResponse login(String email, String password) {
         return login(email, password, DEFAULT_DEVICE_ID);
     }
 
     public LoginResponse login(String email, String password, String deviceId) {
-        LoginResponse login = queryPost(new LoginRequest(email, password, deviceId), LoginResponse.class);
+        LoginResponse login = query(new LoginRequest(email, password, deviceId), LoginResponse.class, Request.Type.POST);
         if(login.success()) {
             setAuthorization(login.getResponse());
             ProfileResponse profileResponse = getProfile();
@@ -31,7 +38,7 @@ public class McClient extends McBase implements ClientStateListener  {
     }
 
     public Response register(String email, String password, String zipCode, String deviceId) {
-        return queryPost(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class);
+        return query(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class, Request.Type.POST);
     }
 
     public Response activateAccount(String email, String activationCode) {
@@ -47,31 +54,31 @@ public class McClient extends McBase implements ClientStateListener  {
     }
 
     private Response activate(String email, String activationCode, String deviceId, String type) {
-        return queryPut(new ActivationRequest(email, activationCode, deviceId, type), Response.class);
+        return query(new ActivationRequest(email, activationCode, deviceId, type), Response.class, Request.Type.PUT);
     }
 
     public Response deleteAccount() {
-        return queryDelete(new DeleteRequest(), Response.class);
+        return query(new DeleteRequest(), Response.class, Request.Type.DELETE);
     }
 
     public ProfileResponse getProfile() {
-        return queryGet(new ProfileRequest(), ProfileResponse.class);
+        return query(new ProfileRequest(), ProfileResponse.class, Request.Type.GET);
     }
 
     public RestaurantResponse getRestaurants(double latitude, double longitude, int distance, int amount) {
-        return queryGet(new RestaurantRequest(latitude, longitude, distance, amount), RestaurantResponse.class);
+        return query(new RestaurantRequest(latitude, longitude, distance, amount), RestaurantResponse.class, Request.Type.GET);
     }
 
     public PointsResponse getPoints() {
-        return queryGet(new PointsRequest(), PointsResponse.class);
+        return query(new PointsRequest(), PointsResponse.class, Request.Type.GET);
     }
 
     public OfferResponse getOffers() {
-        return queryGet(new OffersRequest(), OfferResponse.class);
+        return query(new OffersRequest(), OfferResponse.class, Request.Type.GET);
     }
 
     public OfferDetailsResponse getOfferDetails(int propositionId) {
-        return queryGet(new OfferDetailsRequest(propositionId), OfferDetailsResponse.class);
+        return query(new OfferDetailsRequest(propositionId), OfferDetailsResponse.class, Request.Type.GET);
     }
 
     public RedeemResponse redeemCoupon(int propositionId) {
@@ -79,31 +86,32 @@ public class McClient extends McBase implements ClientStateListener  {
     }
 
     public RedeemResponse redeemCoupon(int propositionId, long offerId) {
-        return queryGet(new RedeemRequest(propositionId, offerId), RedeemResponse.class);
+        return query(new RedeemRequest(propositionId, offerId), RedeemResponse.class, Request.Type.GET);
     }
 
     public RedeemResponse getIdentificationCode() {
-        return queryGet(new IdentRequest(), RedeemResponse.class);
+        return query(new IdentRequest(), RedeemResponse.class, Request.Type.GET);
     }
 
     public BonusPointsResponse getPointsBonuses() {
-        return queryGet(new BonusPointsRequest(), BonusPointsResponse.class);
+        return query(new BonusPointsRequest(), BonusPointsResponse.class, Request.Type.GET);
     }
 
     public OptInResponse optInCampaign(int campaignId) {
-        return queryPost(new OptInRequest(campaignId), OptInResponse.class);
+        return query(new OptInRequest(campaignId), OptInResponse.class, Request.Type.POST);
     }
 
     public Response useMyMcDonalds(boolean b) {
-        return queryPut(new ProfileRequest().useMyMcDonalds(b), Response.class);
+        return query(new ProfileRequest().useMyMcDonalds(b), Response.class, Request.Type.PUT);
     }
 
     public Response setZipCode(String zipCode) {
-        return queryPut(new ProfileRequest().setZipCode(zipCode), Response.class);
+        return query(new ProfileRequest().setZipCode(zipCode), Response.class, Request.Type.PUT);
     }
 
     public boolean usesMyMcDonalds() {
-        return queryGet(new ProfileRequest(), ProfileResponse.class).getResponse().getSubscriptions().stream()
+        return query(new ProfileRequest(), ProfileResponse.class, Request.Type.GET).getResponse()
+                .getSubscriptions().stream()
                 .filter(sub -> sub.getOptInStatus().equals("Y")
                         && Arrays.asList("23", "24", "25").contains(sub.getSubscriptionId())
                         || sub.getOptInStatus().equals("N")
@@ -111,15 +119,31 @@ public class McClient extends McBase implements ClientStateListener  {
     }
 
     public Response setLocation() {
-        return queryPost(new LocationRequest(getEmail()), Response.class);
+        return query(new LocationRequest(getEmail()), Response.class, Request.Type.POST);
     }
 
     public Response setNotification() {
-        return queryPost(new NotificationRequest(), Response.class);
+        return query(new NotificationRequest(), Response.class, Request.Type.POST);
     }
 
-    public LoginResponse verifyNextToken() {
-        return queryPost(new SensorVerifyRequest(), LoginResponse.class);
+    private BasicBearerResponse getBasicBearer() {
+        return query(new BasicBearerRequest(), BasicBearerResponse.class, Request.Type.POST);
+    }
+
+    @Override
+    public String basicBearerRequired() {
+        return getBasicBearer().getToken();
+    }
+
+    @Override
+    public Authorization jwtExpired() {
+        LoginResponse login = query(new RefreshRequest(getAuthorization().getRefreshToken()), LoginResponse.class, Request.Type.POST);
+        if(login.success()) {
+            setAuthorization(login.getResponse());
+            getActionModel().notifyListener(Action.AUTHORIZATION_CHANGED);
+            return getAuthorization();
+        }
+        return null;
     }
 
     @Override
