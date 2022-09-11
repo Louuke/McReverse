@@ -126,13 +126,9 @@ public class McClient extends McBase implements ClientStateListener {
         return query(new NotificationRequest(), Response.class, Request.Type.POST);
     }
 
-    private BasicBearerResponse getBasicBearer() {
-        return query(new BasicBearerRequest(), BasicBearerResponse.class, Request.Type.POST);
-    }
-
     @Override
     public String basicBearerRequired() {
-        return getBasicBearer().getToken();
+        return query(new BasicBearerRequest(), BasicBearerResponse.class, Request.Type.POST).getToken();
     }
 
     @Override
