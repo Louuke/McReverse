@@ -57,6 +57,7 @@ public class HttpBuilder {
                 case POST -> factory.buildPostRequest(url, request.getContent());
                 case PUT -> factory.buildPutRequest(url, request.getContent());
                 case DELETE -> factory.buildDeleteRequest(url);
+                default -> factory.buildRequest(method, url, null);
             };
         } catch (IOException e) {
             throw new RuntimeException(e);
