@@ -19,14 +19,14 @@ public class HttpBuilder {
     private final HttpHeaders headers = new HttpHeaders();
     private final HttpRequest httpRequest;
 
-    public HttpBuilder(Request request, String method, ClientActionModel actionModel) {
+    public HttpBuilder(Request request, String method, String email, ClientActionModel actionModel) {
         httpRequest = createRequest(request, method);
         httpRequest.setHeaders(headers);
         httpRequest.setSuppressUserAgentSuffix(false);
         httpRequest.setNumberOfRetries(3);
         httpRequest.setThrowExceptionOnExecuteError(false);
-        httpRequest.setUnsuccessfulResponseHandler(new HttpResponseHandler(actionModel));
-        httpRequest.setIOExceptionHandler(new IOResponseHandler());
+        httpRequest.setUnsuccessfulResponseHandler(new HttpResponseHandler(email, actionModel));
+        httpRequest.setIOExceptionHandler(new IOResponseHandler(email));
         setGenericHeaders(request);
     }
 

@@ -29,7 +29,7 @@ public class McBase {
     private Authorization authorization = new Authorization();
 
     <T extends Response> T query(Request request, Class<T> responseType, String method) {
-        HttpRequest httpRequest = new HttpBuilder(request, method, actionModel)
+        HttpRequest httpRequest = new HttpBuilder(request, method, getEmail(), actionModel)
                 .setReadTimeout(request.getReadTimeout())
                 .setAuthorization(getJWTToken(request))
                 .setSensorToken(request.isTokenRequired() ? cache.getSensorToken() : null)
