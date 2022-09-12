@@ -3,6 +3,8 @@ package icu.jnet.mcd.network;
 import com.google.api.client.http.HttpRequest;
 import icu.jnet.mcd.utils.Utils;
 
+import java.util.Objects;
+
 public class RequestManager {
 
     private final AutoRemoveQueue<WrappedRequest> queue = new AutoRemoveQueue<>();
@@ -28,7 +30,25 @@ public class RequestManager {
         queue.setWait((long) (1000 / rps));
     }
 
-    private record WrappedRequest(HttpRequest request) {
+    private static class WrappedRequest {
 
+        private final int id;
+
+        public WrappedRequest(HttpRequest request) {
+            this.id = Objects.hash(System.currentTimeMillis(), request);
+        }
+
+        @Override
+        public int hashCode() {
+            return id;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if(!(obj instanceof WrappedRequest req)) {
+                return false;
+            }
+            return id == req.hashCode();
+        }
     }
 }
