@@ -1,9 +1,6 @@
 package icu.jnet.mcd.api.builder;
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpHeaders;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import icu.jnet.mcd.api.exception.HttpResponseHandler;
 import icu.jnet.mcd.api.exception.IOResponseHandler;
@@ -13,6 +10,8 @@ import icu.jnet.mcd.utils.listener.ClientActionModel;
 import java.io.IOException;
 import java.util.UUID;
 
+import static com.google.api.client.http.HttpMethods.*;
+
 public class HttpBuilder {
 
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
@@ -20,8 +19,8 @@ public class HttpBuilder {
     private final HttpHeaders headers = new HttpHeaders();
     private final HttpRequest httpRequest;
 
-    public HttpBuilder(Request request, Request.Type requestType, ClientActionModel actionModel) {
-        httpRequest = createRequest(request, requestType);
+    public HttpBuilder(Request request, String method, ClientActionModel actionModel) {
+        httpRequest = createRequest(request, method);
         httpRequest.setHeaders(headers);
         httpRequest.setSuppressUserAgentSuffix(false);
         httpRequest.setNumberOfRetries(3);
@@ -50,10 +49,10 @@ public class HttpBuilder {
         return httpRequest;
     }
 
-    private HttpRequest createRequest(Request request, Request.Type requestType) {
+    private HttpRequest createRequest(Request request, String method) {
         try {
             GenericUrl url = new GenericUrl(request.getUrl());
-            return switch (requestType) {
+            return switch (method) {
                 case GET -> factory.buildGetRequest(url);
                 case POST -> factory.buildPostRequest(url, request.getContent());
                 case PUT -> factory.buildPutRequest(url, request.getContent());

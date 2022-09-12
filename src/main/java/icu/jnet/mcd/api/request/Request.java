@@ -16,13 +16,6 @@ public abstract class Request {
 
     private static final Gson gson = new Gson();
 
-    public enum Type {
-        GET,
-        POST,
-        PUT,
-        DELETE;
-    }
-
     public abstract String getUrl();
 
     public HttpContent getContent() {

@@ -1,5 +1,6 @@
 package icu.jnet.mcd.api;
 
+import com.google.api.client.http.HttpMethods;
 import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
@@ -22,7 +23,7 @@ public class McClient extends McBase implements ClientStateListener {
     }
 
     public LoginResponse login(String email, String password, String deviceId) {
-        LoginResponse login = query(new LoginRequest(email, password, deviceId), LoginResponse.class, Request.Type.POST);
+        LoginResponse login = query(new LoginRequest(email, password, deviceId), LoginResponse.class, HttpMethods.POST);
         if(login.success()) {
             setAuthorization(login.getResponse());
             ProfileResponse profileResponse = getProfile();
@@ -38,7 +39,7 @@ public class McClient extends McBase implements ClientStateListener {
     }
 
     public Response register(String email, String password, String zipCode, String deviceId) {
-        return query(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class, Request.Type.POST);
+        return query(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class, HttpMethods.POST);
     }
 
     public Response activateAccount(String email, String activationCode) {
@@ -54,31 +55,31 @@ public class McClient extends McBase implements ClientStateListener {
     }
 
     private Response activate(String email, String activationCode, String deviceId, String type) {
-        return query(new ActivationRequest(email, activationCode, deviceId, type), Response.class, Request.Type.PUT);
+        return query(new ActivationRequest(email, activationCode, deviceId, type), Response.class, HttpMethods.PUT);
     }
 
     public Response deleteAccount() {
-        return query(new DeleteRequest(), Response.class, Request.Type.DELETE);
+        return query(new DeleteRequest(), Response.class, HttpMethods.DELETE);
     }
 
     public ProfileResponse getProfile() {
-        return query(new ProfileRequest(), ProfileResponse.class, Request.Type.GET);
+        return query(new ProfileRequest(), ProfileResponse.class, HttpMethods.GET);
     }
 
     public RestaurantResponse getRestaurants(double latitude, double longitude, int distance, int amount) {
-        return query(new RestaurantRequest(latitude, longitude, distance, amount), RestaurantResponse.class, Request.Type.GET);
+        return query(new RestaurantRequest(latitude, longitude, distance, amount), RestaurantResponse.class, HttpMethods.GET);
     }
 
     public PointsResponse getPoints() {
-        return query(new PointsRequest(), PointsResponse.class, Request.Type.GET);
+        return query(new PointsRequest(), PointsResponse.class, HttpMethods.GET);
     }
 
     public OfferResponse getOffers() {
-        return query(new OffersRequest(), OfferResponse.class, Request.Type.GET);
+        return query(new OffersRequest(), OfferResponse.class, HttpMethods.GET);
     }
 
     public OfferDetailsResponse getOfferDetails(int propositionId) {
-        return query(new OfferDetailsRequest(propositionId), OfferDetailsResponse.class, Request.Type.GET);
+        return query(new OfferDetailsRequest(propositionId), OfferDetailsResponse.class, HttpMethods.GET);
     }
 
     public RedeemResponse redeemCoupon(int propositionId) {
@@ -86,31 +87,31 @@ public class McClient extends McBase implements ClientStateListener {
     }
 
     public RedeemResponse redeemCoupon(int propositionId, long offerId) {
-        return query(new RedeemRequest(propositionId, offerId), RedeemResponse.class, Request.Type.GET);
+        return query(new RedeemRequest(propositionId, offerId), RedeemResponse.class, HttpMethods.GET);
     }
 
     public RedeemResponse getIdentificationCode() {
-        return query(new IdentRequest(), RedeemResponse.class, Request.Type.GET);
+        return query(new IdentRequest(), RedeemResponse.class, HttpMethods.GET);
     }
 
     public BonusPointsResponse getPointsBonuses() {
-        return query(new BonusPointsRequest(), BonusPointsResponse.class, Request.Type.GET);
+        return query(new BonusPointsRequest(), BonusPointsResponse.class, HttpMethods.GET);
     }
 
     public OptInResponse optInCampaign(int campaignId) {
-        return query(new OptInRequest(campaignId), OptInResponse.class, Request.Type.POST);
+        return query(new OptInRequest(campaignId), OptInResponse.class, HttpMethods.POST);
     }
 
     public Response useMyMcDonalds(boolean b) {
-        return query(new ProfileRequest().useMyMcDonalds(b), Response.class, Request.Type.PUT);
+        return query(new ProfileRequest().useMyMcDonalds(b), Response.class, HttpMethods.PUT);
     }
 
     public Response setZipCode(String zipCode) {
-        return query(new ProfileRequest().setZipCode(zipCode), Response.class, Request.Type.PUT);
+        return query(new ProfileRequest().setZipCode(zipCode), Response.class, HttpMethods.PUT);
     }
 
     public boolean usesMyMcDonalds() {
-        return query(new ProfileRequest(), ProfileResponse.class, Request.Type.GET).getResponse()
+        return query(new ProfileRequest(), ProfileResponse.class, HttpMethods.GET).getResponse()
                 .getSubscriptions().stream()
                 .filter(sub -> sub.getOptInStatus().equals("Y")
                         && Arrays.asList("23", "24", "25").contains(sub.getSubscriptionId())
@@ -119,25 +120,27 @@ public class McClient extends McBase implements ClientStateListener {
     }
 
     public Response setLocation() {
-        return query(new LocationRequest(getEmail()), Response.class, Request.Type.POST);
+        return query(new LocationRequest(getEmail()), Response.class,HttpMethods.POST);
     }
 
     public Response setNotification() {
-        return query(new NotificationRequest(), Response.class, Request.Type.POST);
+        return query(new NotificationRequest(), Response.class, HttpMethods.POST);
     }
 
     @Override
     public String basicBearerRequired() {
-        return query(new BasicBearerRequest(), BasicBearerResponse.class, Request.Type.POST).getToken();
+        return query(new BasicBearerRequest(), BasicBearerResponse.class, HttpMethods.POST).getToken();
     }
 
     @Override
     public Authorization jwtExpired() {
-        LoginResponse login = query(new RefreshRequest(getAuthorization().getRefreshToken()), LoginResponse.class, Request.Type.POST);
+        LoginResponse login = query(new RefreshRequest(getAuthorization().getRefreshToken()), LoginResponse.class, HttpMethods.POST);
         if(login.success()) {
             setAuthorization(login.getResponse());
             getActionModel().notifyListener(Action.AUTHORIZATION_CHANGED);
             return getAuthorization();
+        } else {
+            getActionModel().notifyListener(Action.JWT_INVALID);
         }
         return null;
     }
