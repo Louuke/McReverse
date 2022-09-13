@@ -26,6 +26,7 @@ public class HttpBuilder {
     public HttpBuilder(Request mcdRequest, String method, ClientActionModel actionModel) {
         httpRequest = createRequest(mcdRequest, method);
         httpRequest.setHeaders(headers);
+        httpRequest.setReadTimeout(mcdRequest.getReadTimeout());
         httpRequest.setSuppressUserAgentSuffix(false);
         httpRequest.setNumberOfRetries(3);
         httpRequest.setThrowExceptionOnExecuteError(false);

@@ -62,7 +62,6 @@ public class McBase implements ClientStateListener {
 
     private HttpBuilder configureBuilder(Request request, String method) {
         return new HttpBuilder(request, method, actionModel)
-                .setReadTimeout(request.getReadTimeout())
                 .setAuthorization(authorization)
                 .setSensorToken(request.isTokenRequired() ? cache.getSensorToken() : null);
     }
