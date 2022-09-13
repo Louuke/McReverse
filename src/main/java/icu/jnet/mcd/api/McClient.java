@@ -1,22 +1,15 @@
 package icu.jnet.mcd.api;
 
 import com.google.api.client.http.HttpMethods;
-import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.api.request.*;
 import icu.jnet.mcd.api.response.*;
-import icu.jnet.mcd.utils.listener.Action;
-import icu.jnet.mcd.utils.listener.ClientStateListener;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-public class McClient extends McBase implements ClientStateListener {
+public class McClient extends McBase {
 
     public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
-
-    public McClient() {
-        addStateListener(this);
-    }
 
     public LoginResponse login(String email, String password) {
         return login(email, password, DEFAULT_DEVICE_ID);
@@ -125,24 +118,6 @@ public class McClient extends McBase implements ClientStateListener {
 
     public Response setNotification() {
         return query(new NotificationRequest(), Response.class, HttpMethods.POST);
-    }
-
-    @Override
-    public String basicBearerRequired() {
-        return query(new BasicBearerRequest(), BasicBearerResponse.class, HttpMethods.POST).getToken();
-    }
-
-    @Override
-    public Authorization jwtExpired() {
-        LoginResponse login = query(new RefreshRequest(getAuthorization().getRefreshToken()), LoginResponse.class, HttpMethods.POST);
-        if(login.success()) {
-            setAuthorization(login.getResponse());
-            getActionModel().notifyListener(Action.AUTHORIZATION_CHANGED);
-            return getAuthorization();
-        } else {
-            getActionModel().notifyListener(Action.JWT_INVALID);
-        }
-        return null;
     }
 
     @Override

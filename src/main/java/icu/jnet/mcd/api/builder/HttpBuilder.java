@@ -2,9 +2,11 @@ package icu.jnet.mcd.api.builder;
 
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.api.exception.HttpResponseHandler;
 import icu.jnet.mcd.api.exception.IOResponseHandler;
 import icu.jnet.mcd.api.request.Request;
+import icu.jnet.mcd.utils.listener.Action;
 import icu.jnet.mcd.utils.listener.ClientActionModel;
 
 import java.io.IOException;
@@ -17,17 +19,21 @@ public class HttpBuilder {
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
 
     private final HttpHeaders headers = new HttpHeaders();
+    private final Request mcdRequest;
     private final HttpRequest httpRequest;
+    private final ClientActionModel actionModel;
+    private Authorization authorization;
 
-    public HttpBuilder(Request request, String method, String email, ClientActionModel actionModel) {
-        httpRequest = createRequest(request, method);
+    public HttpBuilder(Request mcdRequest, String method, String email, ClientActionModel actionModel) {
+        httpRequest = createRequest(mcdRequest, method);
         httpRequest.setHeaders(headers);
         httpRequest.setSuppressUserAgentSuffix(false);
         httpRequest.setNumberOfRetries(3);
         httpRequest.setThrowExceptionOnExecuteError(false);
         httpRequest.setUnsuccessfulResponseHandler(new HttpResponseHandler(email, actionModel));
         httpRequest.setIOExceptionHandler(new IOResponseHandler(email));
-        setGenericHeaders(request);
+        this.mcdRequest = mcdRequest;
+        this.actionModel = actionModel;
     }
 
     public HttpBuilder setReadTimeout(int timout) {
@@ -35,8 +41,8 @@ public class HttpBuilder {
         return this;
     }
 
-    public HttpBuilder setAuthorization(String authorization) {
-        headers.set("authorization", authorization);
+    public HttpBuilder setAuthorization(Authorization authorization) {
+        this.authorization = authorization;
         return this;
     }
 
@@ -46,6 +52,8 @@ public class HttpBuilder {
     }
 
     public HttpRequest build() {
+        setGenericHeaders(mcdRequest);
+        headers.set("authorization", getJWTToken(mcdRequest));
         return httpRequest;
     }
 
@@ -73,5 +81,13 @@ public class HttpBuilder {
         headers.set("mcd-sourceapp", "GMA");
         headers.set("mcd-uuid", UUID.randomUUID());
         headers.set("mcd-marketid", "DE");
+    }
+
+    private String getJWTToken(Request request) {
+        return switch (request.getAuthType()) {
+            case Basic -> "Basic NkRFVXlKT0thQm96OFFSRm00OXFxVklWUGowR1V6b0g6NWltaDZOS1UzdjVDVWlmVHZIUTdFeEY4ZXhrbWFOamI=";
+            case BasicBearer -> "Bearer " + actionModel.notifyListener(Action.BASIC_BEARER_REQUIRED, String.class);
+            case Bearer -> "Bearer " + authorization.getAccessToken();
+        };
     }
 }
