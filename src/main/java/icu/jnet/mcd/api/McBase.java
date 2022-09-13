@@ -61,7 +61,7 @@ public class McBase implements ClientStateListener {
     }
 
     private HttpBuilder configureBuilder(Request request, String method) {
-        return new HttpBuilder(request, method, getEmail(), actionModel)
+        return new HttpBuilder(request, method, actionModel)
                 .setReadTimeout(request.getReadTimeout())
                 .setAuthorization(authorization)
                 .setSensorToken(request.isTokenRequired() ? cache.getSensorToken() : null);
@@ -95,8 +95,8 @@ public class McBase implements ClientStateListener {
     }
 
     private void waitForUnlock() {
-        for(int i = 0; i < 3000 && userInfo.isLocked(); i += 100) {
-            Utils.waitMill(100);
+        for(int i = 0; i < 3000 && userInfo.isLocked(); i += 50) {
+            Utils.waitMill(50);
         }
     }
 

@@ -23,14 +23,14 @@ public class HttpBuilder {
     private final ClientActionModel actionModel;
     private Authorization authorization;
 
-    public HttpBuilder(Request mcdRequest, String method, String email, ClientActionModel actionModel) {
+    public HttpBuilder(Request mcdRequest, String method, ClientActionModel actionModel) {
         httpRequest = createRequest(mcdRequest, method);
         httpRequest.setHeaders(headers);
         httpRequest.setSuppressUserAgentSuffix(false);
         httpRequest.setNumberOfRetries(3);
         httpRequest.setThrowExceptionOnExecuteError(false);
-        httpRequest.setUnsuccessfulResponseHandler(new HttpResponseHandler(email, actionModel));
-        httpRequest.setIOExceptionHandler(new IOResponseHandler(email));
+        httpRequest.setUnsuccessfulResponseHandler(new HttpResponseHandler(actionModel));
+        httpRequest.setIOExceptionHandler(new IOResponseHandler());
         this.mcdRequest = mcdRequest;
         this.actionModel = actionModel;
     }

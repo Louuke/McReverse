@@ -16,22 +16,17 @@ public class HttpResponseHandler implements HttpUnsuccessfulResponseHandler {
 
     private final Gson gson = new Gson();
     private final ClientActionModel actionModel;
-    private final String email;
 
-    public HttpResponseHandler(String email, ClientActionModel actionModel) {
+    public HttpResponseHandler(ClientActionModel actionModel) {
         this.actionModel = actionModel;
-        this.email = email;
     }
 
     @Override
     public boolean handleResponse(HttpRequest request, HttpResponse response, boolean supportsRetry) throws IOException {
         String content = response.parseAsString();
         if(response.getStatusCode() == 401 && getErrorType(content).equals("JWTTokenExpired")) {
-            System.out.println(System.currentTimeMillis() + ": " + email + " : JWTTokenExpired: " + request.getUrl() + " - " + supportsRetry);
             Authorization authorization = actionModel.notifyListener(Action.JWT_EXPIRED, Authorization.class);
-            System.out.println(System.currentTimeMillis() + ": " + email + " : Auth response");
             if(authorization != null) {
-                System.out.println(System.currentTimeMillis() + ": " + email + " : Auth update");
                 updateAuthorization(request, authorization);
                 return true;
             }
