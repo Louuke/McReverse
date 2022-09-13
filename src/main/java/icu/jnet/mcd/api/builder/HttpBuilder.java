@@ -17,7 +17,6 @@ import static com.google.api.client.http.HttpMethods.*;
 public class HttpBuilder {
 
     private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
-
     private final HttpHeaders headers = new HttpHeaders();
     private final Request mcdRequest;
     private final HttpRequest httpRequest;

@@ -46,6 +46,7 @@ public class McBase implements ClientStateListener {
 
     private <T extends Response> T execute(HttpRequest request, Class<T> clazz) {
         try {
+            userInfo.setLocked(true);
             reqManager.enqueue(request);
             HttpResponse response = request.execute();
             if(response.isSuccessStatusCode()) {
@@ -53,6 +54,8 @@ public class McBase implements ClientStateListener {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            userInfo.setLocked(false);
         }
         return createInstance(clazz, new Status());
     }
@@ -71,7 +74,6 @@ public class McBase implements ClientStateListener {
 
     @Override
     public Authorization jwtExpired() {
-        userInfo.setLocked(true);
         LoginResponse login = query(new RefreshRequest(getAuthorization().getRefreshToken()), LoginResponse.class, HttpMethods.POST);
         if(login.success()) {
             setAuthorization(login.getResponse());
@@ -80,8 +82,7 @@ public class McBase implements ClientStateListener {
         } else {
             actionModel.notifyListener(Action.JWT_INVALID);
         }
-        userInfo.setLocked(false);
-        return login.getResponse();
+        return null;
     }
 
     private <T extends Response> T createInstance(Class<T> clazz, Status status) {
