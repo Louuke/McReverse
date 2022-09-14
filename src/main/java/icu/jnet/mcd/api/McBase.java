@@ -81,6 +81,8 @@ public class McBase implements ClientStateListener {
                 if(login.success()) {
                     setAuthorization(login.getResponse());
                     actionModel.notifyListener(Action.AUTHORIZATION_CHANGED);
+                } else {
+                    actionModel.notifyListener(Action.JWT_INVALID);
                 }
             } finally {
                 lock.unlockWrite(stamp);

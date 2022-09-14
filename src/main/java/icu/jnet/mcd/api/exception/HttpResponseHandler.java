@@ -25,12 +25,8 @@ public class HttpResponseHandler implements HttpUnsuccessfulResponseHandler {
     public boolean handleResponse(HttpRequest request, HttpResponse response, boolean supportsRetry) throws IOException {
         String content = response.parseAsString();
         if(response.getStatusCode() == 401 && getErrorType(content).equals("JWTTokenExpired")) {
-            if(supportsRetry) {
-                updateAuthorization(request);
-                return true;
-            } else {
-                actionModel.notifyListener(Action.JWT_INVALID);
-            }
+            updateAuthorization(request);
+            return true;
         }
         return false;
     }
