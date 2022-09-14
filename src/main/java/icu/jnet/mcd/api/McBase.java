@@ -23,6 +23,10 @@ import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.StampedLock;
 
 public class McBase implements ClientStateListener {
 
@@ -30,6 +34,7 @@ public class McBase implements ClientStateListener {
     private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapterFactory()).create();
     private final transient ClientActionModel actionModel = new ClientActionModel();
     private final transient SensorCache cache = new SensorCache(actionModel);
+    private final transient StampedLock lock = new StampedLock();
     private final UserInfo userInfo = new UserInfo();
     private Authorization authorization = new Authorization();
 
@@ -39,14 +44,12 @@ public class McBase implements ClientStateListener {
 
     <T extends Response> T query(Request request, Class<T> responseType, String method) {
         HttpBuilder builder = configureBuilder(request, method);
-        waitForUnlock();
         HttpRequest httpRequest = builder.build();
         return execute(httpRequest, responseType);
     }
 
     private <T extends Response> T execute(HttpRequest request, Class<T> clazz) {
         try {
-            userInfo.setLocked(true);
             reqManager.enqueue(request);
             HttpResponse response = request.execute();
             if(response.isSuccessStatusCode()) {
@@ -54,8 +57,6 @@ public class McBase implements ClientStateListener {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            userInfo.setLocked(false);
         }
         return createInstance(clazz, new Status());
     }
@@ -73,15 +74,21 @@ public class McBase implements ClientStateListener {
 
     @Override
     public Authorization jwtExpired() {
-        LoginResponse login = query(new RefreshRequest(getAuthorization().getRefreshToken()), LoginResponse.class, HttpMethods.POST);
-        if(login.success()) {
-            setAuthorization(login.getResponse());
-            actionModel.notifyListener(Action.AUTHORIZATION_CHANGED);
-            return getAuthorization();
+        if(!lock.isWriteLocked()) {
+            long stamp = lock.writeLock();
+            try {
+                LoginResponse login = query(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class, HttpMethods.POST);
+                if(login.success()) {
+                    setAuthorization(login.getResponse());
+                    actionModel.notifyListener(Action.AUTHORIZATION_CHANGED);
+                }
+            } finally {
+                lock.unlockWrite(stamp);
+            }
         } else {
-            actionModel.notifyListener(Action.JWT_INVALID);
+            waitForUnlock();
         }
-        return null;
+        return authorization;
     }
 
     private <T extends Response> T createInstance(Class<T> clazz, Status status) {
@@ -94,7 +101,7 @@ public class McBase implements ClientStateListener {
     }
 
     private void waitForUnlock() {
-        for(int i = 0; i < 3000 && userInfo.isLocked(); i += 50) {
+        for(int i = 0; i < 6000 && lock.isWriteLocked(); i += 50) {
             Utils.waitMill(50);
         }
     }

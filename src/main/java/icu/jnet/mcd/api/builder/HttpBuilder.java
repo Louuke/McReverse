@@ -36,11 +36,6 @@ public class HttpBuilder {
         this.actionModel = actionModel;
     }
 
-    public HttpBuilder setReadTimeout(int timout) {
-        httpRequest.setReadTimeout(timout);
-        return this;
-    }
-
     public HttpBuilder setAuthorization(Authorization authorization) {
         this.authorization = authorization;
         return this;

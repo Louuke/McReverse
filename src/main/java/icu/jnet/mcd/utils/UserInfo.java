@@ -3,7 +3,6 @@ package icu.jnet.mcd.utils;
 public class UserInfo {
 
     private String email = "", deviceId = "", userId = "";
-    private boolean locked;
 
     public String getEmail() {
         return email;
@@ -30,13 +29,5 @@ public class UserInfo {
     public UserInfo setUserId(String userId) {
         this.userId = userId;
         return this;
-    }
-
-    public void setLocked(boolean locked) {
-        this.locked = locked;
-    }
-
-    public boolean isLocked() {
-        return locked;
     }
 }
