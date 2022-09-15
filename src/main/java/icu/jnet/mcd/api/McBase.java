@@ -23,9 +23,6 @@ import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.StampedLock;
 
 public class McBase implements ClientStateListener {
@@ -52,13 +49,15 @@ public class McBase implements ClientStateListener {
         try {
             reqManager.enqueue(request);
             HttpResponse response = request.execute();
+            String content = response.parseAsString();
             if(response.isSuccessStatusCode()) {
                 return gson.fromJson(response.parseAsString(), clazz);
             }
+            return createErrorResponse(clazz, content);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return createInstance(clazz, new Status());
+        return createErrorResponse(clazz, "");
     }
 
     private HttpBuilder configureBuilder(Request request, String method) {
@@ -81,8 +80,6 @@ public class McBase implements ClientStateListener {
                 if(login.success()) {
                     setAuthorization(login.getResponse());
                     actionModel.notifyListener(Action.AUTHORIZATION_CHANGED);
-                } else {
-                    actionModel.notifyListener(Action.JWT_INVALID);
                 }
             } finally {
                 lock.unlockWrite(stamp);
@@ -93,9 +90,10 @@ public class McBase implements ClientStateListener {
         return authorization;
     }
 
-    private <T extends Response> T createInstance(Class<T> clazz, Status status) {
+    private <T extends Response> T createErrorResponse(Class<T> clazz, String error) {
         try {
-            return clazz.getConstructor(Status.class).newInstance(status);
+            Response response = gson.fromJson(error, Response.class);
+            return clazz.getConstructor(Status.class).newInstance(response != null ? response.getStatus() : new Status());
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }
