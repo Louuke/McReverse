@@ -51,7 +51,7 @@ public class McBase implements ClientStateListener {
             HttpResponse response = request.execute();
             String content = response.parseAsString();
             if(response.isSuccessStatusCode()) {
-                return gson.fromJson(response.parseAsString(), clazz);
+                return gson.fromJson(content, clazz);
             }
             return createErrorResponse(clazz, content);
         } catch (IOException e) {
