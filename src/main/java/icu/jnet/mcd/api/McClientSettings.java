@@ -1,4 +1,4 @@
-package icu.jnet.mcd.api.response;
+package icu.jnet.mcd.api;
 
 import icu.jnet.mcd.network.RequestManager;
 

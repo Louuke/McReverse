@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.time.LocalTime;
 import java.util.regex.Pattern;
 
-import static icu.jnet.mcd.api.response.McClientSettings.ZONE_ID;
+import static icu.jnet.mcd.api.McClientSettings.ZONE_ID;
 
 public class Offer {
 
