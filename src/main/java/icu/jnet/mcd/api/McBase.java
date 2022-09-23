@@ -16,7 +16,7 @@ import icu.jnet.mcd.utils.OfferAdapterFactory;
 import icu.jnet.mcd.utils.SensorCache;
 import icu.jnet.mcd.utils.UserInfo;
 import icu.jnet.mcd.utils.Utils;
-import icu.jnet.mcd.utils.listener.Action;
+import icu.jnet.mcd.constants.Action;
 import icu.jnet.mcd.utils.listener.ClientActionModel;
 import icu.jnet.mcd.utils.listener.ClientStateListener;
 import icu.jnet.mcd.network.RequestManager;

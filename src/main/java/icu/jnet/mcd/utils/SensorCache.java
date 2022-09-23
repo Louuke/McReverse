@@ -1,6 +1,6 @@
 package icu.jnet.mcd.utils;
 
-import icu.jnet.mcd.utils.listener.Action;
+import icu.jnet.mcd.constants.Action;
 import icu.jnet.mcd.utils.listener.ClientActionModel;
 
 import java.util.Queue;

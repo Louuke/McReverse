@@ -6,7 +6,7 @@ import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.api.exception.HttpResponseHandler;
 import icu.jnet.mcd.api.exception.IOResponseHandler;
 import icu.jnet.mcd.api.request.Request;
-import icu.jnet.mcd.utils.listener.Action;
+import icu.jnet.mcd.constants.Action;
 import icu.jnet.mcd.utils.listener.ClientActionModel;
 
 import java.io.IOException;

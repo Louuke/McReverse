@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.api.response.Response;
-import icu.jnet.mcd.utils.listener.Action;
+import icu.jnet.mcd.constants.Action;
 import icu.jnet.mcd.utils.listener.ClientActionModel;
 
 import java.io.IOException;
