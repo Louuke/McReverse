@@ -3,22 +3,46 @@ package icu.jnet.mcd.api.request;
 import com.google.api.client.http.ByteArrayContent;
 import com.google.api.client.http.HttpContent;
 import com.google.gson.Gson;
+import icu.jnet.mcd.annotation.Auth;
+import icu.jnet.mcd.annotation.ReadTimeout;
+import icu.jnet.mcd.annotation.SensorRequired;
 
 import java.lang.annotation.Annotation;
+import java.util.Objects;
 
-public interface Request {
+@ReadTimeout
+@Auth(type = Auth.Type.Bearer)
+public abstract class Request {
 
-    String getUrl();
+    private static final Gson gson = new Gson();
 
-    default HttpContent getContent() {
-        return ByteArrayContent.fromString("application/json", new Gson().toJson(this));
+    public abstract String getUrl();
+
+    public HttpContent getContent() {
+        return ByteArrayContent.fromString("application/json", gson.toJson(this));
     }
 
-    default boolean hasAnnotation(Class<? extends Annotation> clazz) {
-        return getClass().isAnnotationPresent(clazz) || getClass().getSuperclass().isAnnotationPresent(clazz);
+    public Auth.Type getAuthType() {
+        return ((Auth) Objects.requireNonNull(findAnnotation(Auth.class))).type();
     }
 
-    default int getReadTimeout() {
-        return 6000;
+    public int getReadTimeout() {
+        return ((ReadTimeout) Objects.requireNonNull(findAnnotation(ReadTimeout.class))).value();
+    }
+
+    public boolean isTokenRequired() {
+        return findAnnotation(SensorRequired.class) != null;
+    }
+
+    private Annotation findAnnotation(Class<? extends Annotation> clazz) {
+        Class<?> thisClazz = getClass();
+        while(thisClazz != Object.class) {
+            if(thisClazz.isAnnotationPresent(clazz)) {
+                return thisClazz.getAnnotation(clazz);
+            } else {
+                thisClazz = thisClazz.getSuperclass();
+            }
+        }
+        return null;
     }
 }

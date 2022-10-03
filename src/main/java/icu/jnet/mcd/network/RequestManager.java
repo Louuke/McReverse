@@ -3,6 +3,8 @@ package icu.jnet.mcd.network;
 import com.google.api.client.http.HttpRequest;
 import icu.jnet.mcd.utils.Utils;
 
+import java.util.Objects;
+
 public class RequestManager {
 
     private final AutoRemoveQueue<HttpRequest> queue = new AutoRemoveQueue<>();

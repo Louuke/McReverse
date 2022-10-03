@@ -2,13 +2,13 @@ package icu.jnet.mcd.api.request;
 
 import com.google.api.client.http.HttpContent;
 import com.google.api.client.http.UrlEncodedContent;
-import icu.jnet.mcd.annotation.BasicAuth;
+import icu.jnet.mcd.annotation.Auth;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@BasicAuth
-public class BasicBearerRequest implements Request {
+@Auth(type = Auth.Type.Basic)
+public class BasicBearerRequest extends Request {
 
     @Override
     public String getUrl() {

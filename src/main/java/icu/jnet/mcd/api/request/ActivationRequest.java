@@ -1,11 +1,11 @@
 package icu.jnet.mcd.api.request;
 
-import icu.jnet.mcd.annotation.BasicBearerRequired;
+import icu.jnet.mcd.annotation.Auth;
 import icu.jnet.mcd.annotation.SensorRequired;
 
 @SensorRequired
-@BasicBearerRequired
-public class ActivationRequest implements Request {
+@Auth(type = Auth.Type.BasicBearer)
+public class ActivationRequest extends Request {
 
     private final String activationCode, deviceId;
     private final Credentials credentials;

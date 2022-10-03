@@ -1,6 +1,6 @@
 package icu.jnet.mcd.api.request;
 
-public class IdentRequest implements Request {
+public class IdentRequest extends Request {
 
     @Override
     public String getUrl() {

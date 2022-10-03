@@ -14,4 +14,9 @@ public class OfferDetailsResponse extends Response {
     public OfferDetails getResponse() {
         return response;
     }
+
+    @Override
+    public boolean success() {
+        return getStatus().getType().equals("Absolute Success");
+    }
 }

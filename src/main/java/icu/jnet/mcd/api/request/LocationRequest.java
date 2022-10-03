@@ -1,6 +1,6 @@
 package icu.jnet.mcd.api.request;
 
-public class LocationRequest implements Request {
+public class LocationRequest extends Request {
 
     private final String application = "MOT", eventType = "changeLocation", languageName = "de-DE", platform = "android",
             deviceToken = "c9ZdzkqwfgY:APA91bE910Kbyi2japDOTgwPtLM7Sl3UEMg_XdmtjSBpwRTXo4FH-_2pCtVzlbvbNPMNkRJN41B-5LZnK7ZDGH3namwOAXrjh-rhfVfSTXkh9DdFCZv99Joew7LJKokiUiUFuwdKZhnV",

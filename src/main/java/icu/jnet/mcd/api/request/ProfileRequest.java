@@ -2,19 +2,16 @@ package icu.jnet.mcd.api.request;
 
 import icu.jnet.mcd.annotation.SensorRequired;
 import icu.jnet.mcd.api.entity.profile.Address;
-import icu.jnet.mcd.api.entity.profile.Base;
 import icu.jnet.mcd.api.entity.profile.CustomerInformation;
 import icu.jnet.mcd.api.entity.profile.Subscription;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @SensorRequired
-public class ProfileRequest implements Request {
+public class ProfileRequest extends Request {
 
     private final CustomerInformation customerInformation = new CustomerInformation();
 

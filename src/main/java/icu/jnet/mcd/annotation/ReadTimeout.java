@@ -7,5 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface BasicBearerRequired {
+public @interface ReadTimeout {
+
+    int value() default 4000;
 }

@@ -1,14 +1,14 @@
 package icu.jnet.mcd.api.request;
 
-import icu.jnet.mcd.annotation.BasicBearerRequired;
+import icu.jnet.mcd.annotation.Auth;
 import icu.jnet.mcd.annotation.SensorRequired;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @SensorRequired
-@BasicBearerRequired
-public class LoginRequest implements Request {
+@Auth(type = Auth.Type.BasicBearer)
+public class LoginRequest extends Request {
 
     private final ClientInfo clientInfo;
     private final Credentials credentials;

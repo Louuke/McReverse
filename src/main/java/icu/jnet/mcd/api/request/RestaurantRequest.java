@@ -1,6 +1,6 @@
 package icu.jnet.mcd.api.request;
 
-public class RestaurantRequest implements Request {
+public class RestaurantRequest extends Request {
 
     private final double latitude, longitude;
     private final int distance, amount;

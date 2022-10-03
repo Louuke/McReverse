@@ -1,6 +1,6 @@
 package icu.jnet.mcd.api.request;
 
-public class RefreshRequest implements Request {
+public class RefreshRequest extends Request {
 
     private final String refreshToken;
 

@@ -1,6 +1,9 @@
 package icu.jnet.mcd.api.request;
 
-public class DeleteRequest implements Request {
+import icu.jnet.mcd.annotation.SensorRequired;
+
+@SensorRequired
+public class DeleteRequest extends Request {
 
     @Override
     public String getUrl() {
