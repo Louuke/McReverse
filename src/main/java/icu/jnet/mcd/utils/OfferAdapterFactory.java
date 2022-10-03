@@ -11,6 +11,8 @@ import icu.jnet.mcd.api.entity.offer.Offer;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import static icu.jnet.mcd.utils.Utils.localToUnix;
+
 public class OfferAdapterFactory implements TypeAdapterFactory {
 
     @Override
@@ -30,6 +32,7 @@ public class OfferAdapterFactory implements TypeAdapterFactory {
             public T read(JsonReader in) throws IOException {
                 T pojo = delegateAdapter.read(in);
                 setPriceAndName((Offer) pojo);
+                setValidUnixTime((Offer) pojo);
                 return pojo;
             }
         };
@@ -53,6 +56,19 @@ public class OfferAdapterFactory implements TypeAdapterFactory {
             price.setAccessible(true);
             name.set(offer, getName(offer));
             price.set(offer, getPrice(offer));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void setValidUnixTime(Offer offer) {
+        try {
+            Field validFromUnix = Offer.class.getDeclaredField("validFromUnix");
+            Field validToUnix = Offer.class.getDeclaredField("validToUnix");
+            validFromUnix.setAccessible(true);
+            validToUnix.setAccessible(true);
+            validFromUnix.set(offer, localToUnix(offer.getLocalValidFrom()));
+            validToUnix.set(offer, localToUnix(offer.getLocalValidTo()));
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

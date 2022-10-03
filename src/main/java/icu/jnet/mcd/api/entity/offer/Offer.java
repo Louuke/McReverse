@@ -28,15 +28,14 @@ public class Offer {
     @SerializedName("longDescription") private String longDescription;
     @SerializedName("offerBucket") private String offerBucket;
     @SerializedName("shortDescription") private String shortDescription;
-    @SerializedName("validFromUTC") private String validFromUTC;
-    @SerializedName("validToUTC") private String validToUTC;
-    @SerializedName("CreationDateUtc") private String creationDateUTC;
+    @SerializedName("CreationDatedfdUtc") private String creationDateUTC;
     @SerializedName("name") private String fullName;
     @SerializedName("colorCodingInfo") private int colorCodingInfo;
     @SerializedName("offerPropositionId") private int offerPropositionId;
     @SerializedName("offerType") private int offerType;
     @SerializedName("redemptionMode") private int redemptionMode;
     @SerializedName("offerId") private long offerId;
+    private long validFromUnix, validToUnix;
     private String shortName;
     private String price;
 
@@ -94,14 +93,6 @@ public class Offer {
 
     public String getShortDescription() {
         return shortDescription;
-    }
-
-    public String getValidFromUTC() {
-        return validFromUTC;
-    }
-
-    public String getValidToUTC() {
-        return validToUTC;
     }
 
     public String getImageUrl() {
@@ -181,6 +172,14 @@ public class Offer {
 
     public long getOfferId() {
         return offerId;
+    }
+
+    public long getValidFromUnix() {
+        return validFromUnix;
+    }
+
+    public long getValidToUnix() {
+        return validToUnix;
     }
 
     @Override
