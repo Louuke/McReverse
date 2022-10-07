@@ -3,6 +3,7 @@ package icu.jnet.mcd.api;
 import com.google.api.client.http.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import icu.jnet.mcd.api.builder.HttpBuilder;
 import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.api.request.BasicBearerRequest;
@@ -96,6 +97,8 @@ public class McBase implements ClientStateListener {
             return clazz.getConstructor(Status.class).newInstance(response != null ? response.getStatus() : new Status());
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
+        } catch (JsonSyntaxException e) {
+            System.err.println("JSON error: " + e.getMessage());
         }
         return null;
     }
