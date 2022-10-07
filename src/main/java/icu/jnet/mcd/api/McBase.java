@@ -25,6 +25,7 @@ import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.locks.StampedLock;
 
 public class McBase implements ClientStateListener {
@@ -56,6 +57,7 @@ public class McBase implements ClientStateListener {
                 return gson.fromJson(content, clazz);
             }
             return createErrorResponse(clazz, content);
+        } catch (SocketTimeoutException ignored) {
         } catch (IOException e) {
             e.printStackTrace();
         }
