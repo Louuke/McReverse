@@ -112,10 +112,6 @@ public class McClient extends McBase {
                         && sub.getSubscriptionId().equals("21")).count() == 4;
     }
 
-    public LoginResponse verifyNextToken() {
-        return query(new SensorVerifyRequest(), LoginResponse.class, HttpMethods.POST);
-    }
-
     public Response setLocation() {
         return query(new LocationRequest(getEmail()), Response.class,HttpMethods.POST);
     }

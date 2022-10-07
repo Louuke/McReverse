@@ -20,7 +20,6 @@ public class SensorCache {
     public String getSensorToken() {
         if(sensorQueue.isEmpty()) {
             addToQueue(actionModel.notifyListener(Action.TOKEN_REQUIRED, String.class));
-            verify();
         }
         return sensorQueue.poll();
     }
@@ -30,16 +29,5 @@ public class SensorCache {
         for(int i = 0; i < usage; i++) {
             sensorQueue.add(token);
         }
-    }
-
-    private void verify() {
-        McClient client = new McClient();
-        client.addStateListener(new ClientStateListener() {
-            @Override
-            public String tokenRequired() {
-                return getSensorToken();
-            }
-        });
-        client.verifyNextToken();
     }
 }

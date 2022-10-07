@@ -53,6 +53,7 @@ public class McBase implements ClientStateListener {
             reqManager.enqueue(request);
             HttpResponse response = request.execute();
             String content = response.parseAsString();
+            //System.out.println(content);
             if(response.isSuccessStatusCode()) {
                 return gson.fromJson(content, clazz);
             }
