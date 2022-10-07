@@ -32,6 +32,7 @@ public class AutoRemoveQueue<E> extends ConcurrentLinkedQueue<E> {
         if(thread == null || !thread.isAlive()) {
             thread = new Thread(() -> {
                 while(!isEmpty()) {
+                    System.out.println("SIZE: " + size());
                     Utils.waitMill(wait);
                     poll();
                 }
