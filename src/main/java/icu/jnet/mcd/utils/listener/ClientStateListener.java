@@ -19,4 +19,6 @@ public interface ClientStateListener {
     default void jwtIsInvalid() {}
 
     default void authChanged() {}
+
+    default void accountDeleted() {}
 }

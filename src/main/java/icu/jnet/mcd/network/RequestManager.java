@@ -3,13 +3,13 @@ package icu.jnet.mcd.network;
 import com.google.api.client.http.HttpRequest;
 import icu.jnet.mcd.utils.Utils;
 
-import java.util.Objects;
-
 public class RequestManager {
 
-    private final AutoRemoveQueue<HttpRequest> queue = new AutoRemoveQueue<>();
+    private final AutoRemoveQueue<HttpRequest> queue = new AutoRemoveQueue<>(400);
 
     private static RequestManager instance;
+
+    private RequestManager() {}
 
     public static RequestManager getInstance() {
         if(instance == null) {
@@ -21,7 +21,7 @@ public class RequestManager {
     public void enqueue(HttpRequest request) {
         queue.add(request);
         while (queue.contains(request)) {
-            Utils.waitMill(50);
+            Utils.waitMill(200);
         }
     }
 

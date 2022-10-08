@@ -2,29 +2,35 @@ package icu.jnet.mcd.api.builder;
 
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import icu.jnet.mcd.api.McClientSettings;
 import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.api.exception.HttpResponseHandler;
 import icu.jnet.mcd.api.exception.IOResponseHandler;
 import icu.jnet.mcd.api.request.Request;
 import icu.jnet.mcd.constants.Action;
+import icu.jnet.mcd.utils.UserInfo;
 import icu.jnet.mcd.utils.listener.ClientActionModel;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.net.Proxy;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.google.api.client.http.HttpMethods.*;
 
 public class HttpBuilder {
 
-    private static final HttpRequestFactory factory = new NetHttpTransport().createRequestFactory();
+    private static final Map<UserInfo, Map<String, Object>> cachedFactories = new ConcurrentHashMap<>();
+    private static final Random rand = new Random();
     private final HttpHeaders headers = new HttpHeaders();
     private final Request mcdRequest;
     private final HttpRequest httpRequest;
     private final ClientActionModel actionModel;
     private Authorization authorization;
 
-    public HttpBuilder(Request mcdRequest, String method, ClientActionModel actionModel) {
-        httpRequest = createRequest(mcdRequest, method);
+    public HttpBuilder(UserInfo user, Request mcdRequest, String method, ClientActionModel actionModel) {
+        httpRequest = createRequest(user, mcdRequest, method);
         httpRequest.setHeaders(headers);
         httpRequest.setReadTimeout(mcdRequest.getReadTimeout());
         httpRequest.setSuppressUserAgentSuffix(false);
@@ -52,8 +58,9 @@ public class HttpBuilder {
         return httpRequest;
     }
 
-    private HttpRequest createRequest(Request request, String method) {
+    private HttpRequest createRequest(UserInfo user, Request request, String method) {
         try {
+            HttpRequestFactory factory = getFactory(user);
             GenericUrl url = new GenericUrl(request.getUrl());
             return switch (method) {
                 case GET -> factory.buildGetRequest(url);
@@ -65,6 +72,28 @@ public class HttpBuilder {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private HttpRequestFactory getFactory(UserInfo user) {
+        HttpRequestFactory factory;
+        long now = Instant.now().getEpochSecond();
+        if(!cachedFactories.containsKey(user) || ((Long) cachedFactories.get(user).get("time") < now - 300)) {
+            Proxy proxy = getRandomProxy();
+            System.out.println(proxy.address().toString());
+            factory = new NetHttpTransport.Builder().setProxy(proxy).build().createRequestFactory();
+            Map<String, Object> info = new ConcurrentHashMap<>();
+            info.put("time", now);
+            info.put("factory", factory);
+            cachedFactories.put(user, info);
+        } else {
+            factory = (HttpRequestFactory) cachedFactories.get(user).get("factory");
+        }
+        return factory;
+    }
+
+    private Proxy getRandomProxy() {
+        List<Proxy> list = McClientSettings.getProxies();
+        return list.get(rand.nextInt(list.size()));
     }
 
     private void setGenericHeaders(Request request) {

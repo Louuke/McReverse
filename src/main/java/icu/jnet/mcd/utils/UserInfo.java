@@ -1,5 +1,7 @@
 package icu.jnet.mcd.utils;
 
+import java.util.Objects;
+
 public class UserInfo {
 
     private String email = "", deviceId = "", userId = "";
@@ -29,5 +31,18 @@ public class UserInfo {
     public UserInfo setUserId(String userId) {
         this.userId = userId;
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(email);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof UserInfo user)) {
+            return false;
+        }
+        return user.getEmail().equals(email);
     }
 }
