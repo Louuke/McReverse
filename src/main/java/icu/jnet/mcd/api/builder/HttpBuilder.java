@@ -79,7 +79,6 @@ public class HttpBuilder {
         long now = Instant.now().getEpochSecond();
         if(!cachedFactories.containsKey(user) || ((Long) cachedFactories.get(user).get("time") < now - 300)) {
             Proxy proxy = getRandomProxy();
-            System.out.println(proxy.address().toString());
             factory = new NetHttpTransport.Builder().setProxy(proxy).build().createRequestFactory();
             Map<String, Object> info = new ConcurrentHashMap<>();
             info.put("time", now);

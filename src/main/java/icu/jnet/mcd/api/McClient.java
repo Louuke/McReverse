@@ -16,12 +16,13 @@ public class McClient extends McBase {
     }
 
     public LoginResponse login(String email, String password, String deviceId) {
+        getUserInfo().setEmail(email).setDeviceId(deviceId);
         LoginResponse login = query(new LoginRequest(email, password, deviceId), LoginResponse.class, HttpMethods.POST);
         if(login.success()) {
             setAuthorization(login.getResponse());
             ProfileResponse profileResponse = getProfile();
             if(profileResponse.success()) {
-                getUserInfo().setEmail(email).setDeviceId(deviceId).setUserId(profileResponse.getResponse().getHashedDcsId());
+                getUserInfo().setUserId(profileResponse.getResponse().getHashedDcsId());
             }
         }
         return login;
