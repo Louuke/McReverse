@@ -1,10 +1,12 @@
 package icu.jnet.mcd.api.entity.login;
 
+import java.time.Instant;
 import java.util.Objects;
 
 public class Authorization {
 
     private String accessToken, refreshToken;
+    private long createdUnix = Instant.now().getEpochSecond();
 
     public String getAccessToken() {
         return accessToken != null ? accessToken : "";
@@ -14,12 +16,20 @@ public class Authorization {
         return refreshToken != null ? refreshToken : "";
     }
 
+    public long getCreatedUnix() {
+        return createdUnix;
+    }
+
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
     }
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public void setCreatedUnix(long createdUnix) {
+        this.createdUnix = createdUnix;
     }
 
     @Override

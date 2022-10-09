@@ -98,17 +98,18 @@ public class McBase implements ClientStateListener {
 
     @Override
     public Authorization jwtExpired() {
-        if(!refreshManager.isWaitingForLock(userInfo)) {
-            refreshManager.waitForLock(userInfo);
+        refreshManager.waitForLock();
+        if(!refreshManager.isNewerAuthCached(userInfo, authorization)) {
             LoginResponse login = refreshAuthorization();
             if(login.success()) {
                 setAuthorization(login.getResponse());
                 actionModel.notifyListener(Action.AUTHORIZATION_CHANGED);
+                refreshManager.saveAuthorization(userInfo, authorization);
             }
-            refreshManager.unlock(userInfo);
         } else {
-            refreshManager.waitForUnlock(userInfo);
+            setAuthorization(refreshManager.getCachedAuthorization(userInfo));
         }
+        refreshManager.unlock();
         return authorization;
     }
 
@@ -135,5 +136,6 @@ public class McBase implements ClientStateListener {
     public void setAuthorization(Authorization authorization) {
         this.authorization.setAccessToken(authorization.getAccessToken());
         this.authorization.setRefreshToken(authorization.getRefreshToken());
+        this.authorization.setCreatedUnix(authorization.getCreatedUnix());
     }
 }

@@ -1,14 +1,17 @@
 package icu.jnet.mcd.network;
 
+import icu.jnet.mcd.api.entity.login.Authorization;
 import icu.jnet.mcd.utils.UserInfo;
-import icu.jnet.mcd.utils.Utils;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.StampedLock;
 
 public class RefreshManager {
 
-    private final Queue<UserInfo> queue = new ConcurrentLinkedQueue<>();
+    private final Map<UserInfo, Authorization> cachedAuth = new ConcurrentHashMap<>();
+    private final StampedLock lock = new StampedLock();
+    private long stamp;
 
     private static RefreshManager instance;
 
@@ -21,24 +24,24 @@ public class RefreshManager {
         return instance;
     }
 
-    public synchronized boolean isWaitingForLock(UserInfo user) {
-        return queue.contains(user);
+    public boolean isNewerAuthCached(UserInfo user, Authorization authorization) {
+        return cachedAuth.containsKey(user) && cachedAuth.get(user).getCreatedUnix() > authorization.getCreatedUnix();
     }
 
-    public void waitForLock(UserInfo user) {
-        queue.add(user);
-        for(int i = 0; i < 60000 && queue.peek() != user; i += 300) {
-            Utils.waitMill(300);
-        }
+    public Authorization getCachedAuthorization(UserInfo user) {
+        return cachedAuth.get(user);
     }
 
-    public void unlock(UserInfo user) {
-        queue.remove(user);
+    public void saveAuthorization(UserInfo user, Authorization authorization) {
+        cachedAuth.put(user, authorization);
     }
 
-    public void waitForUnlock(UserInfo user) {
-        for(int i = 0; i < 60000 && queue.contains(user); i += 300) {
-            Utils.waitMill(300);
-        }
+    public void waitForLock() {
+        stamp = lock.writeLock();
     }
+
+    public void unlock() {
+        lock.unlockWrite(stamp);
+    }
+
 }
