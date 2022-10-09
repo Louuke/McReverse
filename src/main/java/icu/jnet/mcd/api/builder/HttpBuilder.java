@@ -22,7 +22,7 @@ import static com.google.api.client.http.HttpMethods.*;
 public class HttpBuilder {
 
     private static final Map<UserInfo, Map<String, Object>> cachedFactories = new ConcurrentHashMap<>();
-    private static final Random rand = new Random();
+    private static int nextProxy = 0;
     private final HttpHeaders headers = new HttpHeaders();
     private final Request mcdRequest;
     private final HttpRequest httpRequest;
@@ -92,7 +92,9 @@ public class HttpBuilder {
 
     private Proxy getRandomProxy() {
         List<Proxy> list = McClientSettings.getProxies();
-        return list.get(rand.nextInt(list.size()));
+        Proxy proxy = list.get(0);
+        nextProxy = nextProxy + 1 < list.size() ? nextProxy + 1 : 0;
+        return proxy;
     }
 
     private void setGenericHeaders(Request request) {
