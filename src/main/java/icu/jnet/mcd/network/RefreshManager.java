@@ -5,13 +5,12 @@ import icu.jnet.mcd.utils.UserInfo;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.StampedLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RefreshManager {
 
     private final Map<UserInfo, Authorization> cachedAuth = new ConcurrentHashMap<>();
-    private final StampedLock lock = new StampedLock();
-    private long stamp;
+    private final ReentrantLock lock = new ReentrantLock();
 
     private static RefreshManager instance;
 
@@ -37,11 +36,11 @@ public class RefreshManager {
     }
 
     public void waitForLock() {
-        stamp = lock.writeLock();
+        lock.lock();
     }
 
     public void unlock() {
-        lock.unlockWrite(stamp);
+        lock.unlock();
     }
 
 }
