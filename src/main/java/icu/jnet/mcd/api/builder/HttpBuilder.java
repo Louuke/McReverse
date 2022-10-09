@@ -33,8 +33,8 @@ public class HttpBuilder {
         httpRequest = createRequest(user, mcdRequest, method);
         httpRequest.setHeaders(headers);
         httpRequest.setReadTimeout(mcdRequest.getReadTimeout());
-        httpRequest.setSuppressUserAgentSuffix(false);
         httpRequest.setNumberOfRetries(3);
+        httpRequest.setSuppressUserAgentSuffix(true);
         httpRequest.setThrowExceptionOnExecuteError(false);
         httpRequest.setUnsuccessfulResponseHandler(new HttpResponseHandler(actionModel));
         httpRequest.setIOExceptionHandler(new IOResponseHandler());
@@ -102,7 +102,7 @@ public class HttpBuilder {
         headers.set("accept-charset", "UTF-8");
         headers.set("content-type", request.getContent() != null ? request.getContent().getType() : "application/json;");
         headers.set("accept-language", "de-DE");
-        headers.set("user-agent", "MCDSDK/22.0.20 (Android; 30; de-DE) GMA/7.8");
+        headers.set("user-agent", "MCDSDK/22.0.20 (Android; 31; de-DE) GMA/7.8");
         headers.set("mcd-sourceapp", "GMA");
         headers.set("mcd-uuid", UUID.randomUUID());
         headers.set("mcd-marketid", "DE");
