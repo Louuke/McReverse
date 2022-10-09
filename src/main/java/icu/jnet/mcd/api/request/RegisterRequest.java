@@ -14,7 +14,7 @@ public class RegisterRequest extends Request {
     private Device device;
     private Address address;
     private Credentials credentials;
-    private final String emailAddress, firstName = "M", lastName = "M";
+    private final String emailAddress, firstName = "Max", lastName = "M";
     private final boolean optInForMarketing = false;
 
     public RegisterRequest(String email, String password, String zipCode, String deviceId) {
@@ -52,7 +52,7 @@ public class RegisterRequest extends Request {
 
     private static class Device {
         private final String deviceIdType = "AndroidId", isActive = "Y", os = "android",
-            osVersion = "9", timezone = "Europe/Berlin", pushNotificationId = "c9ZdzkqwfgY:APA91bE910Kbyi2japDOTgwPtLM7Sl3UEMg_XdmtjSBpwRTXo4FH-_2pCtVzlbvbNPMNkRJN41B-5LZnK7ZDGH3namwOAXrjh-rhfVfSTXkh9DdFCZv99Joew7LJKokiUiUFuwdKZhnV";
+                osVersion = "11", timezone = "Europe/Berlin";
         private String deviceId;
 
         public Device(String deviceId) {
