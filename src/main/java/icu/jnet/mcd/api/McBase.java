@@ -28,9 +28,9 @@ import java.net.SocketTimeoutException;
 
 public class McBase implements ClientStateListener {
 
+    private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapterFactory()).create();
     private static final RequestManager requestManager = RequestManager.getInstance();
     private static final RefreshManager refreshManager = RefreshManager.getInstance();
-    private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapterFactory()).create();
     private final transient ClientActionModel actionModel = new ClientActionModel();
     private final transient SensorCache cache = new SensorCache(actionModel);
     private final UserInfo userInfo = new UserInfo();
