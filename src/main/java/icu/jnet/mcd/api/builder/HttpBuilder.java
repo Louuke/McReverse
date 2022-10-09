@@ -100,12 +100,13 @@ public class HttpBuilder {
     private void setGenericHeaders(Request request) {
         headers.set("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
         headers.set("accept-charset", "UTF-8");
-        headers.set("content-type", request.getContent() != null ? request.getContent().getType() : "application/json;");
-        headers.set("accept-language", "de-DE");
         headers.set("user-agent", "MCDSDK/22.0.20 (Android; 31; de-DE) GMA/7.8");
+        headers.set("content-type", request.getContent() != null ? request.getContent().getType() : "application/json; charset=UTF-8");
+        headers.set("accept-language", "de-DE");
         headers.set("mcd-sourceapp", "GMA");
         headers.set("mcd-uuid", UUID.randomUUID());
         headers.set("mcd-marketid", "DE");
+        headers.set("accept-encoding", "gzip");
     }
 
     private String getJWTToken(Request request) {
