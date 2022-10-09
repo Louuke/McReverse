@@ -14,6 +14,14 @@ public class Authorization {
         return refreshToken != null ? refreshToken : "";
     }
 
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(accessToken, refreshToken);

@@ -34,7 +34,7 @@ public class McBase implements ClientStateListener {
     private final transient ClientActionModel actionModel = new ClientActionModel();
     private final transient SensorCache cache = new SensorCache(actionModel);
     private final UserInfo userInfo = new UserInfo();
-    private Authorization authorization = new Authorization();
+    private final Authorization authorization = new Authorization();
 
     public McBase() {
         actionModel.addStateListener(this);
@@ -100,7 +100,7 @@ public class McBase implements ClientStateListener {
     public Authorization jwtExpired() {
         if(!refreshManager.isWaitingForLock(userInfo)) {
             refreshManager.waitForLock(userInfo);
-            LoginResponse login = query(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class, HttpMethods.POST);
+            LoginResponse login = refreshAuthorization();
             if(login.success()) {
                 setAuthorization(login.getResponse());
                 actionModel.notifyListener(Action.AUTHORIZATION_CHANGED);
@@ -110,6 +110,10 @@ public class McBase implements ClientStateListener {
             refreshManager.waitForUnlock(userInfo);
         }
         return authorization;
+    }
+
+    public LoginResponse refreshAuthorization() {
+        return query(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class, HttpMethods.POST);
     }
 
     public UserInfo getUserInfo() {
@@ -129,6 +133,7 @@ public class McBase implements ClientStateListener {
     }
 
     public void setAuthorization(Authorization authorization) {
-        this.authorization = authorization;
+        this.authorization.setAccessToken(authorization.getAccessToken());
+        this.authorization.setRefreshToken(authorization.getRefreshToken());
     }
 }
