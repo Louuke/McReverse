@@ -24,6 +24,7 @@ import icu.jnet.mcd.network.RequestManager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.Proxy;
 import java.net.SocketTimeoutException;
 
 public class McBase implements ClientStateListener {
@@ -33,8 +34,9 @@ public class McBase implements ClientStateListener {
     private static final RefreshManager refreshManager = RefreshManager.getInstance();
     private final transient ClientActionModel actionModel = new ClientActionModel();
     private final transient SensorCache cache = new SensorCache(actionModel);
-    private final UserInfo userInfo = new UserInfo();
     private final Authorization authorization = new Authorization();
+    private final UserInfo userInfo = new UserInfo();
+    private transient Proxy proxy;
 
     public McBase() {
         actionModel.addStateListener(this);
@@ -58,7 +60,8 @@ public class McBase implements ClientStateListener {
                 return response;
             }
             return createErrorResponse(clazz, content);
-        } catch (SocketTimeoutException ignored) {
+        } catch (SocketTimeoutException e) {
+            actionModel.notifyListener(Action.REQUEST_TIMED_OUT);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -87,7 +90,7 @@ public class McBase implements ClientStateListener {
     }
 
     private HttpBuilder configureBuilder(Request request, String method) {
-        return new HttpBuilder(userInfo, request, method, actionModel)
+        return new HttpBuilder(request, method, proxy, actionModel)
                 .setAuthorization(authorization)
                 .setSensorToken(request.isTokenRequired() ? cache.getSensorToken() : null);
     }
@@ -126,10 +129,6 @@ public class McBase implements ClientStateListener {
         return userInfo.getEmail();
     }
 
-    public void addStateListener(ClientStateListener listener) {
-        actionModel.addStateListener(listener);
-    }
-
     public Authorization getAuthorization() {
         return authorization;
     }
@@ -138,5 +137,13 @@ public class McBase implements ClientStateListener {
         this.authorization.setAccessToken(authorization.getAccessToken());
         this.authorization.setRefreshToken(authorization.getRefreshToken());
         this.authorization.setCreatedUnix(authorization.getCreatedUnix());
+    }
+
+    public void setProxy(Proxy proxy) {
+        this.proxy = proxy;
+    }
+
+    public void addStateListener(ClientStateListener listener) {
+        actionModel.addStateListener(listener);
     }
 }

@@ -21,4 +21,6 @@ public interface ClientStateListener {
     default void authChanged() {}
 
     default void accountDeleted() {}
+
+    default void requestTimedOut() {}
 }

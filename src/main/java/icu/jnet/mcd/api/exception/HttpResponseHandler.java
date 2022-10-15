@@ -44,10 +44,9 @@ public class HttpResponseHandler implements HttpUnsuccessfulResponseHandler {
 
     private String getErrorType(String response) {
         Response errorResponse = createErrorResponse(response);
-        return errorResponse != null
-                ? !errorResponse.getStatus().getErrors().isEmpty()
+        return errorResponse != null && !errorResponse.getStatus().getErrors().isEmpty()
                 ? errorResponse.getStatus().getErrors().get(0).getErrorType()
-                : "" : "";
+                : "";
     }
 
     private Response createErrorResponse(String response) {

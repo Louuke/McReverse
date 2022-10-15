@@ -15,6 +15,7 @@ public class ClientActionModel {
             case AUTHORIZATION_CHANGED -> stateListener.forEach(ClientStateListener::authChanged);
             case JWT_INVALID -> stateListener.forEach(ClientStateListener::jwtIsInvalid);
             case ACCOUNT_DELETED -> stateListener.forEach(ClientStateListener::accountDeleted);
+            case REQUEST_TIMED_OUT -> stateListener.forEach(ClientStateListener::requestTimedOut);
         };
     }
 
