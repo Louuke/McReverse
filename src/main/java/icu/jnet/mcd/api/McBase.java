@@ -78,9 +78,10 @@ public class McBase implements ClientStateListener {
     }
 
     private <T extends Response> void handleErrorResponse(T response) {
-        if(response != null
-                && !response.getStatus().getErrors().isEmpty()
-                && response.getStatus().getErrors().get(0).getErrorCode() == 11310) {
+        if(response != null && !response.getStatus().getErrors().isEmpty()) {
+            switch (response.getStatus().getErrors().get(0).getErrorCode()) {
+                case 11310, 41471 -> actionModel.notifyListener(Action.ACCOUNT_DELETED);
+            }
             actionModel.notifyListener(Action.ACCOUNT_DELETED);
         }
     }
