@@ -9,10 +9,8 @@ import java.util.Objects;
 
 public class McClient extends McBase {
 
-    public static final String DEFAULT_DEVICE_ID = "75408e58622a88c6";
-
     public LoginResponse login(String email, String password) {
-        return login(email, password, DEFAULT_DEVICE_ID);
+        return login(email, password, getUserInfo().getDeviceId());
     }
 
     public LoginResponse login(String email, String password, String deviceId) {
@@ -29,7 +27,7 @@ public class McClient extends McBase {
     }
 
     public Response register(String email, String password, String zipCode) {
-        return register(email, password, zipCode, DEFAULT_DEVICE_ID);
+        return register(email, password, zipCode, getUserInfo().getDeviceId());
     }
 
     public Response register(String email, String password, String zipCode, String deviceId) {
@@ -37,7 +35,7 @@ public class McClient extends McBase {
     }
 
     public Response activateAccount(String email, String activationCode) {
-        return activate(email, activationCode, DEFAULT_DEVICE_ID, "email");
+        return activate(email, activationCode, getUserInfo().getDeviceId(), "email");
     }
 
     public Response activateAccount(String email, String activationCode, String deviceId) {

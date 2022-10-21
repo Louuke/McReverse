@@ -1,9 +1,8 @@
 package icu.jnet.mcd.utils;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-
-import static icu.jnet.mcd.api.McClientSettings.ZONE_ID;
 
 public class Utils {
 
@@ -15,9 +14,10 @@ public class Utils {
         }
     }
 
-    public static long localToUnix(String date) {
+    public static long timeToUnix(String date, ZoneId zone) {
+        date = date.endsWith("Z") ? date.substring(0, date.length() - 1) : date;
         return LocalDateTime.parse(date, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                .atZone(ZONE_ID)
+                .atZone(zone)
                 .toInstant().getEpochSecond();
     }
 }

@@ -11,10 +11,11 @@ import icu.jnet.mcd.api.request.RefreshRequest;
 import icu.jnet.mcd.api.request.Request;
 import icu.jnet.mcd.api.response.BasicBearerResponse;
 import icu.jnet.mcd.api.response.LoginResponse;
+import icu.jnet.mcd.api.response.adapter.CodeAdapter;
 import icu.jnet.mcd.api.response.status.Status;
 import icu.jnet.mcd.api.response.Response;
 import icu.jnet.mcd.network.RefreshManager;
-import icu.jnet.mcd.utils.OfferAdapterFactory;
+import icu.jnet.mcd.api.response.adapter.OfferAdapter;
 import icu.jnet.mcd.utils.SensorCache;
 import icu.jnet.mcd.utils.UserInfo;
 import icu.jnet.mcd.constants.Action;
@@ -29,7 +30,8 @@ import java.net.SocketTimeoutException;
 
 public class McBase implements ClientStateListener {
 
-    private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapterFactory()).create();
+    private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapter())
+            .registerTypeAdapterFactory(new CodeAdapter()).create();
     private static final RequestManager requestManager = RequestManager.getInstance();
     private static final RefreshManager refreshManager = RefreshManager.getInstance();
     private final transient ClientActionModel actionModel = new ClientActionModel();
@@ -85,7 +87,6 @@ public class McBase implements ClientStateListener {
             switch (response.getStatus().getErrors().get(0).getErrorCode()) {
                 case 11310, 41471 -> actionModel.notifyListener(Action.ACCOUNT_DELETED);
             }
-            actionModel.notifyListener(Action.ACCOUNT_DELETED);
         }
     }
 
