@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-group 'icu.jnet'
+group 'org.jannsen'
 version '1.0-SNAPSHOT'
 
 repositories {
