@@ -1,8 +1,6 @@
 package org.jannsen.mcreverse.api;
 
 import com.google.api.client.http.HttpMethods;
-import icu.jnet.mcd.api.request.*;
-import icu.jnet.mcd.api.response.*;
 import org.jannsen.mcreverse.api.request.*;
 import org.jannsen.mcreverse.api.response.*;
 
