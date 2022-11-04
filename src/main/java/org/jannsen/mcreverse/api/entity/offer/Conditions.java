@@ -8,14 +8,14 @@ import java.util.List;
 public class Conditions {
 
     @SerializedName("dateConditions") private List<String> dateConditions;
-    @SerializedName("dayOfWeekConditions") private List<Object> dayOfWeekConditions;
+    @SerializedName("dayOfWeekConditions") private List<String> dayOfWeekConditions;
     @SerializedName("saleAmountConditions") private List<SaleAmountConditions> saleAmountConditions;
 
     public List<String> getDateConditions() {
         return dateConditions != null ? dateConditions : new ArrayList<>();
     }
 
-    public List<Object> getDayOfWeekConditions() {
+    public List<String> getDayOfWeekConditions() {
         return dayOfWeekConditions != null ? dayOfWeekConditions : new ArrayList<>();
     }
 
