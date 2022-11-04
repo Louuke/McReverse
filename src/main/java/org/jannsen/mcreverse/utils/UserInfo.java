@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class UserInfo {
 
-    private final Random rand = new Random();
+    private transient final Random rand = new Random();
     private String email = "", deviceId = rdmDeviceId(), userId = "";
 
     public String getEmail() {
