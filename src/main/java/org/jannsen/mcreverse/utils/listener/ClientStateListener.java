@@ -1,6 +1,7 @@
 package org.jannsen.mcreverse.utils.listener;
 
 import org.jannsen.mcreverse.api.entity.login.Authorization;
+import org.jannsen.mcreverse.api.entity.login.SensorToken;
 
 public interface ClientStateListener {
 
@@ -8,7 +9,7 @@ public interface ClientStateListener {
         return null;
     }
 
-    default String tokenRequired() {
+    default SensorToken tokenRequired() {
         return null;
     }
 

@@ -26,10 +26,10 @@ public class ClientActionModel {
                     .filter(Objects::nonNull).findAny().orElse(null);
             case TOKEN_REQUIRED -> stateListener.stream()
                     .map(ClientStateListener::tokenRequired)
-                    .filter(Objects::nonNull).findAny().orElse("");
+                    .filter(Objects::nonNull).findAny().orElse(null);
             case BASIC_BEARER_REQUIRED -> stateListener.stream()
                     .map(ClientStateListener::basicBearerRequired)
-                    .filter(Objects::nonNull).findAny().orElse("");
+                    .filter(Objects::nonNull).findAny().orElse(null);
             default -> null;
         });
     }

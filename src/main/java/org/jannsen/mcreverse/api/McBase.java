@@ -16,7 +16,7 @@ import org.jannsen.mcreverse.api.response.status.Status;
 import org.jannsen.mcreverse.api.response.Response;
 import org.jannsen.mcreverse.network.RefreshManager;
 import org.jannsen.mcreverse.api.response.adapter.OfferAdapter;
-import org.jannsen.mcreverse.utils.SensorCache;
+import org.jannsen.mcreverse.utils.TokenProvider;
 import org.jannsen.mcreverse.utils.UserInfo;
 import org.jannsen.mcreverse.constants.Action;
 import org.jannsen.mcreverse.utils.listener.ClientActionModel;
@@ -35,9 +35,9 @@ public class McBase implements ClientStateListener {
     private static final RequestManager requestManager = RequestManager.getInstance();
     private static final RefreshManager refreshManager = RefreshManager.getInstance();
     private final transient ClientActionModel actionModel = new ClientActionModel();
-    private final transient SensorCache cache = new SensorCache(actionModel);
-    private final Authorization authorization = new Authorization();
+    private final transient TokenProvider provider = new TokenProvider(actionModel);
     private final UserInfo userInfo = new UserInfo();
+    private Authorization authorization = new Authorization();
     private transient Proxy proxy;
 
     public McBase() {
@@ -91,9 +91,13 @@ public class McBase implements ClientStateListener {
     }
 
     private HttpBuilder configureBuilder(Request request, String method) {
-        return new HttpBuilder(request, method, proxy, actionModel)
+        return new HttpBuilder()
+                .setActionModel(actionModel)
+                .setMethod(method)
+                .setProxy(proxy)
+                .setMcDRequest(request)
                 .setAuthorization(authorization)
-                .setSensorToken(request.isTokenRequired() ? cache.getSensorToken() : null);
+                .setSensorToken(request.isTokenRequired() ? provider.getSensorToken(userInfo) : null);
     }
 
     @Override
@@ -109,7 +113,7 @@ public class McBase implements ClientStateListener {
             if(login.success()) {
                 setAuthorization(login.getResponse());
                 actionModel.notifyListener(Action.AUTHORIZATION_CHANGED);
-                refreshManager.saveAuthorization(userInfo, authorization);
+                refreshManager.saveAuthorization(userInfo, login.getResponse());
             }
         } else {
             setAuthorization(refreshManager.getCachedAuthorization(userInfo));
@@ -135,9 +139,7 @@ public class McBase implements ClientStateListener {
     }
 
     public void setAuthorization(Authorization authorization) {
-        this.authorization.setAccessToken(authorization.getAccessToken());
-        this.authorization.setRefreshToken(authorization.getRefreshToken());
-        this.authorization.setCreatedUnix(authorization.getCreatedUnix());
+        this.authorization = authorization;
     }
 
     public void setProxy(Proxy proxy) {
