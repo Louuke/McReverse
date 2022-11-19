@@ -5,7 +5,6 @@ import org.jannsen.mcreverse.api.request.*;
 import org.jannsen.mcreverse.api.response.*;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public class McClient extends McBase {
 
@@ -117,18 +116,5 @@ public class McClient extends McBase {
 
     public Response setNotification() {
         return query(new NotificationRequest(), Response.class, HttpMethods.POST);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(!(obj instanceof McClient client)) {
-            return false;
-        }
-        return client.getEmail().equals(getEmail());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getEmail());
     }
 }

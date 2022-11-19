@@ -1,19 +1,15 @@
 package org.jannsen.mcreverse.utils.listener;
 
-import org.jannsen.mcreverse.api.entity.login.Authorization;
+import org.jannsen.mcreverse.api.entity.login.BearerAuthorization;
 import org.jannsen.mcreverse.api.entity.login.SensorToken;
 
-public interface ClientStateListener {
+public interface ClientActionListener {
 
-    default Authorization jwtExpired() {
+    default BearerAuthorization jwtExpired() {
         return null;
     }
 
     default SensorToken tokenRequired() {
-        return null;
-    }
-
-    default String basicBearerRequired() {
         return null;
     }
 

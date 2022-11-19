@@ -5,20 +5,20 @@ import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import org.jannsen.mcreverse.api.entity.login.Authorization;
+import org.jannsen.mcreverse.api.entity.login.BearerAuthorization;
 import org.jannsen.mcreverse.api.response.Response;
 import org.jannsen.mcreverse.constants.Action;
-import org.jannsen.mcreverse.utils.listener.ClientActionModel;
+import org.jannsen.mcreverse.utils.listener.ClientActionNotifier;
 
 import java.io.IOException;
 
 public class HttpResponseHandler implements HttpUnsuccessfulResponseHandler {
 
     private final Gson gson = new Gson();
-    private final ClientActionModel actionModel;
+    private final ClientActionNotifier clientAction;
 
-    public HttpResponseHandler(ClientActionModel actionModel) {
-        this.actionModel = actionModel;
+    public HttpResponseHandler(ClientActionNotifier clientAction) {
+        this.clientAction = clientAction;
     }
 
     @Override
@@ -31,15 +31,15 @@ public class HttpResponseHandler implements HttpUnsuccessfulResponseHandler {
                     return true;
                 }
             } else {
-                actionModel.notifyListener(Action.JWT_INVALID);
+                clientAction.notifyListener(Action.JWT_INVALID);
             }
         }
         return false;
     }
 
     private void updateAuthorization(HttpRequest request) {
-        Authorization authorization = actionModel.notifyListener(Action.JWT_EXPIRED, Authorization.class);
-        request.getHeaders().set("authorization", "Bearer " + authorization.getAccessToken());
+        BearerAuthorization authorization = clientAction.notifyListener(Action.JWT_EXPIRED, BearerAuthorization.class);
+        request.getHeaders().set("authorization", authorization.getAccessToken(true));
     }
 
     private String getErrorType(String response) {

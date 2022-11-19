@@ -1,83 +1,81 @@
-package org.jannsen.mcreverse.api.builder;
+package org.jannsen.mcreverse.api.request.builder;
 
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import org.jannsen.mcreverse.api.entity.login.Authorization;
 import org.jannsen.mcreverse.api.entity.login.SensorToken;
-import org.jannsen.mcreverse.api.exception.HttpResponseHandler;
 import org.jannsen.mcreverse.api.exception.IOResponseHandler;
 import org.jannsen.mcreverse.api.request.Request;
-import org.jannsen.mcreverse.constants.Action;
-import org.jannsen.mcreverse.utils.listener.ClientActionModel;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.Proxy;
 import java.util.*;
 
+import static com.google.api.client.http.HttpMethods.*;
+
 public class HttpBuilder {
 
     private Request mcdRequest;
-    private String method = HttpMethods.GET;
+    private String httpMethod = GET;
     private SensorToken token;
     private Proxy proxy;
-    private ClientActionModel actionModel;
+    private HttpUnsuccessfulResponseHandler unsuccessfulResponseHandler;
     private Authorization authorization;
 
-    public HttpBuilder setMcDRequest(Request request) {
+    public HttpBuilder setMcDRequest(@Nonnull Request request) {
         this.mcdRequest = request;
         return this;
     }
 
-    public HttpBuilder setMethod(String method) {
-        this.method = method;
+    public HttpBuilder setHttpMethod(@Nonnull String httpMethod) {
+        this.httpMethod = httpMethod;
         return this;
     }
 
-    public HttpBuilder setProxy(Proxy proxy) {
+    public HttpBuilder setProxy(@Nullable Proxy proxy) {
         this.proxy = proxy;
         return this;
     }
 
-    public HttpBuilder setActionModel(ClientActionModel actionModel) {
-        this.actionModel = actionModel;
-        return this;
-    }
-
-    public HttpBuilder setAuthorization(Authorization authorization) {
+    public HttpBuilder setAuthorization(@Nonnull Authorization authorization) {
         this.authorization = authorization;
         return this;
     }
 
-    public HttpBuilder setSensorToken(SensorToken token) {
+    public HttpBuilder setSensorToken(@Nullable SensorToken token) {
         this.token = token;
         return this;
     }
 
+    public HttpBuilder setUnsuccessfulResponseHandler(@Nonnull HttpUnsuccessfulResponseHandler handler) {
+        this.unsuccessfulResponseHandler = handler;
+        return this;
+    }
+
     public HttpRequest build() {
-        HttpRequest request = createRequest(mcdRequest, method, proxy);
+        HttpRequest request = createRequest(mcdRequest, httpMethod, proxy);
         request.setHeaders(createHeaders());
         request.setReadTimeout(mcdRequest.getReadTimeout());
         request.setNumberOfRetries(3);
         request.setSuppressUserAgentSuffix(true);
         request.setThrowExceptionOnExecuteError(false);
-        request.setUnsuccessfulResponseHandler(new HttpResponseHandler(actionModel));
+        request.setUnsuccessfulResponseHandler(unsuccessfulResponseHandler);
         request.setIOExceptionHandler(new IOResponseHandler());
         return request;
     }
 
-    private String getJWTToken(Request request) {
-        return switch (request.getAuthType()) {
-            case Basic -> "Basic NkRFVXlKT0thQm96OFFSRm00OXFxVklWUGowR1V6b0g6NWltaDZOS1UzdjVDVWlmVHZIUTdFeEY4ZXhrbWFOamI=";
-            case BasicBearer -> "Bearer " + actionModel.notifyListener(Action.BASIC_BEARER_REQUIRED, String.class);
-            case Bearer -> "Bearer " + authorization.getAccessToken();
-        };
-    }
+
 
     private HttpRequest createRequest(Request request, String method, Proxy proxy) {
         try {
             HttpRequestFactory factory = new NetHttpTransport.Builder().setProxy(proxy).build().createRequestFactory();
             GenericUrl url = new GenericUrl(request.getUrl());
-            return factory.buildRequest(method, url, null);
+            return switch (method) {
+                case POST, PUT -> factory.buildRequest(method, url, request.getContent());
+                default -> factory.buildRequest(method, url, null);
+            };
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -94,7 +92,7 @@ public class HttpBuilder {
         headers.set("mcd-uuid", UUID.randomUUID());
         headers.set("mcd-marketid", "DE");
         headers.set("accept-encoding", "gzip");
-        headers.set("authorization", getJWTToken(mcdRequest));
+        headers.set("authorization", authorization.getAccessToken(true));
         if(token != null) headers.set("x-acf-sensor-data", token.getToken());
         return headers;
     }

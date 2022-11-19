@@ -1,8 +1,9 @@
-package org.jannsen.mcreverse.utils;
+package org.jannsen.mcreverse.api.request.builder;
 
 import org.jannsen.mcreverse.api.entity.login.SensorToken;
 import org.jannsen.mcreverse.constants.Action;
-import org.jannsen.mcreverse.utils.listener.ClientActionModel;
+import org.jannsen.mcreverse.utils.UserInfo;
+import org.jannsen.mcreverse.utils.listener.ClientActionNotifier;
 
 import java.time.Instant;
 import java.util.Map;
@@ -15,10 +16,10 @@ import java.util.stream.Stream;
 public class TokenProvider {
 
     private static final Map<UserInfo, Queue<SensorToken>> tokenCache = new ConcurrentHashMap<>();
-    private final ClientActionModel actionModel;
+    private final ClientActionNotifier clientAction;
 
-    public TokenProvider(ClientActionModel actionModel) {
-        this.actionModel = actionModel;
+    public TokenProvider(ClientActionNotifier clientAction) {
+        this.clientAction = clientAction;
     }
 
     public SensorToken getSensorToken(UserInfo user) {
@@ -30,7 +31,7 @@ public class TokenProvider {
 
     private void addToken(UserInfo user) {
         if(tokenCache.get(user).isEmpty()) {
-            SensorToken token = actionModel.notifyListener(Action.TOKEN_REQUIRED, SensorToken.class);
+            SensorToken token = clientAction.notifyListener(Action.TOKEN_REQUIRED, SensorToken.class);
             Stream.generate(() -> token).limit(10).filter(Objects::nonNull).forEach(t -> tokenCache.get(user).add(t));
         }
     }
