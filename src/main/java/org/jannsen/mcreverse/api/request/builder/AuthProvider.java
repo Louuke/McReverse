@@ -38,21 +38,22 @@ public class AuthProvider {
     }
 
     public BearerAuthorization scheduleRefresh(Callable<BearerAuthorization> refresh) {
-        BearerAuthorization authorization = bearerSupplier.get();
         try {
             lock.lock();
+            BearerAuthorization authorization = bearerSupplier.get();
             if(isNewerAuthCached(user, authorization)) {
                 authorization = cachedAuth.get(user);
             } else {
                 authorization = refresh.call();
                 saveAuthorization(user, authorization);
             }
+            return authorization;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             lock.unlock();
         }
-        return authorization;
+        return bearerSupplier.get();
     }
 
     private boolean isNewerAuthCached(UserInfo user, BearerAuthorization authorization) {
