@@ -48,8 +48,7 @@ public class McBase implements ClientActionListener {
 
     private <T extends Response> T execute(HttpRequest request, Class<T> clazz) {
         try {
-            requestScheduler.enqueue(request);
-            HttpResponse httpResponse = request.execute();
+            HttpResponse httpResponse = requestScheduler.enqueue(request::execute);
             String content = httpResponse.parseAsString();
             //System.out.println(content);
             if(httpResponse.isSuccessStatusCode()) {

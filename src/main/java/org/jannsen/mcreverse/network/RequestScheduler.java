@@ -1,11 +1,13 @@
 package org.jannsen.mcreverse.network;
 
-import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpResponse;
 import org.jannsen.mcreverse.utils.Utils;
+
+import java.util.concurrent.Callable;
 
 public class RequestScheduler {
 
-    private final AutoRemoveQueue<HttpRequest> queue = new AutoRemoveQueue<>(400);
+    private final AutoRemoveQueue<Callable<HttpResponse>> queue = new AutoRemoveQueue<>(400);
 
     private static RequestScheduler instance;
 
@@ -18,11 +20,12 @@ public class RequestScheduler {
         return instance;
     }
 
-    public void enqueue(HttpRequest request) {
+    public HttpResponse enqueue(Callable<HttpResponse> request) throws Exception {
         queue.add(request);
         while (queue.contains(request)) {
             Utils.waitMill(200);
         }
+        return request.call();
     }
 
     public void setRequestsPerSecond(double rps) {
