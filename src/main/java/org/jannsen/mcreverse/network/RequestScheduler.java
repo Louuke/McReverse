@@ -20,12 +20,13 @@ public class RequestScheduler {
         return instance;
     }
 
-    public HttpResponse enqueue(Callable<HttpResponse> request) throws Exception {
+    public String enqueue(Callable<HttpResponse> request) throws Exception {
         queue.add(request);
         while (queue.contains(request)) {
             Utils.waitMill(200);
         }
-        return request.call();
+        HttpResponse httpResponse = request.call();
+        return httpResponse.parseAsString();
     }
 
     public void setRequestsPerSecond(double rps) {
