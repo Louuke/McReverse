@@ -48,14 +48,16 @@ public class McBase implements ClientActionListener {
 
     private <T extends Response> T execute(HttpRequest request, Class<T> clazz) {
         try {
-            String content = requestScheduler.enqueue(request::execute);
+            requestScheduler.enqueue(request);
+            HttpResponse httpResponse = request.execute();
+            String content = httpResponse.parseAsString();
             //System.out.println(content);
-            //if(content) {
+            if(httpResponse.isSuccessStatusCode()) {
                 T response = gson.fromJson(content, clazz);
                 handleErrorResponse(response);
                 return response;
-            //}
-            //return createErrorResponse(clazz, content);
+            }
+            return createErrorResponse(clazz, content);
         } catch (SocketTimeoutException e) {
             clientAction.notifyListener(Action.REQUEST_TIMED_OUT);
         } catch (Exception e) {
