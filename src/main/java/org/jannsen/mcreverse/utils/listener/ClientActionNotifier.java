@@ -21,20 +21,13 @@ public class ClientActionNotifier {
             case AUTHORIZATION_CHANGED -> listeners.forEach(ClientActionListener::authChanged);
             case JWT_INVALID -> listeners.forEach(ClientActionListener::jwtIsInvalid);
             case ACCOUNT_DELETED -> listeners.forEach(ClientActionListener::accountDeleted);
-            case REQUEST_TIMED_OUT -> listeners.forEach(ClientActionListener::requestTimedOut);
         };
     }
 
     public <T> T notifyListener(Action action, Class<T> returnType) {
-        return returnType.cast(switch (action) {
-            case JWT_EXPIRED -> listeners.stream()
-                    .map(ClientActionListener::jwtExpired)
-                    .filter(Objects::nonNull).findAny().orElse(null);
-            case TOKEN_REQUIRED -> listeners.stream()
-                    .map(ClientActionListener::tokenRequired)
-                    .filter(Objects::nonNull).findAny().orElse(null);
-            default -> null;
-        });
+        return action == Action.TOKEN_REQUIRED ?
+                returnType.cast(listeners.stream().map(ClientActionListener::tokenRequired)
+                        .filter(Objects::nonNull).findAny().orElse(null)) : null;
     }
 
     public void addListener(ClientActionListener listener) {

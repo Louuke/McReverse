@@ -7,6 +7,6 @@ public class IOResponseHandler implements HttpIOExceptionHandler {
 
     @Override
     public boolean handleIOException(HttpRequest request, boolean supportsRetry) {
-        return true;
+        return supportsRetry;
     }
 }

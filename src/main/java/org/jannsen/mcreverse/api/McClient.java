@@ -4,15 +4,16 @@ import com.google.api.client.http.HttpMethods;
 import org.jannsen.mcreverse.api.request.*;
 import org.jannsen.mcreverse.api.response.*;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 public class McClient extends McBase {
 
-    public LoginResponse login(String email, String password) {
+    public LoginResponse login(@Nonnull String email, @Nonnull String password) {
         return login(email, password, getUserInfo().getDeviceId());
     }
 
-    public LoginResponse login(String email, String password, String deviceId) {
+    public LoginResponse login(@Nonnull String email, @Nonnull String password, @Nonnull String deviceId) {
         getUserInfo().setEmail(email).setDeviceId(deviceId);
         LoginResponse login = query(new LoginRequest(email, password, deviceId), LoginResponse.class, HttpMethods.POST);
         if(login.success()) {
@@ -25,23 +26,23 @@ public class McClient extends McBase {
         return login;
     }
 
-    public Response register(String email, String password, String zipCode) {
+    public Response register(@Nonnull String email, @Nonnull String password, @Nonnull String zipCode) {
         return register(email, password, zipCode, getUserInfo().getDeviceId());
     }
 
-    public Response register(String email, String password, String zipCode, String deviceId) {
+    public Response register(@Nonnull String email, @Nonnull String password, @Nonnull String zipCode, @Nonnull String deviceId) {
         return query(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class, HttpMethods.POST);
     }
 
-    public Response activateAccount(String email, String activationCode) {
+    public Response activateAccount(@Nonnull String email, @Nonnull String activationCode) {
         return activate(email, activationCode, getUserInfo().getDeviceId(), "email");
     }
 
-    public Response activateAccount(String email, String activationCode, String deviceId) {
+    public Response activateAccount(@Nonnull String email, @Nonnull String activationCode, @Nonnull String deviceId) {
         return activate(email, activationCode, deviceId, "email");
     }
 
-    public Response activateDevice(String email, String activationCode, String deviceId) {
+    public Response activateDevice(@Nonnull String email, @Nonnull String activationCode, @Nonnull String deviceId) {
         return activate(email, activationCode, deviceId, "device");
     }
 

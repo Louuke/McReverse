@@ -3,12 +3,12 @@ package org.jannsen.mcreverse.api;
 import com.google.api.client.http.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import org.jannsen.mcreverse.api.exception.ExceptionHandler;
 import org.jannsen.mcreverse.api.request.builder.AuthProvider;
 import org.jannsen.mcreverse.api.request.builder.HttpBuilder;
 import org.jannsen.mcreverse.api.entity.login.BasicBearerAuthorization;
 import org.jannsen.mcreverse.api.entity.login.BearerAuthorization;
-import org.jannsen.mcreverse.api.exception.HttpResponseHandler;
+import org.jannsen.mcreverse.api.exception.HttpRetryHandler;
 import org.jannsen.mcreverse.api.request.BasicBearerRequest;
 import org.jannsen.mcreverse.api.request.RefreshRequest;
 import org.jannsen.mcreverse.api.request.Request;
@@ -16,7 +16,6 @@ import org.jannsen.mcreverse.api.request.builder.TokenProvider;
 import org.jannsen.mcreverse.api.response.BasicBearerResponse;
 import org.jannsen.mcreverse.api.response.LoginResponse;
 import org.jannsen.mcreverse.api.response.adapter.CodeAdapter;
-import org.jannsen.mcreverse.api.response.status.Status;
 import org.jannsen.mcreverse.api.response.Response;
 import org.jannsen.mcreverse.api.response.adapter.OfferAdapter;
 import org.jannsen.mcreverse.utils.UserInfo;
@@ -25,20 +24,19 @@ import org.jannsen.mcreverse.utils.listener.ClientActionNotifier;
 import org.jannsen.mcreverse.utils.listener.ClientActionListener;
 import org.jannsen.mcreverse.network.RequestScheduler;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.Proxy;
-import java.net.SocketTimeoutException;
 import java.util.Objects;
 
-public class McBase implements ClientActionListener {
+public class McBase {
 
     private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapter())
             .registerTypeAdapterFactory(new CodeAdapter()).create();
     private static final RequestScheduler requestScheduler = RequestScheduler.getInstance();
     private BearerAuthorization authorization = new BearerAuthorization();
     private final UserInfo userInfo = new UserInfo();
-    private final transient ClientActionNotifier clientAction = new ClientActionNotifier(this);
-    private final transient AuthProvider authProvider = new AuthProvider(userInfo, () -> authorization, this::requestBasicBearer);
+    private final transient ClientActionNotifier clientAction = new ClientActionNotifier();
+    private final transient AuthProvider authProvider = new AuthProvider(userInfo, this::getAuthorization, this::requestBasicBearer);
+    private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction, this::refreshAuthorization);
     private final transient TokenProvider tokenProvider = new TokenProvider(clientAction);
     private transient Proxy proxy;
 
@@ -50,39 +48,14 @@ public class McBase implements ClientActionListener {
         try {
             HttpResponse httpResponse = requestScheduler.enqueue(request::execute);
             String content = httpResponse.parseAsString();
-            //System.out.println(content);
-            if(httpResponse.isSuccessStatusCode()) {
-                T response = gson.fromJson(content, clazz);
-                handleErrorResponse(response);
-                return response;
+            if(!content.isEmpty()) {
+                exceptionHandler.searchForError(content);
+                return gson.fromJson(content, clazz);
             }
-            return createErrorResponse(clazz, content);
-        } catch (SocketTimeoutException e) {
-            clientAction.notifyListener(Action.REQUEST_TIMED_OUT);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return createErrorResponse(clazz, "");
-    }
-
-    private <T extends Response> T createErrorResponse(Class<T> clazz, String error) {
-        try {
-            Response response = gson.fromJson(error, Response.class);
-            return clazz.getConstructor(Status.class).newInstance(response != null ? response.getStatus() : new Status());
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (JsonSyntaxException e) {
-            System.err.println("JSON error: " + e.getMessage());
-            return createErrorResponse(clazz, "");
-        }
-    }
-
-    private <T extends Response> void handleErrorResponse(T response) {
-        if(response != null && !response.getStatus().getErrors().isEmpty()) {
-            switch (response.getStatus().getErrors().get(0).getErrorCode()) {
-                case 11310, 41471 -> clientAction.notifyListener(Action.ACCOUNT_DELETED);
-            }
-        }
+        return exceptionHandler.createDummyResponse(clazz);
     }
 
     private HttpBuilder configureBuilder(Request request, String httpMethod) {
@@ -91,23 +64,20 @@ public class McBase implements ClientActionListener {
                 .setHttpMethod(httpMethod)
                 .setProxy(proxy)
                 .setAuthorization(authProvider.getAppropriateAuth(request))
-                .setUnsuccessfulResponseHandler(new HttpResponseHandler(clientAction))
+                .setUnsuccessfulResponseHandler(new HttpRetryHandler(exceptionHandler))
                 .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(userInfo) : null);
-    }
-
-    @Override
-    public BearerAuthorization jwtExpired() {
-        setAuthorization(authProvider.scheduleRefresh(() -> refreshAuthorization().getResponse()));
-        clientAction.notifyListener(Action.AUTHORIZATION_CHANGED);
-        return authorization;
     }
 
     private BasicBearerAuthorization requestBasicBearer() {
         return query(new BasicBearerRequest(), BasicBearerResponse.class, HttpMethods.POST).getResponse();
     }
 
-    private LoginResponse refreshAuthorization() {
-        return query(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class, HttpMethods.POST);
+    private BearerAuthorization refreshAuthorization() {
+        BearerAuthorization auth = authProvider.scheduleRefresh(() ->
+                query(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class, HttpMethods.POST).getResponse());
+        setAuthorization(auth);
+        clientAction.notifyListener(Action.AUTHORIZATION_CHANGED);
+        return auth;
     }
 
     public UserInfo getUserInfo() {

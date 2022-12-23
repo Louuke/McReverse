@@ -66,8 +66,6 @@ public class HttpBuilder {
         return request;
     }
 
-
-
     private HttpRequest createRequest(Request request, String method, Proxy proxy) {
         try {
             HttpRequestFactory factory = new NetHttpTransport.Builder().setProxy(proxy).build().createRequestFactory();
