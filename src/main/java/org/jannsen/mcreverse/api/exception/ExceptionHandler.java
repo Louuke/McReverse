@@ -3,7 +3,7 @@ package org.jannsen.mcreverse.api.exception;
 import com.google.api.client.http.HttpRequest;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import org.jannsen.mcreverse.api.entity.login.BearerAuthorization;
+import org.jannsen.mcreverse.api.entity.auth.BearerAuthorization;
 import org.jannsen.mcreverse.api.response.Response;
 import org.jannsen.mcreverse.api.response.status.Status;
 import org.jannsen.mcreverse.constants.Action;

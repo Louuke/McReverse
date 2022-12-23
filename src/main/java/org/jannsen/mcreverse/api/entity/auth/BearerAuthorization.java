@@ -1,4 +1,4 @@
-package org.jannsen.mcreverse.api.entity.login;
+package org.jannsen.mcreverse.api.entity.auth;
 
 import com.google.gson.annotations.SerializedName;
 import org.jannsen.mcreverse.annotation.Auth;

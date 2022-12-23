@@ -1,6 +1,6 @@
 package org.jannsen.mcreverse.api.request.builder;
 
-import org.jannsen.mcreverse.api.entity.login.SensorToken;
+import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
 import org.jannsen.mcreverse.constants.Action;
 import org.jannsen.mcreverse.utils.UserInfo;
 import org.jannsen.mcreverse.utils.listener.ClientActionNotifier;

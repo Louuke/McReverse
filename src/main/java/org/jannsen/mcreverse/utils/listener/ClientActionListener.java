@@ -1,6 +1,6 @@
 package org.jannsen.mcreverse.utils.listener;
 
-import org.jannsen.mcreverse.api.entity.login.SensorToken;
+import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
 
 public interface ClientActionListener {
 

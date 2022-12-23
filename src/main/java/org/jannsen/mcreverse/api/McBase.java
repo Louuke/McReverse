@@ -6,8 +6,8 @@ import com.google.gson.GsonBuilder;
 import org.jannsen.mcreverse.api.exception.ExceptionHandler;
 import org.jannsen.mcreverse.api.request.builder.AuthProvider;
 import org.jannsen.mcreverse.api.request.builder.HttpBuilder;
-import org.jannsen.mcreverse.api.entity.login.BasicBearerAuthorization;
-import org.jannsen.mcreverse.api.entity.login.BearerAuthorization;
+import org.jannsen.mcreverse.api.entity.auth.BasicBearerAuthorization;
+import org.jannsen.mcreverse.api.entity.auth.BearerAuthorization;
 import org.jannsen.mcreverse.api.exception.HttpRetryHandler;
 import org.jannsen.mcreverse.api.request.BasicBearerRequest;
 import org.jannsen.mcreverse.api.request.RefreshRequest;
@@ -41,7 +41,8 @@ public class McBase {
     private transient Proxy proxy;
 
     <T extends Response> T query(Request request, Class<T> responseType, String httpMethod) {
-        return execute(configureBuilder(request, httpMethod).build(), responseType);
+        HttpRequest httpRequest = configureBuilder(request, httpMethod).build();
+        return execute(httpRequest, responseType);
     }
 
     private <T extends Response> T execute(HttpRequest request, Class<T> clazz) {

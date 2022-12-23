@@ -2,8 +2,8 @@ package org.jannsen.mcreverse.api.request.builder;
 
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import org.jannsen.mcreverse.api.entity.login.Authorization;
-import org.jannsen.mcreverse.api.entity.login.SensorToken;
+import org.jannsen.mcreverse.api.entity.auth.Authorization;
+import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
 import org.jannsen.mcreverse.api.exception.IOResponseHandler;
 import org.jannsen.mcreverse.api.request.Request;
 
@@ -83,7 +83,7 @@ public class HttpBuilder {
         HttpHeaders headers = new HttpHeaders();
         headers.set("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
         headers.set("accept-charset", "UTF-8");
-        headers.set("user-agent", "MCDSDK/25.0.15 (Android; 30; de-DE) GMA/7.9");
+        headers.set("user-agent", "MCDSDK/27.0.6 (Android; 30; de-DE) GMA/7.11");
         headers.set("content-type", mcdRequest.getContent() != null ? mcdRequest.getContent().getType() : "application/json; charset=UTF-8");
         headers.set("accept-language", "de-DE");
         headers.set("mcd-sourceapp", "GMA");

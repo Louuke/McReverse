@@ -1,6 +1,8 @@
 package org.jannsen.mcreverse.api;
 
 import com.google.api.client.http.HttpMethods;
+import org.jannsen.mcreverse.api.entity.login.Credentials;
+import org.jannsen.mcreverse.api.entity.register.RegisterOptions;
 import org.jannsen.mcreverse.api.request.*;
 import org.jannsen.mcreverse.api.response.*;
 
@@ -9,41 +11,35 @@ import java.util.Arrays;
 
 public class McClient extends McBase {
 
-    public LoginResponse login(@Nonnull String email, @Nonnull String password) {
-        return login(email, password, getUserInfo().getDeviceId());
-    }
-
     public LoginResponse login(@Nonnull String email, @Nonnull String password, @Nonnull String deviceId) {
         getUserInfo().setEmail(email).setDeviceId(deviceId);
         LoginResponse login = query(new LoginRequest(email, password, deviceId), LoginResponse.class, HttpMethods.POST);
-        if(login.success()) {
-            setAuthorization(login.getResponse());
-            ProfileResponse profileResponse = getProfile();
-            if(profileResponse.success()) {
-                getUserInfo().setUserId(profileResponse.getResponse().getHashedDcsId());
-            }
+        if(!login.success()) {
+            return login;
+        }
+        setAuthorization(login.getResponse());
+        ProfileResponse profileResponse = getProfile();
+        if(profileResponse.success()) {
+            getUserInfo().setUserId(profileResponse.getResponse().getHashedDcsId());
         }
         return login;
     }
 
-    public Response register(@Nonnull String email, @Nonnull String password, @Nonnull String zipCode) {
-        return register(email, password, zipCode, getUserInfo().getDeviceId());
+    public RegisterResponse register(@Nonnull String email, @Nonnull String password) {
+        return register(email, password, new RegisterOptions());
     }
 
-    public Response register(@Nonnull String email, @Nonnull String password, @Nonnull String zipCode, @Nonnull String deviceId) {
-        return query(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class, HttpMethods.POST);
-    }
-
-    public Response activateAccount(@Nonnull String email, @Nonnull String activationCode) {
-        return activate(email, activationCode, getUserInfo().getDeviceId(), "email");
+    public RegisterResponse register(@Nonnull String email, @Nonnull String password, @Nonnull RegisterOptions options) {
+        Response response = query(new RegisterRequest(email, password, options), LoginResponse.class, HttpMethods.POST);
+        return new RegisterResponse(response.getStatus(), options.getDeviceId());
     }
 
     public Response activateAccount(@Nonnull String email, @Nonnull String activationCode, @Nonnull String deviceId) {
-        return activate(email, activationCode, deviceId, "email");
+        return activate(email, activationCode, deviceId, Credentials.Type.EMAIL);
     }
 
     public Response activateDevice(@Nonnull String email, @Nonnull String activationCode, @Nonnull String deviceId) {
-        return activate(email, activationCode, deviceId, "device");
+        return activate(email, activationCode, deviceId, Credentials.Type.DEVICE);
     }
 
     private Response activate(String email, String activationCode, String deviceId, String type) {

@@ -1,10 +1,7 @@
 package org.jannsen.mcreverse.api.response;
 
-import org.jannsen.mcreverse.api.entity.login.BasicBearerAuthorization;
-import org.jannsen.mcreverse.api.entity.login.BearerAuthorization;
+import org.jannsen.mcreverse.api.entity.auth.BasicBearerAuthorization;
 import org.jannsen.mcreverse.api.response.status.Status;
-
-import java.util.HashMap;
 
 public class BasicBearerResponse extends Response {
 

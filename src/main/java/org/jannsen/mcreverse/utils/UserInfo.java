@@ -5,8 +5,7 @@ import java.util.Random;
 
 public class UserInfo {
 
-    private transient final Random rand = new Random();
-    private String email = "", deviceId = rdmDeviceId(), userId = "";
+    private String email = "", deviceId = "", userId = "";
 
     public String getEmail() {
         return email;
@@ -33,11 +32,6 @@ public class UserInfo {
     public UserInfo setUserId(String userId) {
         this.userId = userId;
         return this;
-    }
-
-    private String rdmDeviceId() {
-        return rand.ints(48, 123).filter(i -> !(i >= 58 && i <= 96)).limit(16)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
     }
 
     @Override

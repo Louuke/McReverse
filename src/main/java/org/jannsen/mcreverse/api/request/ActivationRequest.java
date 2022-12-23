@@ -2,6 +2,7 @@ package org.jannsen.mcreverse.api.request;
 
 import org.jannsen.mcreverse.annotation.Auth;
 import org.jannsen.mcreverse.annotation.SensorRequired;
+import org.jannsen.mcreverse.api.entity.login.Credentials;
 
 @SensorRequired
 @Auth(type = Auth.Type.BasicBearer)
@@ -19,14 +20,5 @@ public class ActivationRequest extends Request {
     @Override
     public String getUrl() {
         return "https://eu-prod.api.mcd.com/exp/v1/customer/activation";
-    }
-
-    private static class Credentials {
-        private final String loginUsername, type;
-
-        public Credentials(String email, String type) {
-            this.loginUsername = email;
-            this.type = type;
-        }
     }
 }

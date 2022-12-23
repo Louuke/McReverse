@@ -1,4 +1,4 @@
-package org.jannsen.mcreverse.api.entity.login;
+package org.jannsen.mcreverse.api.entity.akamai;
 
 import java.time.Instant;
 

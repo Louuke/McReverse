@@ -1,9 +1,9 @@
 package org.jannsen.mcreverse.api.request.builder;
 
-import org.jannsen.mcreverse.api.entity.login.Authorization;
-import org.jannsen.mcreverse.api.entity.login.BasicAuthorization;
-import org.jannsen.mcreverse.api.entity.login.BasicBearerAuthorization;
-import org.jannsen.mcreverse.api.entity.login.BearerAuthorization;
+import org.jannsen.mcreverse.api.entity.auth.Authorization;
+import org.jannsen.mcreverse.api.entity.auth.BasicAuthorization;
+import org.jannsen.mcreverse.api.entity.auth.BasicBearerAuthorization;
+import org.jannsen.mcreverse.api.entity.auth.BearerAuthorization;
 import org.jannsen.mcreverse.api.request.Request;
 import org.jannsen.mcreverse.utils.UserInfo;
 
