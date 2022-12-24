@@ -9,7 +9,7 @@ public class CustomerInformation {
     private final Base base = new Base();
     private final Audit audit = new Audit();
     private String hashedDcsId, languageCode, marketCode;
-    private Devices[] devices;
+    private Device[] devices;
     private Address[] address;
     private List<Subscription> subscriptions;
 
@@ -33,7 +33,7 @@ public class CustomerInformation {
         return address != null ? address[0].getDetails().get(0).getAddressLineDetails().getZipCode() : "00000";
     }
 
-    public Devices[] getDevices() {
+    public Device[] getDevices() {
         return devices;
     }
 
