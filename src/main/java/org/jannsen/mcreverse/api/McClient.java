@@ -7,6 +7,7 @@ import org.jannsen.mcreverse.api.request.*;
 import org.jannsen.mcreverse.api.response.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public class McClient extends McBase {
@@ -90,21 +91,16 @@ public class McClient extends McBase {
         return query(new OptInRequest(campaignId), OptInResponse.class, HttpMethods.POST);
     }
 
-    public Response useMyMcDonalds(boolean b) {
-        return query(new ProfileRequest().useMyMcDonalds(b), Response.class, HttpMethods.PUT);
+    public Response useMyMcDonalds(boolean enabled) {
+        return query(new ProfileRequest().useMyMcDonalds(enabled), Response.class, HttpMethods.PUT);
     }
 
-    public Response setZipCode(String zipCode) {
+    public Response changeName(@Nullable String firstName, @Nullable String lastName) {
+        return query(new ProfileRequest().setFirstName(firstName).setLastName(lastName), Response.class, HttpMethods.PUT);
+    }
+
+    public Response changeZipCode(String zipCode) {
         return query(new ProfileRequest().setZipCode(zipCode), Response.class, HttpMethods.PUT);
-    }
-
-    public boolean usesMyMcDonalds() {
-        return query(new ProfileRequest(), ProfileResponse.class, HttpMethods.GET).getResponse()
-                .getSubscriptions().stream()
-                .filter(sub -> sub.getOptInStatus().equals("Y")
-                        && Arrays.asList("23", "24", "25").contains(sub.getSubscriptionId())
-                        || sub.getOptInStatus().equals("N")
-                        && sub.getSubscriptionId().equals("21")).count() == 4;
     }
 
     public Response setLocation() {

@@ -1,7 +1,9 @@
 package org.jannsen.mcreverse.api.entity.profile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class CustomerInformation {
 
@@ -11,7 +13,7 @@ public class CustomerInformation {
     private String hashedDcsId, languageCode, marketCode;
     private Device[] devices;
     private Address[] address;
-    private List<Subscription> subscriptions;
+    private Set<Subscription> subscriptions;
 
     public String getHashedDcsId() {
         return hashedDcsId;
@@ -45,11 +47,11 @@ public class CustomerInformation {
         this.address = new Address[] {address};
     }
 
-    public List<Subscription> getSubscriptions() {
-        return subscriptions != null ? subscriptions : new ArrayList<>();
+    public Set<Subscription> getSubscriptions() {
+        return subscriptions != null ? subscriptions : new HashSet<>();
     }
 
-    public void setSubscriptions(List<Subscription> subscriptions) {
+    public void setSubscriptions(Set<Subscription> subscriptions) {
         this.subscriptions = subscriptions;
     }
 }
