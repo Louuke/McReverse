@@ -5,13 +5,10 @@ import org.jannsen.mcreverse.api.entity.profile.Address;
 import org.jannsen.mcreverse.api.entity.profile.CustomerInformation;
 import org.jannsen.mcreverse.api.entity.profile.Subscription;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @SensorRequired
