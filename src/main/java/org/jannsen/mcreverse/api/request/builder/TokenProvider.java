@@ -32,7 +32,7 @@ public class TokenProvider {
 
     private void addToken(UserInfo user) {
         if(tokenCache.get(user).isEmpty()) {
-            SensorToken token = tokenSupplier.get();
+            SensorToken token = tokenSupplier != null ? tokenSupplier.get() : new SensorToken();
             Stream.generate(() -> token).limit(10).filter(Objects::nonNull).forEach(t -> tokenCache.get(user).add(t));
         }
     }
