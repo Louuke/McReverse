@@ -3,12 +3,12 @@ package org.jannsen.mcreverse.api;
 import com.google.api.client.http.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
 import org.jannsen.mcreverse.api.exception.ExceptionHandler;
 import org.jannsen.mcreverse.api.request.builder.AuthProvider;
 import org.jannsen.mcreverse.api.request.builder.HttpBuilder;
 import org.jannsen.mcreverse.api.entity.auth.BasicBearerAuthorization;
 import org.jannsen.mcreverse.api.entity.auth.BearerAuthorization;
-import org.jannsen.mcreverse.api.exception.HttpRetryHandler;
 import org.jannsen.mcreverse.api.request.BasicBearerRequest;
 import org.jannsen.mcreverse.api.request.RefreshRequest;
 import org.jannsen.mcreverse.api.request.Request;
@@ -26,6 +26,7 @@ import org.jannsen.mcreverse.network.RequestScheduler;
 
 import java.net.Proxy;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class McBase {
 
@@ -35,9 +36,10 @@ public class McBase {
     private BearerAuthorization authorization = new BearerAuthorization();
     private final UserInfo userInfo = new UserInfo();
     private final transient ClientActionNotifier clientAction = new ClientActionNotifier();
-    private final transient AuthProvider authProvider = new AuthProvider(userInfo, this::getAuthorization, this::requestBasicBearer);
-    private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction, this::refreshAuthorization);
-    private final transient TokenProvider tokenProvider = new TokenProvider(clientAction);
+    private final transient AuthProvider authProvider = new AuthProvider(this::refreshAuthorization,
+            this::getAuthorization, this::requestBasicBearer);
+    private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction);
+    private final transient TokenProvider tokenProvider = new TokenProvider();
     private transient Proxy proxy;
 
     <T extends Response> T query(Request request, Class<T> responseType, String httpMethod) {
@@ -65,7 +67,6 @@ public class McBase {
                 .setHttpMethod(httpMethod)
                 .setProxy(proxy)
                 .setAuthorization(authProvider.getAppropriateAuth(request))
-                .setUnsuccessfulResponseHandler(new HttpRetryHandler(exceptionHandler))
                 .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(userInfo) : null);
     }
 
@@ -74,8 +75,8 @@ public class McBase {
     }
 
     private BearerAuthorization refreshAuthorization() {
-        BearerAuthorization auth = authProvider.scheduleRefresh(() ->
-                query(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class, HttpMethods.POST).getResponse());
+        BearerAuthorization auth = query(new RefreshRequest(authorization.getRefreshToken()),
+                LoginResponse.class, HttpMethods.POST).getResponse();
         setAuthorization(auth);
         clientAction.notifyListener(Action.AUTHORIZATION_CHANGED);
         return auth;
@@ -103,6 +104,10 @@ public class McBase {
 
     public void addActionListener(ClientActionListener listener) {
         clientAction.addListener(listener);
+    }
+
+    public void setTokenSupplier(Supplier<SensorToken> tokenSupplier) {
+        tokenProvider.setTokenSupplier(tokenSupplier);
     }
 
     @Override

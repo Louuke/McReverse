@@ -8,7 +8,6 @@ import org.jannsen.mcreverse.api.response.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public class McClient extends McBase {
 

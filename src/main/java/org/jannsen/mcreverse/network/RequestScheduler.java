@@ -3,7 +3,7 @@ package org.jannsen.mcreverse.network;
 import com.google.api.client.http.HttpResponse;
 import org.jannsen.mcreverse.utils.Utils;
 
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
 
 public class RequestScheduler {
 

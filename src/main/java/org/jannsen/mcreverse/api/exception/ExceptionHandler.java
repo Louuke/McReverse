@@ -1,9 +1,7 @@
 package org.jannsen.mcreverse.api.exception;
 
-import com.google.api.client.http.HttpRequest;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import org.jannsen.mcreverse.api.entity.auth.BearerAuthorization;
 import org.jannsen.mcreverse.api.response.Response;
 import org.jannsen.mcreverse.api.response.status.Status;
 import org.jannsen.mcreverse.constants.Action;
@@ -11,16 +9,13 @@ import org.jannsen.mcreverse.utils.listener.ClientActionNotifier;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.Callable;
 
 public class ExceptionHandler {
 
     private final Gson gson = new Gson();
-    private final Callable<BearerAuthorization> refreshAuthorization;
     private final ClientActionNotifier clientAction;
 
-    public ExceptionHandler(@Nonnull ClientActionNotifier clientAction, @Nonnull Callable<BearerAuthorization> refreshAuthorization) {
-        this.refreshAuthorization = refreshAuthorization;
+    public ExceptionHandler(@Nonnull ClientActionNotifier clientAction) {
         this.clientAction = clientAction;
     }
 
@@ -30,17 +25,6 @@ public class ExceptionHandler {
             case 40003 -> clientAction.notifyListener(Action.JWT_INVALID); // Authorization is invalid and can't be recovered
             case 11310, 41471 -> clientAction.notifyListener(Action.ACCOUNT_DELETED);
         };
-    }
-
-    public void refreshAuthorization(@Nonnull HttpRequest request, @Nonnull String strResponse) {
-        try {
-            Response response = createDummyResponse(Response.class, strResponse);
-            if(searchErrorCode(response) == 40006) { // JWTTokenExpired
-                request.getHeaders().set("authorization", refreshAuthorization.call().getAccessToken(true));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private <T extends Response> int searchErrorCode(@Nonnull T response) {

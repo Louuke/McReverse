@@ -11,15 +11,16 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class TokenProvider {
 
     private static final Map<UserInfo, Queue<SensorToken>> tokenCache = new ConcurrentHashMap<>();
-    private final ClientActionNotifier clientAction;
+    private Supplier<SensorToken> tokenSupplier;
 
-    public TokenProvider(ClientActionNotifier clientAction) {
-        this.clientAction = clientAction;
+    public void setTokenSupplier(Supplier<SensorToken> tokenSupplier) {
+        this.tokenSupplier = tokenSupplier;
     }
 
     public SensorToken getSensorToken(UserInfo user) {
@@ -31,7 +32,7 @@ public class TokenProvider {
 
     private void addToken(UserInfo user) {
         if(tokenCache.get(user).isEmpty()) {
-            SensorToken token = clientAction.notifyListener(Action.TOKEN_REQUIRED, SensorToken.class);
+            SensorToken token = tokenSupplier.get();
             Stream.generate(() -> token).limit(10).filter(Objects::nonNull).forEach(t -> tokenCache.get(user).add(t));
         }
     }
