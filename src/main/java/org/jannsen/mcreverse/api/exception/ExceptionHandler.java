@@ -11,7 +11,6 @@ import org.jannsen.mcreverse.utils.listener.ClientActionNotifier;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class ExceptionHandler {
@@ -19,14 +18,11 @@ public class ExceptionHandler {
     private final Gson gson = new Gson();
     private final ClientActionNotifier clientAction;
     private final Supplier<BearerAuthorization> refreshAuthorization;
-    private final Supplier<BearerAuthorization> authSupplier;
 
     public ExceptionHandler(@Nonnull ClientActionNotifier clientAction,
-                            @Nonnull Supplier<BearerAuthorization> refreshAuthorization,
-                            @Nonnull Supplier<BearerAuthorization> authSupplier) {
+                            @Nonnull Supplier<BearerAuthorization> refreshAuthorization) {
         this.clientAction = clientAction;
         this.refreshAuthorization = refreshAuthorization;
-        this.authSupplier = authSupplier;
     }
 
     public void searchForError(@Nonnull String strResponse) {
@@ -39,12 +35,9 @@ public class ExceptionHandler {
 
     public void refreshAuthorization(@Nonnull HttpRequest request, @Nonnull String strResponse) {
         Response response = createDummyResponse(Response.class, strResponse);
-        BearerAuthorization auth = switch (searchErrorCode(response)) {
-            case 40006 -> refreshAuthorization.get(); // JWTTokenExpired
-            case 40003 -> authSupplier.get();
-            default -> null;
-        };
-        if(auth != null) request.getHeaders().set("authorization", auth.getAccessToken(true));
+        if((searchErrorCode(response) == 40006)) { // JWTTokenExpired
+            request.getHeaders().set("authorization", refreshAuthorization.get().getAccessToken(true));
+        }
     }
 
     private <T extends Response> int searchErrorCode(@Nonnull T response) {

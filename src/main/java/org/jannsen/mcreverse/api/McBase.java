@@ -38,10 +38,8 @@ public class McBase {
     private BearerAuthorization authorization = new BearerAuthorization();
     private final UserInfo userInfo = new UserInfo();
     private final transient ClientActionNotifier clientAction = new ClientActionNotifier();
-    private final transient AuthProvider authProvider = new AuthProvider(this::requestBasicBearer,
-            this::getAuthorization);
-    private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction,
-            this::refreshAuthorization, this::getAuthorization);
+    private final transient AuthProvider authProvider = new AuthProvider(this::requestBasicBearer, this::getAuthorization);
+    private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction, this::refreshAuthorization);
     private final transient TokenProvider tokenProvider = new TokenProvider();
     private transient Proxy proxy;
 
@@ -74,7 +72,7 @@ public class McBase {
                 .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(userInfo) : null);
     }
 
-    private BearerAuthorization refreshAuthorization() {
+    public BearerAuthorization refreshAuthorization() {
         BearerAuthorization auth = query(new RefreshRequest(authorization.getRefreshToken()),
                 LoginResponse.class, HttpMethods.POST).getResponse();
         setAuthorization(auth);
