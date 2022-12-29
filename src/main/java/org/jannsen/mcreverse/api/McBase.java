@@ -4,7 +4,9 @@ import com.google.api.client.http.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
+import org.jannsen.mcreverse.api.entity.auth.Authorization;
 import org.jannsen.mcreverse.api.exception.ExceptionHandler;
+import org.jannsen.mcreverse.api.exception.HttpRetryHandler;
 import org.jannsen.mcreverse.api.request.builder.AuthProvider;
 import org.jannsen.mcreverse.api.request.builder.HttpBuilder;
 import org.jannsen.mcreverse.api.entity.auth.BasicBearerAuthorization;
@@ -36,9 +38,10 @@ public class McBase {
     private BearerAuthorization authorization = new BearerAuthorization();
     private final UserInfo userInfo = new UserInfo();
     private final transient ClientActionNotifier clientAction = new ClientActionNotifier();
-    private final transient AuthProvider authProvider = new AuthProvider(this::refreshAuthorization,
-            this::getAuthorization, this::requestBasicBearer);
-    private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction);
+    private final transient AuthProvider authProvider = new AuthProvider(this::requestBasicBearer,
+            this::getAuthorization);
+    private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction,
+            this::refreshAuthorization, this::getAuthorization);
     private final transient TokenProvider tokenProvider = new TokenProvider();
     private transient Proxy proxy;
 
@@ -67,11 +70,8 @@ public class McBase {
                 .setHttpMethod(httpMethod)
                 .setProxy(proxy)
                 .setAuthorization(authProvider.getAppropriateAuth(request))
+                .setUnsuccessfulResponseHandler(new HttpRetryHandler(exceptionHandler))
                 .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(userInfo) : null);
-    }
-
-    private BasicBearerAuthorization requestBasicBearer() {
-        return query(new BasicBearerRequest(), BasicBearerResponse.class, HttpMethods.POST).getResponse();
     }
 
     private BearerAuthorization refreshAuthorization() {
@@ -80,6 +80,10 @@ public class McBase {
         setAuthorization(auth);
         clientAction.notifyListener(Action.AUTHORIZATION_CHANGED);
         return auth;
+    }
+
+    private BasicBearerAuthorization requestBasicBearer() {
+        return query(new BasicBearerRequest(), BasicBearerResponse.class, HttpMethods.POST).getResponse();
     }
 
     public UserInfo getUserInfo() {

@@ -64,7 +64,6 @@ public class HttpBuilder {
         request.setThrowExceptionOnExecuteError(false);
         request.setUnsuccessfulResponseHandler(unsuccessfulResponseHandler);
         request.setIOExceptionHandler(new IOResponseHandler());
-        request.setUnsuccessfulResponseHandler(new HttpRetryHandler());
         return request;
     }
 

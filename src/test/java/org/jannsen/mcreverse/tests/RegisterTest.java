@@ -1,8 +1,8 @@
 package org.jannsen.mcreverse.tests;
 
+import org.jannsen.mcreverse.SensorFetcher;
 import org.jannsen.mcreverse.api.McClient;
 import org.jannsen.mcreverse.api.response.RegisterResponse;
-import org.jannsen.mcreverse.listener.ClientListener;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
@@ -15,7 +15,7 @@ public class RegisterTest {
     private final McClient client = new McClient();
 
     public RegisterTest() {
-        client.addActionListener(new ClientListener());
+        client.setTokenSupplier(new SensorFetcher());
     }
 
     @Test

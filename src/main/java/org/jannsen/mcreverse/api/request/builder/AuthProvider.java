@@ -18,24 +18,18 @@ public class AuthProvider {
 
     private final Supplier<BasicBearerAuthorization> basicBearerSupplier;
     private final Supplier<BearerAuthorization> bearerSupplier;
-    private final Supplier<BearerAuthorization> bearerRefresh;
 
-    public AuthProvider(Supplier<BearerAuthorization> bearerRefresh, Supplier<BearerAuthorization> bearerSupplier,
-                        Supplier<BasicBearerAuthorization> basicBearerSupplier) {
+    public AuthProvider(Supplier<BasicBearerAuthorization> basicBearerSupplier,
+                        Supplier<BearerAuthorization> bearerSupplier) {
         this.basicBearerSupplier = basicBearerSupplier;
         this.bearerSupplier = bearerSupplier;
-        this.bearerRefresh = bearerRefresh;
     }
 
     public Authorization getAppropriateAuth(Request request) {
         return switch (request.getAuthType()) {
             case Basic -> new BasicAuthorization();
             case BasicBearer -> basicBearerSupplier.get();
-            case Bearer -> isAuthorizationOld() ? bearerRefresh.get() : bearerSupplier.get();
+            case Bearer -> bearerSupplier.get();
         };
-    }
-
-    private boolean isAuthorizationOld() {
-        return Instant.now().getEpochSecond() - bearerSupplier.get().getCreatedUnix() >= 840;
     }
 }
