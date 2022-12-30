@@ -3,123 +3,85 @@ package org.jannsen.mcreverse.api;
 import com.google.api.client.http.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-import org.jannsen.mcreverse.api.builder.HttpBuilder;
-import org.jannsen.mcreverse.api.entity.login.Authorization;
+import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
+import org.jannsen.mcreverse.api.entity.auth.Authorization;
+import org.jannsen.mcreverse.api.exception.ExceptionHandler;
+import org.jannsen.mcreverse.api.exception.HttpRetryHandler;
+import org.jannsen.mcreverse.api.request.builder.AuthProvider;
+import org.jannsen.mcreverse.api.request.builder.HttpBuilder;
+import org.jannsen.mcreverse.api.entity.auth.BasicBearerAuthorization;
+import org.jannsen.mcreverse.api.entity.auth.BearerAuthorization;
 import org.jannsen.mcreverse.api.request.BasicBearerRequest;
 import org.jannsen.mcreverse.api.request.RefreshRequest;
 import org.jannsen.mcreverse.api.request.Request;
+import org.jannsen.mcreverse.api.request.builder.TokenProvider;
 import org.jannsen.mcreverse.api.response.BasicBearerResponse;
 import org.jannsen.mcreverse.api.response.LoginResponse;
 import org.jannsen.mcreverse.api.response.adapter.CodeAdapter;
-import org.jannsen.mcreverse.api.response.status.Status;
 import org.jannsen.mcreverse.api.response.Response;
-import org.jannsen.mcreverse.network.RefreshManager;
 import org.jannsen.mcreverse.api.response.adapter.OfferAdapter;
-import org.jannsen.mcreverse.utils.SensorCache;
 import org.jannsen.mcreverse.utils.UserInfo;
 import org.jannsen.mcreverse.constants.Action;
-import org.jannsen.mcreverse.utils.listener.ClientActionModel;
-import org.jannsen.mcreverse.utils.listener.ClientStateListener;
-import org.jannsen.mcreverse.network.RequestManager;
+import org.jannsen.mcreverse.utils.listener.ClientActionNotifier;
+import org.jannsen.mcreverse.utils.listener.ClientActionListener;
+import org.jannsen.mcreverse.network.RequestScheduler;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.Proxy;
-import java.net.SocketTimeoutException;
+import java.util.Objects;
+import java.util.function.Supplier;
 
-public class McBase implements ClientStateListener {
+public class McBase {
 
     private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapter())
             .registerTypeAdapterFactory(new CodeAdapter()).create();
-    private static final RequestManager requestManager = RequestManager.getInstance();
-    private static final RefreshManager refreshManager = RefreshManager.getInstance();
-    private final transient ClientActionModel actionModel = new ClientActionModel();
-    private final transient SensorCache cache = new SensorCache(actionModel);
-    private final Authorization authorization = new Authorization();
+    private static final RequestScheduler requestScheduler = RequestScheduler.getInstance();
+    private BearerAuthorization authorization = new BearerAuthorization();
     private final UserInfo userInfo = new UserInfo();
+    private final transient ClientActionNotifier clientAction = new ClientActionNotifier();
+    private final transient AuthProvider authProvider = new AuthProvider(this::requestBasicBearer, this::getAuthorization);
+    private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction, this::refreshAuthorization);
+    private final transient TokenProvider tokenProvider = new TokenProvider();
     private transient Proxy proxy;
 
-    public McBase() {
-        actionModel.addStateListener(this);
-    }
-
-    <T extends Response> T query(Request request, Class<T> responseType, String method) {
-        HttpBuilder builder = configureBuilder(request, method);
-        HttpRequest httpRequest = builder.build();
+    <T extends Response> T query(Request request, Class<T> responseType, String httpMethod) {
+        HttpRequest httpRequest = configureBuilder(request, httpMethod).build();
         return execute(httpRequest, responseType);
     }
 
     private <T extends Response> T execute(HttpRequest request, Class<T> clazz) {
         try {
-            requestManager.enqueue(request);
-            HttpResponse httpResponse = request.execute();
+            HttpResponse httpResponse = requestScheduler.enqueue(request::execute);
             String content = httpResponse.parseAsString();
-            //System.out.println(content);
-            if(httpResponse.isSuccessStatusCode()) {
-                T response = gson.fromJson(content, clazz);
-                handleErrorResponse(response);
-                return response;
+            if(!content.isEmpty()) {
+                exceptionHandler.searchForError(content);
+                return gson.fromJson(content, clazz);
             }
-            return createErrorResponse(clazz, content);
-        } catch (SocketTimeoutException e) {
-            actionModel.notifyListener(Action.REQUEST_TIMED_OUT);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return createErrorResponse(clazz, "");
+        return exceptionHandler.createDummyResponse(clazz);
     }
 
-    private <T extends Response> T createErrorResponse(Class<T> clazz, String error) {
-        try {
-            Response response = gson.fromJson(error, Response.class);
-            return clazz.getConstructor(Status.class).newInstance(response != null ? response.getStatus() : new Status());
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (JsonSyntaxException e) {
-            System.err.println("JSON error: " + e.getMessage());
-            return createErrorResponse(clazz, "");
-        }
+    private HttpBuilder configureBuilder(Request request, String httpMethod) {
+        return new HttpBuilder()
+                .setMcDRequest(request)
+                .setHttpMethod(httpMethod)
+                .setProxy(proxy)
+                .setAuthorization(authProvider.getAppropriateAuth(request))
+                .setUnsuccessfulResponseHandler(new HttpRetryHandler(exceptionHandler))
+                .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(userInfo) : null);
     }
 
-    private <T extends Response> void handleErrorResponse(T response) {
-        if(response != null && !response.getStatus().getErrors().isEmpty()) {
-            switch (response.getStatus().getErrors().get(0).getErrorCode()) {
-                case 11310, 41471 -> actionModel.notifyListener(Action.ACCOUNT_DELETED);
-            }
-        }
+    public BearerAuthorization refreshAuthorization() {
+        BearerAuthorization auth = query(new RefreshRequest(authorization.getRefreshToken()),
+                LoginResponse.class, HttpMethods.POST).getResponse();
+        setAuthorization(auth);
+        clientAction.notifyListener(Action.AUTHORIZATION_CHANGED);
+        return auth;
     }
 
-    private HttpBuilder configureBuilder(Request request, String method) {
-        return new HttpBuilder(request, method, proxy, actionModel)
-                .setAuthorization(authorization)
-                .setSensorToken(request.isTokenRequired() ? cache.getSensorToken() : null);
-    }
-
-    @Override
-    public String basicBearerRequired() {
-        return query(new BasicBearerRequest(), BasicBearerResponse.class, HttpMethods.POST).getToken();
-    }
-
-    @Override
-    public Authorization jwtExpired() {
-        refreshManager.waitForLock();
-        if(!refreshManager.isNewerAuthCached(userInfo, authorization)) {
-            LoginResponse login = refreshAuthorization();
-            if(login.success()) {
-                setAuthorization(login.getResponse());
-                actionModel.notifyListener(Action.AUTHORIZATION_CHANGED);
-                refreshManager.saveAuthorization(userInfo, authorization);
-            }
-        } else {
-            setAuthorization(refreshManager.getCachedAuthorization(userInfo));
-        }
-        refreshManager.unlock();
-        return authorization;
-    }
-
-    public LoginResponse refreshAuthorization() {
-        return query(new RefreshRequest(authorization.getRefreshToken()), LoginResponse.class, HttpMethods.POST);
+    private BasicBearerAuthorization requestBasicBearer() {
+        return query(new BasicBearerRequest(), BasicBearerResponse.class, HttpMethods.POST).getResponse();
     }
 
     public UserInfo getUserInfo() {
@@ -130,21 +92,36 @@ public class McBase implements ClientStateListener {
         return userInfo.getEmail();
     }
 
-    public Authorization getAuthorization() {
+    public BearerAuthorization getAuthorization() {
         return authorization;
     }
 
-    public void setAuthorization(Authorization authorization) {
-        this.authorization.setAccessToken(authorization.getAccessToken());
-        this.authorization.setRefreshToken(authorization.getRefreshToken());
-        this.authorization.setCreatedUnix(authorization.getCreatedUnix());
+    public void setAuthorization(BearerAuthorization authorization) {
+        this.authorization = authorization;
     }
 
     public void setProxy(Proxy proxy) {
         this.proxy = proxy;
     }
 
-    public void addStateListener(ClientStateListener listener) {
-        actionModel.addStateListener(listener);
+    public void addActionListener(ClientActionListener listener) {
+        clientAction.addListener(listener);
+    }
+
+    public void setTokenSupplier(Supplier<SensorToken> tokenSupplier) {
+        tokenProvider.setTokenSupplier(tokenSupplier);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof McBase base)) {
+            return false;
+        }
+        return base.getEmail().equals(getEmail());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getEmail());
     }
 }

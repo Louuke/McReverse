@@ -1,4 +1,4 @@
-# MCReverse
+# McReverse
  Reverse engineered library for the **german** McDonald's API in Java 
 
 ### Gradle
@@ -12,14 +12,14 @@ allprojects {
 ```
 ```java
 dependencies {
-    implementation 'com.github.JicuNull:MCReverse:main-SNAPSHOT'
+    implementation 'com.github.JicuNull:McReverse:main-SNAPSHOT'
 }
 ```
-Find more options here: **[Jitpack](https://jitpack.io/#JicuNull/MCReverse)**
+Find more options here: **[Jitpack](https://jitpack.io/#JicuNull/McReverse)**
 
 ## Connect and login
 `McClient` connects to the McDonald's backend server and is used for all interactions with the server.
-
+[README.md](README.md)
 ```java
 McClient client = new McClient();
 ```

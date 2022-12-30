@@ -1,19 +1,22 @@
-package org.jannsen.mcreverse.api.entity.login;
+package org.jannsen.mcreverse.api.entity.auth;
+
+import com.google.gson.annotations.SerializedName;
+import org.jannsen.mcreverse.annotation.Auth;
 
 import java.time.Instant;
 import java.util.Objects;
 
-public class Authorization {
+public abstract class Authorization {
 
-    private String accessToken, refreshToken;
+    private @SerializedName(value = "accessToken", alternate = {"token"}) String accessToken;
     private long createdUnix = Instant.now().getEpochSecond();
 
     public String getAccessToken() {
         return accessToken != null ? accessToken : "";
     }
 
-    public String getRefreshToken() {
-        return refreshToken != null ? refreshToken : "";
+    public String getAccessToken(boolean withPrefix) {
+        return !withPrefix ? getAccessToken() : getAuthType().prefix() + " " + getAccessToken();
     }
 
     public long getCreatedUnix() {
@@ -24,17 +27,15 @@ public class Authorization {
         this.accessToken = accessToken;
     }
 
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
     public void setCreatedUnix(long createdUnix) {
         this.createdUnix = createdUnix;
     }
 
+    abstract Auth.Type getAuthType();
+
     @Override
     public int hashCode() {
-        return Objects.hash(accessToken, refreshToken);
+        return Objects.hash(accessToken);
     }
 
     @Override
@@ -42,6 +43,6 @@ public class Authorization {
         if(!(obj instanceof Authorization auth)) {
             return false;
         }
-        return auth.getAccessToken().equals(accessToken) && auth.getRefreshToken().equals(refreshToken);
+        return auth.getAccessToken().equals(accessToken);
     }
 }

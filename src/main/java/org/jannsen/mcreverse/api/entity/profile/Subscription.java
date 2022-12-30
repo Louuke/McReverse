@@ -1,5 +1,7 @@
 package org.jannsen.mcreverse.api.entity.profile;
 
+import java.util.Objects;
+
 public class Subscription {
 
     private final String optInStatus, subscriptionDesc, subscriptionId;
@@ -27,5 +29,18 @@ public class Subscription {
 
     public String getSubscriptionDesc() {
         return subscriptionDesc;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Subscription that = (Subscription) o;
+        return subscriptionId.equals(that.subscriptionId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(subscriptionId);
     }
 }

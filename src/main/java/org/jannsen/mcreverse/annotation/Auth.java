@@ -10,9 +10,19 @@ import java.lang.annotation.Target;
 public @interface Auth {
 
     enum Type {
-        Basic,
-        BasicBearer,
-        Bearer;
+        Basic("Basic"),
+        BasicBearer("Bearer"),
+        Bearer("Bearer");
+
+        private final String prefix;
+
+        Type(String prefix) {
+            this.prefix = prefix;
+        }
+
+        public String prefix() {
+            return prefix;
+        }
     }
 
     Type type() default Type.Bearer;

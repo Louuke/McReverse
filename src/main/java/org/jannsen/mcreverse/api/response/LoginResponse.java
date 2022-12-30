@@ -1,17 +1,17 @@
 package org.jannsen.mcreverse.api.response;
 
-import org.jannsen.mcreverse.api.entity.login.Authorization;
+import org.jannsen.mcreverse.api.entity.auth.BearerAuthorization;
 import org.jannsen.mcreverse.api.response.status.Status;
 
 public class LoginResponse extends Response {
 
-    private Authorization response;
+    private BearerAuthorization response;
 
     public LoginResponse(Status status) {
         super(status);
     }
 
-    public Authorization getResponse() {
-        return response;
+    public BearerAuthorization getResponse() {
+        return response != null ? response : new BearerAuthorization();
     }
 }

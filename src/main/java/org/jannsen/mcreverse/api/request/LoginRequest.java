@@ -2,9 +2,7 @@ package org.jannsen.mcreverse.api.request;
 
 import org.jannsen.mcreverse.annotation.Auth;
 import org.jannsen.mcreverse.annotation.SensorRequired;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.jannsen.mcreverse.api.entity.login.*;
 
 @SensorRequired
 @Auth(type = Auth.Type.BasicBearer)
@@ -16,31 +14,12 @@ public class LoginRequest extends Request {
 
     public LoginRequest(String email, String password, String deviceId) {
         this.clientInfo = new ClientInfo(deviceId);
-        this.credentials = new Credentials(email, password);
+        this.credentials = new Credentials(email, password, Credentials.Type.EMAIL);
         this.deviceId = deviceId;
     }
 
     @Override
     public String getUrl() {
         return "https://eu-prod.api.mcd.com/exp/v1/customer/login";
-    }
-
-    public static class Credentials {
-        private final String loginUsername, password, type = "email";
-
-        public Credentials(String email, String password) {
-            this.loginUsername = email;
-            this.password = password;
-        }
-    }
-
-    private static class ClientInfo {
-        private final Map<String, String> device = new HashMap<>();
-
-        private ClientInfo(String deviceId) {
-            device.put("deviceUniqueId", deviceId);
-            device.put("os", "android");
-            device.put("osVersion", "11");
-        }
     }
 }

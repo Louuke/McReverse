@@ -1,49 +1,45 @@
 package org.jannsen.mcreverse.api;
 
 import com.google.api.client.http.HttpMethods;
+import org.jannsen.mcreverse.api.entity.login.Credentials;
+import org.jannsen.mcreverse.api.entity.register.RegisterOptions;
 import org.jannsen.mcreverse.api.request.*;
 import org.jannsen.mcreverse.api.response.*;
 
-import java.util.Arrays;
-import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class McClient extends McBase {
 
-    public LoginResponse login(String email, String password) {
-        return login(email, password, getUserInfo().getDeviceId());
-    }
-
-    public LoginResponse login(String email, String password, String deviceId) {
+    public LoginResponse login(@Nonnull String email, @Nonnull String password, @Nonnull String deviceId) {
         getUserInfo().setEmail(email).setDeviceId(deviceId);
         LoginResponse login = query(new LoginRequest(email, password, deviceId), LoginResponse.class, HttpMethods.POST);
-        if(login.success()) {
-            setAuthorization(login.getResponse());
-            ProfileResponse profileResponse = getProfile();
-            if(profileResponse.success()) {
-                getUserInfo().setUserId(profileResponse.getResponse().getHashedDcsId());
-            }
+        if(!login.success()) {
+            return login;
+        }
+        setAuthorization(login.getResponse());
+        ProfileResponse profileResponse = getProfile();
+        if(profileResponse.success()) {
+            getUserInfo().setUserId(profileResponse.getResponse().getHashedDcsId());
         }
         return login;
     }
 
-    public Response register(String email, String password, String zipCode) {
-        return register(email, password, zipCode, getUserInfo().getDeviceId());
+    public RegisterResponse register(@Nonnull String email, @Nonnull String password) {
+        return register(email, password, new RegisterOptions());
     }
 
-    public Response register(String email, String password, String zipCode, String deviceId) {
-        return query(new RegisterRequest(email, password, zipCode, deviceId), LoginResponse.class, HttpMethods.POST);
+    public RegisterResponse register(@Nonnull String email, @Nonnull String password, @Nonnull RegisterOptions options) {
+        Response response = query(new RegisterRequest(email, password, options), LoginResponse.class, HttpMethods.POST);
+        return new RegisterResponse(response.getStatus(), options.getDeviceId());
     }
 
-    public Response activateAccount(String email, String activationCode) {
-        return activate(email, activationCode, getUserInfo().getDeviceId(), "email");
+    public Response activateAccount(@Nonnull String email, @Nonnull String activationCode, @Nonnull String deviceId) {
+        return activate(email, activationCode, deviceId, Credentials.Type.EMAIL);
     }
 
-    public Response activateAccount(String email, String activationCode, String deviceId) {
-        return activate(email, activationCode, deviceId, "email");
-    }
-
-    public Response activateDevice(String email, String activationCode, String deviceId) {
-        return activate(email, activationCode, deviceId, "device");
+    public Response activateDevice(@Nonnull String email, @Nonnull String activationCode, @Nonnull String deviceId) {
+        return activate(email, activationCode, deviceId, Credentials.Type.DEVICE);
     }
 
     private Response activate(String email, String activationCode, String deviceId, String type) {
@@ -94,21 +90,16 @@ public class McClient extends McBase {
         return query(new OptInRequest(campaignId), OptInResponse.class, HttpMethods.POST);
     }
 
-    public Response useMyMcDonalds(boolean b) {
-        return query(new ProfileRequest().useMyMcDonalds(b), Response.class, HttpMethods.PUT);
+    public Response useMyMcDonalds(boolean enabled) {
+        return query(new ProfileRequest().useMyMcDonalds(enabled), Response.class, HttpMethods.PUT);
     }
 
-    public Response setZipCode(String zipCode) {
+    public Response changeName(@Nullable String firstName, @Nullable String lastName) {
+        return query(new ProfileRequest().setFirstName(firstName).setLastName(lastName), Response.class, HttpMethods.PUT);
+    }
+
+    public Response changeZipCode(String zipCode) {
         return query(new ProfileRequest().setZipCode(zipCode), Response.class, HttpMethods.PUT);
-    }
-
-    public boolean usesMyMcDonalds() {
-        return query(new ProfileRequest(), ProfileResponse.class, HttpMethods.GET).getResponse()
-                .getSubscriptions().stream()
-                .filter(sub -> sub.getOptInStatus().equals("Y")
-                        && Arrays.asList("23", "24", "25").contains(sub.getSubscriptionId())
-                        || sub.getOptInStatus().equals("N")
-                        && sub.getSubscriptionId().equals("21")).count() == 4;
     }
 
     public Response setLocation() {
@@ -117,18 +108,5 @@ public class McClient extends McBase {
 
     public Response setNotification() {
         return query(new NotificationRequest(), Response.class, HttpMethods.POST);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(!(obj instanceof McClient client)) {
-            return false;
-        }
-        return client.getEmail().equals(getEmail());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getEmail());
     }
 }
