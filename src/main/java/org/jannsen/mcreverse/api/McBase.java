@@ -48,18 +48,18 @@ public class McBase {
         return execute(httpRequest, responseType);
     }
 
-    private <T extends Response> T execute(HttpRequest request, Class<T> clazz) {
+    private <T extends Response> T execute(HttpRequest request, Class<T> responseType) {
         try {
             HttpResponse httpResponse = requestScheduler.enqueue(request::execute);
             String content = httpResponse.parseAsString();
             if(!content.isEmpty()) {
                 exceptionHandler.searchForError(content);
-                return gson.fromJson(content, clazz);
+                return gson.fromJson(content, responseType);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return exceptionHandler.createDummyResponse(clazz);
+        return exceptionHandler.createDummyResponse(responseType);
     }
 
     private HttpBuilder configureBuilder(Request request, String httpMethod) {
