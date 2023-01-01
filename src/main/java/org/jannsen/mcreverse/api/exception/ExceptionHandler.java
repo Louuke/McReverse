@@ -26,7 +26,7 @@ public class ExceptionHandler {
     }
 
     public void searchForError(@Nonnull String strResponse) {
-        Response response = createDummyResponse(Response.class, strResponse);
+        Response response = createFallbackResponse(Response.class, strResponse);
         switch (searchErrorCode(response)) {
             case 40003 -> clientAction.notifyListener(Action.JWT_INVALID); // Authorization is invalid and can't be recovered
             case 11310, 41471 -> clientAction.notifyListener(Action.ACCOUNT_DELETED);
@@ -34,7 +34,7 @@ public class ExceptionHandler {
     }
 
     public void refreshAuthorization(@Nonnull HttpRequest request, @Nonnull String strResponse) {
-        Response response = createDummyResponse(Response.class, strResponse);
+        Response response = createFallbackResponse(Response.class, strResponse);
         if((searchErrorCode(response) == 40006)) { // JWTTokenExpired
             request.getHeaders().set("authorization", refreshAuthorization.get().getAccessToken(true));
         }
@@ -44,11 +44,11 @@ public class ExceptionHandler {
         return response.getStatus().getErrors().stream().map(Status.Error::getErrorCode).findAny().orElse(0);
     }
 
-    public <T extends Response> T createDummyResponse(Class<T> clazz) {
-        return createDummyResponse(clazz, null);
+    public <T extends Response> T createFallbackResponse(Class<T> clazz) {
+        return createFallbackResponse(clazz, null);
     }
 
-    public <T extends Response> T createDummyResponse(Class<T> clazz, String strResponse) {
+    public <T extends Response> T createFallbackResponse(Class<T> clazz, String strResponse) {
         try {
             Response response = gson.fromJson(strResponse, Response.class);
             return clazz.getConstructor(Status.class).newInstance(response != null ? response.getStatus() : new Status());
@@ -56,7 +56,7 @@ public class ExceptionHandler {
             throw new RuntimeException(e);
         } catch (JsonSyntaxException e) {
             System.err.println("JSON error: " + e.getMessage());
-            return createDummyResponse(clazz);
+            return createFallbackResponse(clazz);
         }
     }
 }

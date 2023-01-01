@@ -4,7 +4,6 @@ import com.google.api.client.http.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
-import org.jannsen.mcreverse.api.entity.auth.Authorization;
 import org.jannsen.mcreverse.api.exception.ExceptionHandler;
 import org.jannsen.mcreverse.api.exception.HttpRetryHandler;
 import org.jannsen.mcreverse.api.request.builder.AuthProvider;
@@ -59,7 +58,7 @@ public class McBase {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return exceptionHandler.createDummyResponse(responseType);
+        return exceptionHandler.createFallbackResponse(responseType);
     }
 
     private HttpBuilder configureBuilder(Request request, String httpMethod) {
