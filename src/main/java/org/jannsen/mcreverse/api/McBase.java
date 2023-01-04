@@ -40,7 +40,6 @@ public class McBase {
     private final transient AuthProvider authProvider = new AuthProvider(this::requestBasicBearer, this::getAuthorization);
     private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction, this::refreshAuthorization);
     private final transient TokenProvider tokenProvider = new TokenProvider();
-    private transient Proxy proxy;
 
     <T extends Response> T query(Request request, Class<T> responseType, String httpMethod) {
         HttpRequest httpRequest = configureBuilder(request, httpMethod).build();
@@ -65,7 +64,7 @@ public class McBase {
         return new HttpBuilder()
                 .setMcDRequest(request)
                 .setHttpMethod(httpMethod)
-                .setProxy(proxy)
+                .setProxy(null)
                 .setAuthorization(authProvider.getAppropriateAuth(request))
                 .setUnsuccessfulResponseHandler(new HttpRetryHandler(exceptionHandler))
                 .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(userInfo) : null);
