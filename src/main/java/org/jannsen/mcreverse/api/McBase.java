@@ -99,10 +99,6 @@ public class McBase {
         this.authorization = authorization;
     }
 
-    public void setProxy(Proxy proxy) {
-        this.proxy = proxy;
-    }
-
     public void addActionListener(ClientActionListener listener) {
         clientAction.addListener(listener);
     }
