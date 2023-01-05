@@ -1,9 +1,12 @@
 package org.jannsen.mcreverse.api.entity.akamai;
 
+import org.springframework.data.annotation.Id;
+
 import java.time.Instant;
 
 public class SensorToken {
 
+    @Id
     private String token;
     private long createdTime = Instant.now().getEpochSecond();
 
