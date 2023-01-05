@@ -14,6 +14,9 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 
+    // https://mvnrepository.com/artifact/org.springframework.data/spring-data-commons
+    implementation 'org.springframework.data:spring-data-commons:3.0.0'
+
     // https://mvnrepository.com/artifact/com.google.http-client/google-http-client
     implementation 'com.google.http-client:google-http-client:1.42.3'
 

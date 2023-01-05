@@ -24,6 +24,7 @@ import org.jannsen.mcreverse.constants.Action;
 import org.jannsen.mcreverse.utils.listener.ClientActionNotifier;
 import org.jannsen.mcreverse.utils.listener.ClientActionListener;
 import org.jannsen.mcreverse.network.RequestScheduler;
+import org.springframework.data.annotation.Transient;
 
 import java.net.Proxy;
 import java.util.Objects;
@@ -36,10 +37,15 @@ public class McBase {
     private static final RequestScheduler requestScheduler = RequestScheduler.getInstance();
     private BearerAuthorization authorization = new BearerAuthorization();
     private final UserInfo userInfo = new UserInfo();
+    @Transient
     private final transient ClientActionNotifier clientAction = new ClientActionNotifier();
+    @Transient
     private final transient AuthProvider authProvider = new AuthProvider(this::requestBasicBearer, this::getAuthorization);
+    @Transient
     private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction, this::refreshAuthorization);
+    @Transient
     private final transient TokenProvider tokenProvider = new TokenProvider();
+    @Transient
     private transient Proxy proxy;
 
     <T extends Response> T query(Request request, Class<T> responseType, String httpMethod) {
