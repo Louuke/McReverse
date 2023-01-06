@@ -1,8 +1,12 @@
 package org.jannsen.mcreverse.utils;
 
+import jakarta.persistence.Embeddable;
+
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Random;
 
+@Embeddable
 public class UserInfo {
 
     private String email = "", deviceId = "", userId = "";

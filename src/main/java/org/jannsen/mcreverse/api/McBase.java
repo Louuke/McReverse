@@ -3,6 +3,9 @@ package org.jannsen.mcreverse.api;
 import com.google.api.client.http.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
 import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
 import org.jannsen.mcreverse.api.exception.ExceptionHandler;
 import org.jannsen.mcreverse.api.exception.HttpRetryHandler;
@@ -36,6 +39,7 @@ public class McBase {
             .registerTypeAdapterFactory(new CodeAdapter()).create();
     private static final RequestScheduler requestScheduler = RequestScheduler.getInstance();
     private BearerAuthorization authorization = new BearerAuthorization();
+    @EmbeddedId
     private final UserInfo userInfo = new UserInfo();
     @Transient
     private final transient ClientActionNotifier clientAction = new ClientActionNotifier();
