@@ -2,6 +2,7 @@ package org.jannsen.mcreverse.api.entity.offer;
 
 import com.google.gson.annotations.SerializedName;
 import org.jannsen.mcreverse.api.McClientSettings;
+import org.springframework.data.annotation.Id;
 
 import java.time.LocalTime;
 import java.util.regex.Pattern;
@@ -30,7 +31,9 @@ public class Offer {
     @SerializedName("CreationDatedfdUtc") private String creationDateUTC;
     @SerializedName("name") private String fullName;
     @SerializedName("colorCodingInfo") private int colorCodingInfo;
-    @SerializedName("offerPropositionId") private int offerPropositionId;
+    @SerializedName("offerPropositionId")
+    @Id
+    private int offerPropositionId;
     @SerializedName("offerType") private int offerType;
     @SerializedName("redemptionMode") private int redemptionMode;
     @SerializedName("offerId") private long offerId;

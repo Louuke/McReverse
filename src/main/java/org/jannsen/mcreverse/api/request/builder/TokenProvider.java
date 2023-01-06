@@ -16,28 +16,28 @@ import java.util.stream.Stream;
 
 public class TokenProvider {
 
-    private static final Map<UserInfo, Queue<SensorToken>> tokenCache = new ConcurrentHashMap<>();
+    private static final Map<String, Queue<SensorToken>> tokenCache = new ConcurrentHashMap<>();
     private Supplier<SensorToken> tokenSupplier;
 
     public void setTokenSupplier(Supplier<SensorToken> tokenSupplier) {
         this.tokenSupplier = tokenSupplier;
     }
 
-    public SensorToken getSensorToken(UserInfo user) {
-        tokenCache.putIfAbsent(user, new ConcurrentLinkedQueue<>());
-        removeOldTokens(user);
-        addToken(user);
-        return tokenCache.get(user).poll();
+    public SensorToken getSensorToken(String email) {
+        tokenCache.putIfAbsent(email, new ConcurrentLinkedQueue<>());
+        removeOldTokens(email);
+        addToken(email);
+        return tokenCache.get(email).poll();
     }
 
-    private void addToken(UserInfo user) {
-        if(tokenCache.get(user).isEmpty()) {
+    private void addToken(String email) {
+        if(tokenCache.get(email).isEmpty()) {
             SensorToken token = tokenSupplier != null ? tokenSupplier.get() : new SensorToken();
-            Stream.generate(() -> token).limit(10).filter(Objects::nonNull).forEach(t -> tokenCache.get(user).add(t));
+            Stream.generate(() -> token).limit(10).filter(Objects::nonNull).forEach(t -> tokenCache.get(email).add(t));
         }
     }
 
-    private void removeOldTokens(UserInfo user) {
-        tokenCache.get(user).removeIf(token -> Instant.now().getEpochSecond() - token.getCreatedTime() > 3600);
+    private void removeOldTokens(String email) {
+        tokenCache.get(email).removeIf(token -> Instant.now().getEpochSecond() - token.getCreatedTime() > 3600);
     }
 }

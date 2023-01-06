@@ -24,6 +24,7 @@ import org.jannsen.mcreverse.constants.Action;
 import org.jannsen.mcreverse.utils.listener.ClientActionNotifier;
 import org.jannsen.mcreverse.utils.listener.ClientActionListener;
 import org.jannsen.mcreverse.network.RequestScheduler;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 
 import java.net.Proxy;
@@ -35,8 +36,9 @@ public class McBase {
     private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapter())
             .registerTypeAdapterFactory(new CodeAdapter()).create();
     private static final RequestScheduler requestScheduler = RequestScheduler.getInstance();
+    @Id
+    private String email;
     private BearerAuthorization authorization = new BearerAuthorization();
-    private final UserInfo userInfo = new UserInfo();
     @Transient
     private final transient ClientActionNotifier clientAction = new ClientActionNotifier();
     @Transient
@@ -74,7 +76,7 @@ public class McBase {
                 .setProxy(proxy)
                 .setAuthorization(authProvider.getAppropriateAuth(request))
                 .setUnsuccessfulResponseHandler(new HttpRetryHandler(exceptionHandler))
-                .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(userInfo) : null);
+                .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(email) : null);
     }
 
     public BearerAuthorization refreshAuthorization() {
@@ -89,12 +91,12 @@ public class McBase {
         return query(new BasicBearerRequest(), BasicBearerResponse.class, HttpMethods.POST).getResponse();
     }
 
-    public UserInfo getUserInfo() {
-        return userInfo;
+    void setEmail(String email) {
+        this.email = email;
     }
 
     public String getEmail() {
-        return userInfo.getEmail();
+        return email;
     }
 
     public BearerAuthorization getAuthorization() {

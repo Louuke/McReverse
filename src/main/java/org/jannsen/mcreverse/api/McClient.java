@@ -12,16 +12,12 @@ import javax.annotation.Nullable;
 public class McClient extends McBase {
 
     public LoginResponse login(@Nonnull String email, @Nonnull String password, @Nonnull String deviceId) {
-        getUserInfo().setEmail(email).setDeviceId(deviceId);
         LoginResponse login = query(new LoginRequest(email, password, deviceId), LoginResponse.class, HttpMethods.POST);
         if(!login.success()) {
             return login;
         }
+        setEmail(email);
         setAuthorization(login.getResponse());
-        ProfileResponse profileResponse = getProfile();
-        if(profileResponse.success()) {
-            getUserInfo().setUserId(profileResponse.getResponse().getHashedDcsId());
-        }
         return login;
     }
 
