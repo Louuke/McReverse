@@ -83,7 +83,7 @@ public class McBase {
         BearerAuthorization auth = query(new RefreshRequest(authorization.getRefreshToken()),
                 LoginResponse.class, HttpMethods.POST).getResponse();
         setAuthorization(auth);
-        clientAction.notifyListener(Action.AUTHORIZATION_CHANGED);
+        clientAction.notifyAuthorizationChanged(authorization);
         return auth;
     }
 
