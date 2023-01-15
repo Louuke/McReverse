@@ -15,16 +15,7 @@ public class CodeAdapter extends AbstractAdapterFactory {
 
     @Override
     public void modifyPojo(Object pojo) {
-        setUnixExpiration((Code) pojo);
-    }
-
-    private void setUnixExpiration(Code code) {
-        try {
-            Field timeUnix = Code.class.getDeclaredField("expirationTimeUnix");
-            timeUnix.setAccessible(true);
-            timeUnix.set(code, timeToUnix(code.getExpirationTimeUTC(), ZoneId.of("UTC")));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        Code code = (Code) pojo;
+        setField("expirationTimeUnix", timeToUnix(code.getExpirationTimeUTC(), ZoneId.of("UTC")));
     }
 }

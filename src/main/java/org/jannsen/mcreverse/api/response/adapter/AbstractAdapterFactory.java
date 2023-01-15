@@ -8,6 +8,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 public abstract class AbstractAdapterFactory implements TypeAdapterFactory {
 
@@ -48,6 +49,16 @@ public abstract class AbstractAdapterFactory implements TypeAdapterFactory {
             }
         }
         return false;
+    }
+
+    public void setField(String name, Object value) {
+        try {
+            Field field = getClass().getDeclaredField(name);
+            field.setAccessible(true);
+            field.set(this, value);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public abstract void modifyPojo(Object pojo);
