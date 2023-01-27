@@ -26,6 +26,7 @@ public class McClient extends McBase {
     }
 
     public RegisterResponse register(@Nonnull String email, @Nonnull String password, @Nonnull RegisterOptions options) {
+        setEmail(email);
         Response response = query(new RegisterRequest(email, password, options), LoginResponse.class, HttpMethods.POST);
         return new RegisterResponse(response.getStatus(), options.getDeviceId());
     }
