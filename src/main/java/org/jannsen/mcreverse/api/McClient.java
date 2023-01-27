@@ -40,6 +40,7 @@ public class McClient extends McBase {
     }
 
     private Response activate(String email, String activationCode, String deviceId, String type) {
+        setEmail(email);
         return query(new ActivationRequest(email, activationCode, deviceId, type), Response.class, HttpMethods.PUT);
     }
 
