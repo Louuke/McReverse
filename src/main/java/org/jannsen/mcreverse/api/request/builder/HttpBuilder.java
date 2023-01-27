@@ -84,7 +84,7 @@ public class HttpBuilder {
         HttpHeaders headers = new HttpHeaders();
         headers.set("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
         headers.set("accept-charset", "UTF-8");
-        headers.set("user-agent", "MCDSDK/27.0.6 (Android; 30; de-DE) GMA/7.11");
+        headers.set("user-agent", "MCDSDK/27.0.18 (Android; 30; de-DE) GMA/7.11");
         headers.set("content-type", mcdRequest.getContent() != null ? mcdRequest.getContent().getType() : "application/json; charset=UTF-8");
         headers.set("accept-language", "de-DE");
         headers.set("mcd-sourceapp", "GMA");
