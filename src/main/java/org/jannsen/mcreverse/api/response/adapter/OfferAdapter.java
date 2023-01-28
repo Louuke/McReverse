@@ -4,10 +4,14 @@ import org.jannsen.mcreverse.api.entity.offer.Offer;
 import org.jannsen.mcreverse.api.McClientSettings;
 
 import java.lang.reflect.Field;
+import java.util.regex.Pattern;
 
 import static org.jannsen.mcreverse.utils.Utils.timeToUnix;
 
 public class OfferAdapter extends AbstractAdapterFactory {
+
+    private static final Pattern pricePattern = Pattern.compile("\\d+,\\d\\d");
+    private static final Pattern clockPattern = Pattern.compile("\\d\\d-\\d\\d");
 
     public OfferAdapter() {
         super(Offer.class);
@@ -15,34 +19,18 @@ public class OfferAdapter extends AbstractAdapterFactory {
 
     @Override
     public void modifyPojo(Object pojo) {
-        setPriceAndName((Offer) pojo);
-        setValidUnixTime((Offer) pojo);
-    }
-
-    private void setPriceAndName(Offer offer) {
-        try {
-            Field name = Offer.class.getDeclaredField("shortName");
-            Field price = Offer.class.getDeclaredField("price");
-            name.setAccessible(true);
-            price.setAccessible(true);
-            name.set(offer, getName(offer));
-            price.set(offer, getPrice(offer));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void setValidUnixTime(Offer offer) {
-        try {
-            Field validFromUnix = Offer.class.getDeclaredField("validFromUnix");
-            Field validToUnix = Offer.class.getDeclaredField("validToUnix");
-            validFromUnix.setAccessible(true);
-            validToUnix.setAccessible(true);
-            validFromUnix.set(offer, timeToUnix(offer.getLocalValidFrom(), McClientSettings.ZONE_ID));
-            validToUnix.set(offer, timeToUnix(offer.getLocalValidTo(), McClientSettings.ZONE_ID));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        Offer offer = (Offer) pojo;
+        setField(offer, "shortName", getName(offer));
+        setField(offer, "price", getPrice(offer));
+        setField(offer, "priceCents", pricePattern.matcher(offer.getPrice()).results()
+                .map(result -> result.group().replace(",", ""))
+                .map(Integer::parseInt).findAny().orElse(0));
+        setField(offer, "validFromUnix", timeToUnix(offer.getLocalValidFrom(), McClientSettings.ZONE_ID));
+        setField(offer, "validToUnix", timeToUnix(offer.getLocalValidTo(), McClientSettings.ZONE_ID));
+        setField(offer, "availableHourFrom", clockPattern.matcher(offer.getPrice()).results()
+                .map(result -> Integer.parseInt(result.group().split("-")[0])).findAny().orElse(0));
+        setField(offer, "availableHourTo", clockPattern.matcher(offer.getPrice()).results()
+                .map(result -> Integer.parseInt(result.group().split("-")[1])).findAny().orElse(24));
     }
 
     private String getName(Offer offer) {

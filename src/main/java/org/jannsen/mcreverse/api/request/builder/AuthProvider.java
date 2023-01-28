@@ -5,13 +5,7 @@ import org.jannsen.mcreverse.api.entity.auth.BasicAuthorization;
 import org.jannsen.mcreverse.api.entity.auth.BasicBearerAuthorization;
 import org.jannsen.mcreverse.api.entity.auth.BearerAuthorization;
 import org.jannsen.mcreverse.api.request.Request;
-import org.jannsen.mcreverse.utils.UserInfo;
 
-import java.time.Instant;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 public class AuthProvider {

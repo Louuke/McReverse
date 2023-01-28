@@ -2,14 +2,13 @@ package org.jannsen.mcreverse.api.entity.offer;
 
 import com.google.gson.annotations.SerializedName;
 import org.jannsen.mcreverse.api.McClientSettings;
+import org.springframework.data.annotation.Id;
 
 import java.time.LocalTime;
 import java.util.regex.Pattern;
 
 public class Offer {
 
-    private static final Pattern pricePattern = Pattern.compile("\\d+,\\d\\d");
-    private static final Pattern clockPattern = Pattern.compile("\\d\\d-\\d\\d");
     @SerializedName("conditions") private Conditions conditions;
     @SerializedName("punchInfo") private PunchInfo punchInfo;
     @SerializedName("recurringInfo") private RecurringInfo recurringInfo;
@@ -30,13 +29,16 @@ public class Offer {
     @SerializedName("CreationDatedfdUtc") private String creationDateUTC;
     @SerializedName("name") private String fullName;
     @SerializedName("colorCodingInfo") private int colorCodingInfo;
-    @SerializedName("offerPropositionId") private int offerPropositionId;
+    @SerializedName("offerPropositionId")
+    @Id
+    private int offerPropositionId;
     @SerializedName("offerType") private int offerType;
     @SerializedName("redemptionMode") private int redemptionMode;
     @SerializedName("offerId") private long offerId;
     private long validFromUnix, validToUnix;
     private String shortName;
     private String price;
+    private int priceCents, availableHourFrom, availableHourTo;
 
     public Conditions getConditions() {
         return conditions;
@@ -99,19 +101,15 @@ public class Offer {
     }
 
     public Integer getPriceCents() {
-        return pricePattern.matcher(price).results()
-                .map(result -> result.group().replace(",", ""))
-                .map(Integer::parseInt).findAny().orElse(0);
+        return priceCents;
     }
 
     public Integer getAvailableHourFrom() {
-        return clockPattern.matcher(price).results()
-                .map(result -> Integer.parseInt(result.group().split("-")[0])).findAny().orElse(0);
+        return availableHourFrom;
     }
 
     public Integer getAvailableHourTo() {
-        return clockPattern.matcher(getPrice()).results()
-                .map(result -> Integer.parseInt(result.group().split("-")[1])).findAny().orElse(24);
+        return availableHourTo;
     }
 
     public boolean isAvailable() {

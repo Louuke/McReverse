@@ -3,6 +3,7 @@ package org.jannsen.mcreverse.network;
 import com.google.api.client.http.HttpResponse;
 import org.jannsen.mcreverse.utils.Utils;
 
+import java.util.Optional;
 import java.util.concurrent.*;
 
 public class RequestScheduler {
@@ -20,12 +21,19 @@ public class RequestScheduler {
         return instance;
     }
 
-    public HttpResponse enqueue(Callable<HttpResponse> request) throws Exception {
-        queue.add(request);
-        while (queue.contains(request)) {
-            Utils.waitMill(200);
+    public Optional<String> enqueue(Callable<HttpResponse> request) {
+        try {
+            while (queue.contains(request)) {
+                Utils.waitMill(200);
+            }
+            String responseContent = request.call().parseAsString();
+            if(!responseContent.isEmpty()) {
+                return Optional.of(responseContent);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return request.call();
+        return Optional.empty();
     }
 
     public void setRequestsPerSecond(double rps) {

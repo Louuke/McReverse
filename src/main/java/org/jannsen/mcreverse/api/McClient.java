@@ -5,23 +5,24 @@ import org.jannsen.mcreverse.api.entity.login.Credentials;
 import org.jannsen.mcreverse.api.entity.register.RegisterOptions;
 import org.jannsen.mcreverse.api.request.*;
 import org.jannsen.mcreverse.api.response.*;
+import org.jannsen.mcreverse.utils.listener.ClientActionListener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class McClient extends McBase {
+public class McClient extends McBase implements ClientActionListener {
+
+    public McClient() {
+        addActionListener(this);
+    }
 
     public LoginResponse login(@Nonnull String email, @Nonnull String password, @Nonnull String deviceId) {
-        getUserInfo().setEmail(email).setDeviceId(deviceId);
+        setEmail(email);
         LoginResponse login = query(new LoginRequest(email, password, deviceId), LoginResponse.class, HttpMethods.POST);
         if(!login.success()) {
             return login;
         }
         setAuthorization(login.getResponse());
-        ProfileResponse profileResponse = getProfile();
-        if(profileResponse.success()) {
-            getUserInfo().setUserId(profileResponse.getResponse().getHashedDcsId());
-        }
         return login;
     }
 
@@ -30,6 +31,7 @@ public class McClient extends McBase {
     }
 
     public RegisterResponse register(@Nonnull String email, @Nonnull String password, @Nonnull RegisterOptions options) {
+        setEmail(email);
         Response response = query(new RegisterRequest(email, password, options), LoginResponse.class, HttpMethods.POST);
         return new RegisterResponse(response.getStatus(), options.getDeviceId());
     }
@@ -43,6 +45,7 @@ public class McClient extends McBase {
     }
 
     private Response activate(String email, String activationCode, String deviceId, String type) {
+        setEmail(email);
         return query(new ActivationRequest(email, activationCode, deviceId, type), Response.class, HttpMethods.PUT);
     }
 
@@ -103,10 +106,16 @@ public class McClient extends McBase {
     }
 
     public Response setLocation() {
-        return query(new LocationRequest(getEmail()), Response.class,HttpMethods.POST);
+        return query(new LocationRequest(getEmail()), Response.class, HttpMethods.POST);
     }
 
     public Response setNotification() {
         return query(new NotificationRequest(), Response.class, HttpMethods.POST);
+    }
+
+    @Override
+    public void authRefreshRequired() {
+        LoginResponse response = query(new RefreshRequest(getAuthorization().getRefreshToken()), LoginResponse.class, HttpMethods.POST);
+        if(response.success()) setAuthorization(response.getResponse());
     }
 }
