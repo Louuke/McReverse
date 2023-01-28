@@ -5,11 +5,16 @@ import org.jannsen.mcreverse.api.entity.login.Credentials;
 import org.jannsen.mcreverse.api.entity.register.RegisterOptions;
 import org.jannsen.mcreverse.api.request.*;
 import org.jannsen.mcreverse.api.response.*;
+import org.jannsen.mcreverse.utils.listener.ClientActionListener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class McClient extends McBase {
+public class McClient extends McBase implements ClientActionListener {
+
+    public McClient() {
+        addActionListener(this);
+    }
 
     public LoginResponse login(@Nonnull String email, @Nonnull String password, @Nonnull String deviceId) {
         setEmail(email);
@@ -101,10 +106,16 @@ public class McClient extends McBase {
     }
 
     public Response setLocation() {
-        return query(new LocationRequest(getEmail()), Response.class,HttpMethods.POST);
+        return query(new LocationRequest(getEmail()), Response.class, HttpMethods.POST);
     }
 
     public Response setNotification() {
         return query(new NotificationRequest(), Response.class, HttpMethods.POST);
+    }
+
+    @Override
+    public void authRefreshRequired() {
+        LoginResponse response = query(new RefreshRequest(getAuthorization().getRefreshToken()), LoginResponse.class, HttpMethods.POST);
+        if(response.success()) setAuthorization(response.getResponse());
     }
 }

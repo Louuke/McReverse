@@ -4,7 +4,6 @@ import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import org.jannsen.mcreverse.api.entity.auth.Authorization;
 import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
-import org.jannsen.mcreverse.api.exception.HttpRetryHandler;
 import org.jannsen.mcreverse.api.exception.IOResponseHandler;
 import org.jannsen.mcreverse.api.request.Request;
 
@@ -59,7 +58,7 @@ public class HttpBuilder {
         HttpRequest request = createRequest(mcdRequest, httpMethod, proxy);
         request.setHeaders(createHeaders());
         request.setReadTimeout(mcdRequest.getReadTimeout());
-        request.setNumberOfRetries(3);
+        request.setNumberOfRetries(1);
         request.setSuppressUserAgentSuffix(true);
         request.setThrowExceptionOnExecuteError(false);
         request.setUnsuccessfulResponseHandler(unsuccessfulResponseHandler);

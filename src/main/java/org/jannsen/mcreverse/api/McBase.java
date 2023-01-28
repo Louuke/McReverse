@@ -11,16 +11,12 @@ import org.jannsen.mcreverse.api.request.builder.HttpBuilder;
 import org.jannsen.mcreverse.api.entity.auth.BasicBearerAuthorization;
 import org.jannsen.mcreverse.api.entity.auth.BearerAuthorization;
 import org.jannsen.mcreverse.api.request.BasicBearerRequest;
-import org.jannsen.mcreverse.api.request.RefreshRequest;
 import org.jannsen.mcreverse.api.request.Request;
 import org.jannsen.mcreverse.api.request.builder.TokenProvider;
 import org.jannsen.mcreverse.api.response.BasicBearerResponse;
-import org.jannsen.mcreverse.api.response.LoginResponse;
 import org.jannsen.mcreverse.api.response.adapter.CodeAdapter;
 import org.jannsen.mcreverse.api.response.Response;
 import org.jannsen.mcreverse.api.response.adapter.OfferAdapter;
-import org.jannsen.mcreverse.utils.UserInfo;
-import org.jannsen.mcreverse.constants.Action;
 import org.jannsen.mcreverse.utils.listener.ClientActionNotifier;
 import org.jannsen.mcreverse.utils.listener.ClientActionListener;
 import org.jannsen.mcreverse.network.RequestScheduler;
@@ -29,6 +25,7 @@ import org.springframework.data.annotation.Transient;
 
 import java.net.Proxy;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class McBase {
@@ -42,13 +39,14 @@ public class McBase {
     @Transient
     private final transient ClientActionNotifier clientAction = new ClientActionNotifier();
     @Transient
-    private final transient AuthProvider authProvider = new AuthProvider(this::requestBasicBearer, this::getAuthorization);
+    private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction::notifyListener);
     @Transient
-    private final transient ExceptionHandler exceptionHandler = new ExceptionHandler(clientAction, this::refreshAuthorization);
+    private final transient AuthProvider authProvider = new AuthProvider(this::requestBasicBearer, this::getAuthorization);
     @Transient
     private final transient TokenProvider tokenProvider = new TokenProvider();
     @Transient
     private transient Proxy proxy;
+
 
     <T extends Response> T query(Request request, Class<T> responseType, String httpMethod) {
         HttpRequest httpRequest = configureBuilder(request, httpMethod).build();
@@ -56,17 +54,10 @@ public class McBase {
     }
 
     private <T extends Response> T execute(HttpRequest request, Class<T> responseType) {
-        try {
-            HttpResponse httpResponse = requestScheduler.enqueue(request::execute);
-            String content = httpResponse.parseAsString();
-            if(!content.isEmpty()) {
-                exceptionHandler.searchForError(content);
-                return gson.fromJson(content, responseType);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return exceptionHandler.createFallbackResponse(responseType);
+        Optional<String> responseContent = requestScheduler.enqueue(request::execute);
+        return responseContent.filter(exceptionHandler::validJsonResponse)
+                .map(content -> gson.fromJson(content, responseType))
+                .orElse(exceptionHandler.createFallbackResponse(responseType));
     }
 
     private HttpBuilder configureBuilder(Request request, String httpMethod) {
@@ -75,16 +66,8 @@ public class McBase {
                 .setHttpMethod(httpMethod)
                 .setProxy(proxy)
                 .setAuthorization(authProvider.getAppropriateAuth(request))
-                .setUnsuccessfulResponseHandler(new HttpRetryHandler(exceptionHandler))
+                .setUnsuccessfulResponseHandler(new HttpRetryHandler(this::getAuthorization, exceptionHandler::searchResponseError))
                 .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(email) : null);
-    }
-
-    public BearerAuthorization refreshAuthorization() {
-        BearerAuthorization auth = query(new RefreshRequest(authorization.getRefreshToken()),
-                LoginResponse.class, HttpMethods.POST).getResponse();
-        setAuthorization(auth);
-        clientAction.notifyAuthorizationChanged(authorization);
-        return auth;
     }
 
     private BasicBearerAuthorization requestBasicBearer() {
@@ -99,12 +82,13 @@ public class McBase {
         return email;
     }
 
-    public BearerAuthorization getAuthorization() {
-        return authorization;
-    }
-
     public void setAuthorization(BearerAuthorization authorization) {
         this.authorization = authorization;
+        clientAction.notifyAuthorizationChanged(authorization);
+    }
+
+    public BearerAuthorization getAuthorization() {
+        return authorization;
     }
 
     public void setProxy(Proxy proxy) {
