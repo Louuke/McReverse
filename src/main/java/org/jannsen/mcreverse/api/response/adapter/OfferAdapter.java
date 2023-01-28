@@ -20,16 +20,16 @@ public class OfferAdapter extends AbstractAdapterFactory {
     @Override
     public void modifyPojo(Object pojo) {
         Offer offer = (Offer) pojo;
-        setField("shortName", getName(offer));
-        setField("price", getPrice(offer));
-        setField("priceCents", pricePattern.matcher(offer.getPrice()).results()
+        setField(offer, "shortName", getName(offer));
+        setField(offer, "price", getPrice(offer));
+        setField(offer, "priceCents", pricePattern.matcher(offer.getPrice()).results()
                 .map(result -> result.group().replace(",", ""))
                 .map(Integer::parseInt).findAny().orElse(0));
-        setField("validFromUnix", timeToUnix(offer.getLocalValidFrom(), McClientSettings.ZONE_ID));
-        setField("validToUnix", timeToUnix(offer.getLocalValidTo(), McClientSettings.ZONE_ID));
-        setField("availableHourFrom", clockPattern.matcher(offer.getPrice()).results()
+        setField(offer, "validFromUnix", timeToUnix(offer.getLocalValidFrom(), McClientSettings.ZONE_ID));
+        setField(offer, "validToUnix", timeToUnix(offer.getLocalValidTo(), McClientSettings.ZONE_ID));
+        setField(offer, "availableHourFrom", clockPattern.matcher(offer.getPrice()).results()
                 .map(result -> Integer.parseInt(result.group().split("-")[0])).findAny().orElse(0));
-        setField("availableHourTo", clockPattern.matcher(offer.getPrice()).results()
+        setField(offer, "availableHourTo", clockPattern.matcher(offer.getPrice()).results()
                 .map(result -> Integer.parseInt(result.group().split("-")[1])).findAny().orElse(24));
     }
 

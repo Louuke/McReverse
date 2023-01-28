@@ -51,11 +51,11 @@ public abstract class AbstractAdapterFactory implements TypeAdapterFactory {
         return false;
     }
 
-    public void setField(String name, Object value) {
+    public void setField(Object object, String fieldName, Object value) {
         try {
-            Field field = getClass().getDeclaredField(name);
+            Field field = object.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
-            field.set(this, value);
+            field.set(object, value);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

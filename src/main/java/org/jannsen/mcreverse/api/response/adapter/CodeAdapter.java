@@ -16,6 +16,6 @@ public class CodeAdapter extends AbstractAdapterFactory {
     @Override
     public void modifyPojo(Object pojo) {
         Code code = (Code) pojo;
-        setField("expirationTimeUnix", timeToUnix(code.getExpirationTimeUTC(), ZoneId.of("UTC")));
+        setField(code, "expirationTimeUnix", timeToUnix(code.getExpirationTimeUTC(), ZoneId.of("UTC")));
     }
 }
