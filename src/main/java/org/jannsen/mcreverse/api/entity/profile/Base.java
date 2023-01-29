@@ -1,6 +1,5 @@
 package org.jannsen.mcreverse.api.entity.profile;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class Base {
