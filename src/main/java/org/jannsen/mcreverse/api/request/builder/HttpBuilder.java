@@ -4,6 +4,7 @@ import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import org.jannsen.mcreverse.api.entity.auth.Authorization;
 import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
+import org.jannsen.mcreverse.api.entity.newrelic.TraceContext;
 import org.jannsen.mcreverse.api.exception.IOResponseHandler;
 import org.jannsen.mcreverse.api.request.Request;
 
@@ -80,18 +81,21 @@ public class HttpBuilder {
     }
 
     private HttpHeaders createHeaders() {
+        TraceContext traceContext = new TraceContext();
         HttpHeaders headers = new HttpHeaders();
+        if(token != null) headers.set("x-acf-sensor-data", token.getToken());
         headers.set("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
+        headers.set("authorization", authorization.getAccessToken(true));
+        headers.set("cache-control", "true");
         headers.set("accept-charset", "UTF-8");
         headers.set("user-agent", "MCDSDK/27.0.18 (Android; 30; de-DE) GMA/7.11");
-        headers.set("content-type", mcdRequest.getContent() != null ? mcdRequest.getContent().getType() : "application/json; charset=UTF-8");
+        headers.set("content-type", (mcdRequest.getContent() != null ? mcdRequest.getContent().getType() : "application/json") + "; charset=UTF-8");
         headers.set("accept-language", "de-DE");
         headers.set("mcd-sourceapp", "GMA");
         headers.set("mcd-uuid", UUID.randomUUID());
         headers.set("mcd-marketid", "DE");
+        traceContext.getHeader().forEach(header -> headers.set(header.getHeaderName(), header.getHeaderValue()));
         headers.set("accept-encoding", "gzip");
-        headers.set("authorization", authorization.getAccessToken(true));
-        if(token != null) headers.set("x-acf-sensor-data", token.getToken());
         return headers;
     }
 }
