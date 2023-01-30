@@ -74,6 +74,6 @@ public class RegisterOptions {
     }
 
     private String getRandomLastname() {
-        return String.valueOf(getRandomName().charAt(0));
+        return rand.nextInt(2) == 0 ? getRandomName() : String.valueOf(getRandomName().charAt(0));
     }
 }
