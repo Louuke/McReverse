@@ -8,6 +8,7 @@ public class TraceContext {
     private final TraceParent traceParent = new TraceParent(this);
     private final TraceState traceState = new TraceState(this);
     private final TracePayload tracePayload = new TracePayload(this);
+    private final TraceNewRelicID traceNewRelicID = new TraceNewRelicID();
 
     public String getAccountId() {
         return "734056";
@@ -26,7 +27,7 @@ public class TraceContext {
     }
 
     public List<TraceHeader> getHeader() {
-        return Arrays.asList(traceParent, traceState, tracePayload);
+        return Arrays.asList(traceParent, traceState, tracePayload, traceNewRelicID);
     }
 
     public TraceParent getTraceParent() {
@@ -35,9 +36,5 @@ public class TraceContext {
 
     public TraceState getTraceState() {
         return traceState;
-    }
-
-    public TracePayload getTracePayload() {
-        return tracePayload;
     }
 }
