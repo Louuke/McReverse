@@ -1,5 +1,7 @@
 package org.jannsen.mcreverse.api.entity.register;
 
+import org.jannsen.mcreverse.api.entity.newrelic.DistributedTracing;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
@@ -65,8 +67,8 @@ public class RegisterOptions {
     }
 
     private String createDeviceId() {
-        return rand.ints(48, 123).filter(i -> !(i >= 58 && i <= 96)).limit(16)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
+        // Secure.getString(getApplicationContext().getContentResolver(), "android_id");
+        return DistributedTracing.generateRandomBytes(16);
     }
 
     private String getRandomName() {
