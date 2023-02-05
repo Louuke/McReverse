@@ -54,8 +54,8 @@ public class McBase {
     }
 
     private <T extends Response> T execute(HttpRequest request, Class<T> responseType) {
-        Optional<String> responseContent = requestScheduler.enqueue(request::execute);
-        return responseContent.filter(exceptionHandler::validJsonResponse)
+        return requestScheduler.enqueue(request::execute)
+                .filter(exceptionHandler::validJsonResponse)
                 .map(content -> gson.fromJson(content, responseType))
                 .orElse(exceptionHandler.createFallbackResponse(responseType));
     }
