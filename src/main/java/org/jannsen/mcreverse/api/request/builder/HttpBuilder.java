@@ -59,6 +59,7 @@ public class HttpBuilder {
         HttpRequest request = createRequest(mcdRequest, httpMethod, proxy);
         request.setHeaders(createHeaders());
         request.setReadTimeout(mcdRequest.getReadTimeout());
+        request.setConnectTimeout(10000);
         request.setNumberOfRetries(1);
         request.setSuppressUserAgentSuffix(true);
         request.setThrowExceptionOnExecuteError(false);
