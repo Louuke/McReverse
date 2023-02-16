@@ -3,12 +3,15 @@ package org.jannsen.mcreverse.api.entity.offer;
 import com.google.gson.annotations.SerializedName;
 import org.jannsen.mcreverse.api.McClientSettings;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 
 import java.time.LocalTime;
 import java.util.regex.Pattern;
 
 public class Offer {
 
+    @SerializedName("offerPropositionId")
+    @Id private int offerPropositionId;
     @SerializedName("conditions") private Conditions conditions;
     @SerializedName("punchInfo") private PunchInfo punchInfo;
     @SerializedName("recurringInfo") private RecurringInfo recurringInfo;
@@ -29,12 +32,10 @@ public class Offer {
     @SerializedName("CreationDatedfdUtc") private String creationDateUTC;
     @SerializedName("name") private String fullName;
     @SerializedName("colorCodingInfo") private int colorCodingInfo;
-    @SerializedName("offerPropositionId")
-    @Id
-    private int offerPropositionId;
     @SerializedName("offerType") private int offerType;
     @SerializedName("redemptionMode") private int redemptionMode;
     @SerializedName("offerId") private long offerId;
+    @Transient private transient boolean available;
     private long validFromUnix, validToUnix;
     private String shortName;
     private String price;

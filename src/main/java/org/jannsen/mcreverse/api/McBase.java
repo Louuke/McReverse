@@ -25,7 +25,6 @@ import org.springframework.data.annotation.Transient;
 
 import java.net.Proxy;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class McBase {
