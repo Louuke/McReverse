@@ -2,10 +2,13 @@ package org.jannsen.mcreverse;
 
 import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
 
-public class SensorFetcher {
+import java.util.function.Supplier;
 
-    public static SensorToken queryToken() {
+public class SensorFetcher implements Supplier<SensorToken> {
+
+    @Override
+    public SensorToken get() {
         // QUERY TOKEN
-        return null;
+        return new SensorToken();
     }
 }
