@@ -35,7 +35,6 @@ public class Offer {
     @SerializedName("offerType") private int offerType;
     @SerializedName("redemptionMode") private int redemptionMode;
     @SerializedName("offerId") private long offerId;
-    @Transient private transient boolean available;
     private long validFromUnix, validToUnix;
     private String shortName;
     private String price;
@@ -113,7 +112,7 @@ public class Offer {
         return availableHourTo;
     }
 
-    public boolean isAvailable() {
+    public boolean available() {
         return getAvailableHourFrom() <= LocalTime.now(McClientSettings.ZONE_ID).getHour()
                 && LocalTime.now(McClientSettings.ZONE_ID).getHour() < getAvailableHourTo();
     }
