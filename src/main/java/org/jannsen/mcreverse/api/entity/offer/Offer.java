@@ -112,7 +112,7 @@ public class Offer {
         return availableHourTo;
     }
 
-    public boolean available() {
+    public boolean nowAvailable() {
         return getAvailableHourFrom() <= LocalTime.now(McClientSettings.ZONE_ID).getHour()
                 && LocalTime.now(McClientSettings.ZONE_ID).getHour() < getAvailableHourTo();
     }

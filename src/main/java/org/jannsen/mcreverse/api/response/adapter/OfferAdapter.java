@@ -10,7 +10,7 @@ import static org.jannsen.mcreverse.utils.Utils.timeToUnix;
 
 public class OfferAdapter extends AbstractAdapterFactory {
 
-    private static final Pattern pricePattern = Pattern.compile("\\d+,\\d\\d");
+    private static final Pattern pricePattern = Pattern.compile("\\d+[,|.]\\d\\d");
     private static final Pattern clockPattern = Pattern.compile("\\d\\d-\\d\\d");
 
     public OfferAdapter() {
