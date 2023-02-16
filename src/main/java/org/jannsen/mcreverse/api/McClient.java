@@ -19,10 +19,9 @@ public class McClient extends McBase implements ClientActionListener {
     public LoginResponse login(@Nonnull String email, @Nonnull String password, @Nonnull String deviceId) {
         setEmail(email);
         LoginResponse login = query(new LoginRequest(email, password, deviceId), LoginResponse.class, HttpMethods.POST);
-        if(!login.success()) {
-            return login;
+        if(login.success()) {
+            setAuthorization(login.getResponse());
         }
-        setAuthorization(login.getResponse());
         return login;
     }
 
