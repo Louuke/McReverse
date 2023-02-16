@@ -23,7 +23,7 @@ public class OfferAdapter extends AbstractAdapterFactory {
         setField(offer, "shortName", getName(offer));
         setField(offer, "price", getPrice(offer));
         setField(offer, "priceCents", pricePattern.matcher(offer.getPrice()).results()
-                .map(result -> result.group().replace(",", ""))
+                .map(result -> result.group().replaceAll("[,|.]", ""))
                 .map(Integer::parseInt).findAny().orElse(0));
         setField(offer, "validFromUnix", timeToUnix(offer.getLocalValidFrom(), McClientSettings.ZONE_ID));
         setField(offer, "validToUnix", timeToUnix(offer.getLocalValidTo(), McClientSettings.ZONE_ID));
