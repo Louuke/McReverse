@@ -54,7 +54,7 @@ public class McBase {
                 .orElseGet(exceptionHandler::createFallbackResponse);
     }
 
-    <T extends Response> T query(Request request, Class<T> responseType, String httpMethod) {
+    <T extends Response> T query(Request request, String httpMethod, Class<T> responseType) {
         return requestScheduler.enqueueString(buildRequest(request, httpMethod)::execute)
                 .filter(exceptionHandler::validJsonResponse)
                 .map(content -> gson.fromJson(content, responseType))
@@ -73,7 +73,7 @@ public class McBase {
     }
 
     private BasicBearerAuthorization requestBasicBearer() {
-        return query(new BasicBearerRequest(), BasicBearerResponse.class, HttpMethods.POST).getResponse();
+        return query(new BasicBearerRequest(), HttpMethods.POST, BasicBearerResponse.class).getResponse();
     }
 
     void setEmail(String email) {
