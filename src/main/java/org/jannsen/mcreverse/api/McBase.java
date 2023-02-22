@@ -24,7 +24,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.net.Proxy;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -48,8 +47,8 @@ public class McBase {
     @Transient
     private transient Proxy proxy;
 
-    byte[] query(Request request, String httpMethod) {
-        return requestScheduler.enqueueStream(buildRequest(request, httpMethod)::execute)
+    byte[] query(Request request) {
+        return requestScheduler.enqueueStream(buildRequest(request, HttpMethods.GET)::execute)
                 .map(ByteArrayOutputStream::toByteArray)
                 .orElseGet(exceptionHandler::createFallbackResponse);
     }

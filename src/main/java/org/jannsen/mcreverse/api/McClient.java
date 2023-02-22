@@ -9,7 +9,6 @@ import org.jannsen.mcreverse.utils.listener.ClientActionListener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.InputStream;
 
 public class McClient extends McBase implements ClientActionListener {
 
@@ -114,7 +113,7 @@ public class McClient extends McBase implements ClientActionListener {
     }
 
     public byte[] getOfferImage(String imageBaseName) {
-        return query(new OfferImageRequest(imageBaseName), HttpMethods.GET);
+        return query(new OfferImageRequest(imageBaseName));
     }
 
     @Override
