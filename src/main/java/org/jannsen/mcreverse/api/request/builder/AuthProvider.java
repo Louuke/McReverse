@@ -24,6 +24,7 @@ public class AuthProvider {
             case Basic -> new BasicAuthorization();
             case BasicBearer -> basicBearerSupplier.get();
             case Bearer -> bearerSupplier.get();
+            case Non -> null;
         };
     }
 }

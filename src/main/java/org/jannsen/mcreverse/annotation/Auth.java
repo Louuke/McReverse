@@ -12,7 +12,8 @@ public @interface Auth {
     enum Type {
         Basic("Basic"),
         BasicBearer("Bearer"),
-        Bearer("Bearer");
+        Bearer("Bearer"),
+        Non("");
 
         private final String prefix;
 

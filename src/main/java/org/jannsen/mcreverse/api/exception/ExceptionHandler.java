@@ -34,6 +34,10 @@ public class ExceptionHandler {
         return response.getStatus().getErrors().stream().map(Status.Error::getErrorCode).findAny().orElse(0);
     }
 
+    public byte[] createFallbackResponse() {
+        return new byte[0];
+    }
+
     public <T extends Response> T createFallbackResponse(Class<T> clazz) {
         return createFallbackResponse(clazz, null);
     }

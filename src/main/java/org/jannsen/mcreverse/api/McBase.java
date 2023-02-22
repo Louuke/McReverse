@@ -23,6 +23,8 @@ import org.jannsen.mcreverse.network.RequestScheduler;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.Proxy;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -46,27 +48,28 @@ public class McBase {
     @Transient
     private transient Proxy proxy;
 
-
-    <T extends Response> T query(Request request, Class<T> responseType, String httpMethod) {
-        HttpRequest httpRequest = configureBuilder(request, httpMethod).build();
-        return execute(httpRequest, responseType);
+    byte[] query(Request request, String httpMethod) {
+        return requestScheduler.enqueueStream(buildRequest(request, httpMethod)::execute)
+                .map(ByteArrayOutputStream::toByteArray)
+                .orElseGet(exceptionHandler::createFallbackResponse);
     }
 
-    private <T extends Response> T execute(HttpRequest request, Class<T> responseType) {
-        return requestScheduler.enqueue(request::execute)
+    <T extends Response> T query(Request request, Class<T> responseType, String httpMethod) {
+        return requestScheduler.enqueueString(buildRequest(request, httpMethod)::execute)
                 .filter(exceptionHandler::validJsonResponse)
                 .map(content -> gson.fromJson(content, responseType))
                 .orElse(exceptionHandler.createFallbackResponse(responseType));
     }
 
-    private HttpBuilder configureBuilder(Request request, String httpMethod) {
+    private HttpRequest buildRequest(Request request, String httpMethod) {
         return new HttpBuilder()
                 .setMcDRequest(request)
                 .setHttpMethod(httpMethod)
                 .setProxy(proxy)
                 .setAuthorization(authProvider.getAppropriateAuth(request))
                 .setUnsuccessfulResponseHandler(new HttpRetryHandler(this::getAuthorization, exceptionHandler::searchResponseError))
-                .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(email) : null);
+                .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(email) : null)
+                .build();
     }
 
     private BasicBearerAuthorization requestBasicBearer() {
