@@ -11,6 +11,7 @@ public class BasicBearerResponse extends Response {
         super(status);
     }
 
+    @Override
     public BasicBearerAuthorization getResponse() {
         return response != null ? response : new BasicBearerAuthorization();
     }

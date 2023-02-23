@@ -5,9 +5,9 @@ import com.google.common.io.ByteStreams;
 import org.jannsen.mcreverse.utils.Utils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.*;
 
@@ -26,30 +26,35 @@ public class RequestScheduler {
         return instance;
     }
 
-    public Optional<String> enqueueString(Callable<HttpResponse> request) {
-        return enqueueStream(request).map(stream -> stream.toString(StandardCharsets.UTF_8));
+    public Optional<String> enqueueGetAsBase64(Callable<HttpResponse> request) {
+        return enqueue(request).map(ByteArrayOutputStream::toByteArray)
+                .map(bytes -> Base64.getEncoder().encodeToString(bytes));
     }
 
-    public Optional<ByteArrayOutputStream> enqueueStream(Callable<HttpResponse> request) {
-        try {
-            while (queue.contains(request)) {
-                Utils.waitMill(200);
-            }
-            return Optional.ofNullable(request.call().getContent()).map(this::parseAsByteArray);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public Optional<String> enqueueGetString(Callable<HttpResponse> request) {
+        return enqueue(request).map(stream -> stream.toString(StandardCharsets.UTF_8));
+    }
+
+    private Optional<ByteArrayOutputStream> enqueue(Callable<HttpResponse> request) {
+        while (queue.contains(request)) {
+            Utils.waitMill(200);
         }
-        return Optional.empty();
+        return unchecked(() -> request.call().getContent()).map(this::parseAsByteArray);
     }
 
     private ByteArrayOutputStream parseAsByteArray(InputStream stream) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
+        unchecked(() -> ByteStreams.copy(stream, out));
+        return out;
+    }
+
+    private <V> Optional<V> unchecked(Callable<V> callable) {
         try {
-            ByteStreams.copy(stream, out);
-        } catch (IOException e) {
+            return Optional.ofNullable(callable.call());
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return out;
+        return Optional.empty();
     }
 
     public void setRequestsPerSecond(double rps) {

@@ -112,8 +112,8 @@ public class McClient extends McBase implements ClientActionListener {
         return query(new NotificationRequest(), HttpMethods.POST, Response.class);
     }
 
-    public byte[] getOfferImage(String imageBaseName) {
-        return query(new OfferImageRequest(imageBaseName));
+    public OfferImageResponse getOfferImage(String imageBaseName) {
+        return query(new OfferImageRequest(imageBaseName), HttpMethods.GET, OfferImageResponse.class);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
 import org.jannsen.mcreverse.api.exception.ExceptionHandler;
 import org.jannsen.mcreverse.api.exception.HttpRetryHandler;
+import org.jannsen.mcreverse.api.request.StreamRequest;
 import org.jannsen.mcreverse.api.request.builder.AuthProvider;
 import org.jannsen.mcreverse.api.request.builder.HttpBuilder;
 import org.jannsen.mcreverse.api.entity.auth.BasicBearerAuthorization;
@@ -14,6 +15,7 @@ import org.jannsen.mcreverse.api.request.BasicBearerRequest;
 import org.jannsen.mcreverse.api.request.Request;
 import org.jannsen.mcreverse.api.request.builder.TokenProvider;
 import org.jannsen.mcreverse.api.response.BasicBearerResponse;
+import org.jannsen.mcreverse.api.response.StreamResponse;
 import org.jannsen.mcreverse.api.response.adapter.CodeAdapter;
 import org.jannsen.mcreverse.api.response.Response;
 import org.jannsen.mcreverse.api.response.adapter.OfferAdapter;
@@ -23,14 +25,14 @@ import org.jannsen.mcreverse.network.RequestScheduler;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 
-import java.io.ByteArrayOutputStream;
 import java.net.Proxy;
 import java.util.Objects;
 import java.util.function.Supplier;
 
 public class McBase {
 
-    private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new OfferAdapter())
+    private static final Gson gson = new GsonBuilder().disableHtmlEscaping()
+            .registerTypeAdapterFactory(new OfferAdapter())
             .registerTypeAdapterFactory(new CodeAdapter()).create();
     private static final RequestScheduler requestScheduler = RequestScheduler.getInstance();
     @Id
@@ -47,14 +49,15 @@ public class McBase {
     @Transient
     private transient Proxy proxy;
 
-    byte[] query(Request request) {
-        return requestScheduler.enqueueStream(buildRequest(request, HttpMethods.GET)::execute)
-                .map(ByteArrayOutputStream::toByteArray)
-                .orElseGet(exceptionHandler::createFallbackResponse);
+    <T extends Response> T query(StreamRequest request, String httpMethod, Class<T> responseType) {
+        return requestScheduler.enqueueGetAsBase64(buildRequest(request, httpMethod)::execute)
+                .map(content -> gson.toJson(new StreamResponse(request.getUrl(), content)))
+                .map(content -> gson.fromJson(content, responseType))
+                .orElse(exceptionHandler.createFallbackResponse(responseType));
     }
 
     <T extends Response> T query(Request request, String httpMethod, Class<T> responseType) {
-        return requestScheduler.enqueueString(buildRequest(request, httpMethod)::execute)
+        return requestScheduler.enqueueGetString(buildRequest(request, httpMethod)::execute)
                 .filter(exceptionHandler::validJsonResponse)
                 .map(content -> gson.fromJson(content, responseType))
                 .orElse(exceptionHandler.createFallbackResponse(responseType));

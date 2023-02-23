@@ -15,6 +15,7 @@ public class OfferResponse extends Response {
         super(status);
     }
 
+    @Override
     public List<Offer> getResponse() {
         return response != null ? response.get("offers") : new ArrayList<>();
     }

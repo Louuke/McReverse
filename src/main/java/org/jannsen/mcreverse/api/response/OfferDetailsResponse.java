@@ -11,6 +11,7 @@ public class OfferDetailsResponse extends Response {
         super(status);
     }
 
+    @Override
     public OfferDetails getResponse() {
         return response;
     }
