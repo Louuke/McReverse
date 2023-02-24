@@ -1,6 +1,7 @@
 package org.jannsen.mcreverse.network;
 
 import com.google.api.client.http.HttpResponse;
+import com.google.api.client.util.IOUtils;
 import com.google.common.io.ByteStreams;
 import org.jannsen.mcreverse.utils.Utils;
 
@@ -44,7 +45,11 @@ public class RequestScheduler {
 
     private ByteArrayOutputStream parseAsByteArray(InputStream stream) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        unchecked(() -> ByteStreams.copy(stream, out));
+        unchecked(() -> {
+            ByteStreams.copy(stream, out);
+            stream.close();
+            return true;
+        });
         return out;
     }
 
