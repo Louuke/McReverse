@@ -2,6 +2,7 @@ package org.jannsen.mcreverse.api;
 
 import com.google.api.client.http.HttpMethods;
 import org.jannsen.mcreverse.api.entity.login.Credentials;
+import org.jannsen.mcreverse.api.entity.offer.Offer;
 import org.jannsen.mcreverse.api.entity.register.RegisterOptions;
 import org.jannsen.mcreverse.api.request.*;
 import org.jannsen.mcreverse.api.response.*;
@@ -110,6 +111,10 @@ public class McClient extends McBase implements ClientActionListener {
 
     public Response setNotification() {
         return query(new NotificationRequest(), HttpMethods.POST, Response.class);
+    }
+
+    public OfferImageResponse getOfferImage(Offer offer) {
+        return getOfferImage(offer.getImageBaseName());
     }
 
     public OfferImageResponse getOfferImage(String imageBaseName) {
