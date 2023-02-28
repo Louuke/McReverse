@@ -18,6 +18,11 @@ public class StreamData {
         this.data = data;
     }
 
+    public StreamData(String name, String data, long createdTime) {
+        this(name, data);
+        this.createdTime = createdTime;
+    }
+
     public String getName() {
         return name;
     }
