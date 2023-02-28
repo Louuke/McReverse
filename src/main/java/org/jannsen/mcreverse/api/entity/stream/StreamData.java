@@ -7,16 +7,16 @@ import java.time.Instant;
 public class StreamData {
 
     @Id
-    private final String name;
-    private final String data;
-    private long createdTime = Instant.now().getEpochSecond();
+    private String name;
+    private String data;
+    private final long createdTime;
 
-    public StreamData(String name, String data, long createdTime) {
-        this(name, data);
-        this.createdTime = createdTime;
+    public StreamData() {
+        this.createdTime = Instant.now().getEpochSecond();
     }
 
     public StreamData(String name, String data) {
+        this();
         this.name = name;
         this.data = data;
     }
