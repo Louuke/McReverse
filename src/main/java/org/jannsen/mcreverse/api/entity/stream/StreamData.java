@@ -9,16 +9,17 @@ public class StreamData {
     @Id
     private String name;
     private String data;
-    private final long createdTime;
+    private long createdTime = Instant.now().getEpochSecond();
 
-    public StreamData() {
-        this.createdTime = Instant.now().getEpochSecond();
-    }
+    public StreamData() {}
 
     public StreamData(String name, String data) {
-        this();
         this.name = name;
         this.data = data;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getData() {
