@@ -1,4 +1,4 @@
-package org.jannsen.mcreverse.api.entity.steam;
+package org.jannsen.mcreverse.api.entity.stream;
 
 public class OfferImage extends StreamData {
 

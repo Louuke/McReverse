@@ -1,6 +1,6 @@
 package org.jannsen.mcreverse.api.response;
 
-import org.jannsen.mcreverse.api.entity.steam.StreamData;
+import org.jannsen.mcreverse.api.entity.stream.StreamData;
 import org.jannsen.mcreverse.api.response.status.Status;
 
 public class StreamResponse extends Response {

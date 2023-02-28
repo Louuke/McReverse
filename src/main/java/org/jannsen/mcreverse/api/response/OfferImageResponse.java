@@ -1,6 +1,6 @@
 package org.jannsen.mcreverse.api.response;
 
-import org.jannsen.mcreverse.api.entity.steam.OfferImage;
+import org.jannsen.mcreverse.api.entity.stream.OfferImage;
 import org.jannsen.mcreverse.api.response.status.Status;
 
 public class OfferImageResponse extends Response {
