@@ -117,6 +117,16 @@ public class McClient extends McBase implements ClientActionListener {
         return query(new OfferImageRequest(offer.getImageUrl()), HttpMethods.GET, OfferImageResponse.class);
     }
 
+    public CampaignResponse getCampaignStatus(String userId) {
+        Request request = new CampaignStatusRequest("plant23", "plantRedemptions", getAuthorization().getAccessToken(), userId, getEmail());
+        return query(request, HttpMethods.POST, CampaignResponse.class);
+    }
+
+    public CampaignResponse joinCampaign(String userId) {
+        Request request = new CampaignParticipateRequest("plant23", "plantRedemptions", getAuthorization().getAccessToken(), userId, getEmail());
+        return query(request, HttpMethods.PUT, CampaignResponse.class);
+    }
+
     @Override
     public void authRefreshRequired() {
         LoginResponse response = query(new RefreshRequest(getAuthorization().getRefreshToken()), HttpMethods.POST, LoginResponse.class);
