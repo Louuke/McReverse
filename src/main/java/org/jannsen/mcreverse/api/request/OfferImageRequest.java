@@ -2,14 +2,14 @@ package org.jannsen.mcreverse.api.request;
 
 public class OfferImageRequest extends StreamRequest {
 
-    private final String imageBaseName;
+    private final String imageUrl;
 
-    public OfferImageRequest(String imageBaseName) {
-        this.imageBaseName = imageBaseName;
+    public OfferImageRequest(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     @Override
     public String getUrl() {
-        return "https://de-prod-us-cds-oceofferimages.s3.amazonaws.com/oce3-de-prod/offers/" + imageBaseName;
+        return imageUrl;
     }
 }
