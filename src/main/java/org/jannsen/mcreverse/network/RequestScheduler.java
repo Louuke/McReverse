@@ -1,12 +1,13 @@
 package org.jannsen.mcreverse.network;
 
 import com.google.api.client.http.HttpResponse;
-import com.google.api.client.util.IOUtils;
 import com.google.common.io.ByteStreams;
 import org.jannsen.mcreverse.utils.Utils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
@@ -45,12 +46,14 @@ public class RequestScheduler {
 
     private ByteArrayOutputStream parseAsByteArray(InputStream stream) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        unchecked(() -> {
-            ByteStreams.copy(stream, out);
-            stream.close();
-            return true;
-        });
+        unchecked(() -> copyStream(stream, out));
         return out;
+    }
+
+    private long copyStream(InputStream in, OutputStream out) throws IOException {
+        long bytes = ByteStreams.copy(in, out);
+        in.close();
+        return bytes;
     }
 
     private <V> Optional<V> unchecked(Callable<V> callable) {
