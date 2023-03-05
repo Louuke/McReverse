@@ -30,7 +30,9 @@ public class TokenProvider {
     private void addToken(String email) {
         if(tokenCache.get(email).isEmpty()) {
             SensorToken token = tokenSupplier != null ? tokenSupplier.get() : new SensorToken();
-            Stream.generate(() -> token).limit(10).filter(Objects::nonNull).forEach(t -> tokenCache.get(email).add(t));
+            for(int i = 0; i < (token.getToken() != null ? 3 : 1); i++) {
+                tokenCache.get(email).add(token);
+            }
         }
     }
 
