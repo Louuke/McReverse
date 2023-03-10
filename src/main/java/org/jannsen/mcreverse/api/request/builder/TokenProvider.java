@@ -30,7 +30,7 @@ public class TokenProvider {
     private void addToken(String email) {
         if(tokenCache.get(email).isEmpty()) {
             SensorToken token = tokenSupplier != null ? tokenSupplier.get() : new SensorToken();
-            for(int i = 0; i < (token.getToken() != null ? 3 : 1); i++) {
+            for(int i = 0; i < (token.getToken() != null ? 20 : 1); i++) {
                 tokenCache.get(email).add(token);
             }
         }
