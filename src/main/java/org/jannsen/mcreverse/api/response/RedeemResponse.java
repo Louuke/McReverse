@@ -11,6 +11,7 @@ public class RedeemResponse extends Response {
         super(status);
     }
 
+    @Override
     public Code getResponse() {
         return response;
     }

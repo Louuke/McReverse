@@ -11,6 +11,7 @@ public class LoginResponse extends Response {
         super(status);
     }
 
+    @Override
     public BearerAuthorization getResponse() {
         return response != null ? response : new BearerAuthorization();
     }

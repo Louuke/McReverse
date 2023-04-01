@@ -1,16 +1,24 @@
 package org.jannsen.mcreverse.utils;
 
+import org.apache.http.entity.ContentType;
+import org.overviewproject.mime_types.GetBytesException;
+import org.overviewproject.mime_types.MimeTypeDetector;
+
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
 public class Utils {
+
+    private static final MimeTypeDetector detector = new MimeTypeDetector();
 
     public static void waitMill(long mill) {
         try {
@@ -41,5 +49,13 @@ public class Utils {
             throw new RuntimeException(e);
         }
         return names;
+    }
+
+    public static String detectMimeType(String base64) {
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(base64));
+            return detector.detectMimeType("", inputStream);
+        } catch (GetBytesException ignored) {}
+        return ContentType.APPLICATION_JSON.getMimeType();
     }
 }

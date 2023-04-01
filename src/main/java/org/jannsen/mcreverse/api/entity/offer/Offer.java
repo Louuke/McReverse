@@ -3,12 +3,15 @@ package org.jannsen.mcreverse.api.entity.offer;
 import com.google.gson.annotations.SerializedName;
 import org.jannsen.mcreverse.api.McClientSettings;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 
 import java.time.LocalTime;
 import java.util.regex.Pattern;
 
 public class Offer {
 
+    @SerializedName("offerPropositionId")
+    @Id private int offerPropositionId;
     @SerializedName("conditions") private Conditions conditions;
     @SerializedName("punchInfo") private PunchInfo punchInfo;
     @SerializedName("recurringInfo") private RecurringInfo recurringInfo;
@@ -29,15 +32,11 @@ public class Offer {
     @SerializedName("CreationDatedfdUtc") private String creationDateUTC;
     @SerializedName("name") private String fullName;
     @SerializedName("colorCodingInfo") private int colorCodingInfo;
-    @SerializedName("offerPropositionId")
-    @Id
-    private int offerPropositionId;
     @SerializedName("offerType") private int offerType;
     @SerializedName("redemptionMode") private int redemptionMode;
     @SerializedName("offerId") private long offerId;
     private long validFromUnix, validToUnix;
-    private String shortName;
-    private String price;
+    private String shortName, price, imageUrl;
     private int priceCents, availableHourFrom, availableHourTo;
 
     public Conditions getConditions() {
@@ -97,7 +96,7 @@ public class Offer {
     }
 
     public String getImageUrl() {
-        return "https://de-prod-us-cds-oceofferimages.s3.amazonaws.com/oce3-de-prod/offers/" + imageBaseName;
+        return imageUrl;
     }
 
     public Integer getPriceCents() {
@@ -112,7 +111,7 @@ public class Offer {
         return availableHourTo;
     }
 
-    public boolean isAvailable() {
+    public boolean nowAvailable() {
         return getAvailableHourFrom() <= LocalTime.now(McClientSettings.ZONE_ID).getHour()
                 && LocalTime.now(McClientSettings.ZONE_ID).getHour() < getAvailableHourTo();
     }
@@ -177,6 +176,10 @@ public class Offer {
 
     public long getValidToUnix() {
         return validToUnix;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     @Override

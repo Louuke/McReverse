@@ -14,6 +14,7 @@ public class ProfileResponse extends Response {
         super(status);
     }
 
+    @Override
     public CustomerInformation getResponse() {
         return response != null ? response.get("customerInformation") : new CustomerInformation();
     }

@@ -20,8 +20,8 @@ public class HttpBuilder {
 
     private Request mcdRequest;
     private String httpMethod = GET;
-    private SensorToken token;
     private Proxy proxy;
+    private SensorToken token;
     private HttpUnsuccessfulResponseHandler unsuccessfulResponseHandler;
     private Authorization authorization;
 
@@ -40,7 +40,7 @@ public class HttpBuilder {
         return this;
     }
 
-    public HttpBuilder setAuthorization(@Nonnull Authorization authorization) {
+    public HttpBuilder setAuthorization(@Nullable Authorization authorization) {
         this.authorization = authorization;
         return this;
     }
@@ -82,11 +82,10 @@ public class HttpBuilder {
     }
 
     private HttpHeaders createHeaders() {
-        TraceContext traceContext = new TraceContext();
         HttpHeaders headers = new HttpHeaders();
         if(token != null) headers.set("x-acf-sensor-data", token.getToken());
         headers.set("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
-        headers.set("authorization", authorization.getAccessToken(true));
+        if(authorization != null) headers.set("authorization", authorization.getAccessToken(true));
         headers.set("cache-control", "true");
         headers.set("accept-charset", "UTF-8");
         headers.set("user-agent", "MCDSDK/27.0.18 (Android; 30; de-DE) GMA/7.11");
@@ -95,8 +94,15 @@ public class HttpBuilder {
         headers.set("mcd-sourceapp", "GMA");
         headers.set("mcd-uuid", UUID.randomUUID());
         headers.set("mcd-marketid", "DE");
-        traceContext.getHeader().forEach(header -> headers.set(header.getHeaderName(), header.getHeaderValue()));
         headers.set("accept-encoding", "gzip");
+        headers.fromHttpHeaders(createTraceHeaders());
+        return headers;
+    }
+
+    private HttpHeaders createTraceHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        TraceContext traceContext = new TraceContext();
+        traceContext.getHeader().forEach(header -> headers.set(header.getHeaderName(), header.getHeaderValue()));
         return headers;
     }
 }

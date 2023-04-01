@@ -7,7 +7,6 @@ import org.jannsen.mcreverse.api.response.status.Status;
 import org.jannsen.mcreverse.constants.Action;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.InvocationTargetException;
 import java.util.function.Consumer;
 
 public class ExceptionHandler {
@@ -38,14 +37,22 @@ public class ExceptionHandler {
         return createFallbackResponse(clazz, null);
     }
 
-    private <T extends Response> T createFallbackResponse(Class<T> clazz, String responseContent) {
+    public <T extends Response> T createFallbackResponse(Class<T> clazz, String responseContent) {
         if(!validJsonResponse(responseContent)) {
             return createFallbackResponse(clazz);
         }
+        Response response = gson.fromJson(responseContent, Response.class);
+        return createInstance(clazz, (response != null ? response.getStatus() : new Status()));
+    }
+
+    private <T extends Response> T createInstance(Class<T> clazz, Object... args) {
+        Class<?>[] classes = new Class[args.length];
+        for(int i = 0; i < args.length; i++) {
+            classes[i] = args[i].getClass();
+        }
         try {
-            Response response = gson.fromJson(responseContent, Response.class);
-            return clazz.getConstructor(Status.class).newInstance(response != null ? response.getStatus() : new Status());
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            return clazz.getConstructor(classes).newInstance(args);
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }

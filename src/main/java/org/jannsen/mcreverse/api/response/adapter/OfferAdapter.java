@@ -3,14 +3,13 @@ package org.jannsen.mcreverse.api.response.adapter;
 import org.jannsen.mcreverse.api.entity.offer.Offer;
 import org.jannsen.mcreverse.api.McClientSettings;
 
-import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 
 import static org.jannsen.mcreverse.utils.Utils.timeToUnix;
 
 public class OfferAdapter extends AbstractAdapterFactory {
 
-    private static final Pattern pricePattern = Pattern.compile("\\d+,\\d\\d");
+    private static final Pattern pricePattern = Pattern.compile("\\d+[,|.]\\d\\d");
     private static final Pattern clockPattern = Pattern.compile("\\d\\d-\\d\\d");
 
     public OfferAdapter() {
@@ -23,7 +22,7 @@ public class OfferAdapter extends AbstractAdapterFactory {
         setField(offer, "shortName", getName(offer));
         setField(offer, "price", getPrice(offer));
         setField(offer, "priceCents", pricePattern.matcher(offer.getPrice()).results()
-                .map(result -> result.group().replace(",", ""))
+                .map(result -> result.group().replaceAll("[,|.]", ""))
                 .map(Integer::parseInt).findAny().orElse(0));
         setField(offer, "validFromUnix", timeToUnix(offer.getLocalValidFrom(), McClientSettings.ZONE_ID));
         setField(offer, "validToUnix", timeToUnix(offer.getLocalValidTo(), McClientSettings.ZONE_ID));
@@ -31,6 +30,7 @@ public class OfferAdapter extends AbstractAdapterFactory {
                 .map(result -> Integer.parseInt(result.group().split("-")[0])).findAny().orElse(0));
         setField(offer, "availableHourTo", clockPattern.matcher(offer.getPrice()).results()
                 .map(result -> Integer.parseInt(result.group().split("-")[1])).findAny().orElse(24));
+        offer.setImageUrl(createImageUrl(offer.getImageBaseName()));
     }
 
     private String getName(Offer offer) {
@@ -41,5 +41,9 @@ public class OfferAdapter extends AbstractAdapterFactory {
     private String getPrice(Offer offer) {
         String fullName = offer.getFullName();
         return fullName.contains("\n") ? fullName.split("\n")[1].strip() : "0";
+    }
+
+    private String createImageUrl(String filename) {
+        return "https://de-prod-us-cds-oceofferimages.s3.amazonaws.com/oce3-de-prod/offers/" + filename;
     }
 }

@@ -11,17 +11,20 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
 
     // https://mvnrepository.com/artifact/org.springframework.data/spring-data-commons
-    implementation 'org.springframework.data:spring-data-commons:3.0.0'
+    implementation 'org.springframework.data:spring-data-commons:3.0.1'
 
     // https://mvnrepository.com/artifact/com.google.http-client/google-http-client
     implementation 'com.google.http-client:google-http-client:1.42.3'
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation 'com.google.code.gson:gson:2.10'
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // https://mvnrepository.com/artifact/org.overviewproject/mime-types
+    implementation 'org.overviewproject:mime-types:1.0.4'
 }
 
 test {

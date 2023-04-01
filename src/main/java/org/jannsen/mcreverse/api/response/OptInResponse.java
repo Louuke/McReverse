@@ -12,6 +12,7 @@ public class OptInResponse extends Response {
         super(status);
     }
 
+    @Override
     public String getResponse() {
         return response != null && response.containsKey("message") ? response.get("message") : "";
     }

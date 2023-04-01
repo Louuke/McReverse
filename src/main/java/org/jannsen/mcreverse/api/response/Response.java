@@ -14,6 +14,10 @@ public class Response {
         return status != null ? status : new Status();
     }
 
+    public Object getResponse() {
+        return null;
+    }
+
     public boolean success() {
         return getStatus().getType().equals("Success");
     }
