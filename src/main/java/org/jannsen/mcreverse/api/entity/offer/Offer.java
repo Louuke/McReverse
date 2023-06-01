@@ -36,7 +36,7 @@ public class Offer {
     @SerializedName("redemptionMode") private int redemptionMode;
     @SerializedName("offerId") private long offerId;
     private long validFromUnix, validToUnix;
-    private String shortName, price, imageUrl;
+    private String shortName, friendlyName, price, imageUrl;
     private int priceCents, availableHourFrom, availableHourTo;
 
     public Conditions getConditions() {
@@ -81,6 +81,10 @@ public class Offer {
 
     public String getShortName() {
         return shortName;
+    }
+
+    public String getFriendlyName() {
+        return friendlyName;
     }
 
     public String getPrice() {
