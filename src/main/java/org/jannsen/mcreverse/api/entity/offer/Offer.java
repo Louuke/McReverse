@@ -96,7 +96,7 @@ public class Offer {
     }
 
     public String getImageUrl() {
-        return "https://de-prod-us-cds-oceofferimages.s3.amazonaws.com/oce3-de-prod/offers/" + imageBaseName;
+        return imageUrl;
     }
 
     public Integer getPriceCents() {

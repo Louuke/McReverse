@@ -21,6 +21,7 @@ public class OfferAdapter extends AbstractAdapterFactory {
     public void modifyPojo(Object pojo) {
         Offer offer = (Offer) pojo;
         setField(offer, "shortName", getName(offer));
+        setField(offer, "imageUrl", getImageUrl(offer));
         setField(offer, "price", getPrice(offer));
         setField(offer, "priceCents", pricePattern.matcher(offer.getPrice()).results()
                 .map(result -> result.group().replaceAll("[,|.]", ""))
@@ -41,5 +42,9 @@ public class OfferAdapter extends AbstractAdapterFactory {
     private String getPrice(Offer offer) {
         String fullName = offer.getFullName();
         return fullName.contains("\n") ? fullName.split("\n")[1].strip() : "0";
+    }
+
+    private String getImageUrl(Offer offer) {
+        return "https://de-prod-us-cds-oceofferimages.s3.amazonaws.com/oce3-de-prod/offers/" + offer.getImageBaseName();
     }
 }
