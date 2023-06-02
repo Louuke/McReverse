@@ -36,7 +36,7 @@ public class Offer {
     @SerializedName("redemptionMode") private int redemptionMode;
     @SerializedName("offerId") private long offerId;
     private long validFromUnix, validToUnix;
-    private String shortName, friendlyName, price, imageUrl;
+    private String shortName, price, imageUrl;
     private int priceCents, availableHourFrom, availableHourTo;
 
     public Conditions getConditions() {
@@ -83,10 +83,6 @@ public class Offer {
         return shortName;
     }
 
-    public String getFriendlyName() {
-        return friendlyName;
-    }
-
     public String getPrice() {
         return price;
     }
@@ -100,7 +96,7 @@ public class Offer {
     }
 
     public String getImageUrl() {
-        return imageUrl;
+        return "https://de-prod-us-cds-oceofferimages.s3.amazonaws.com/oce3-de-prod/offers/" + imageBaseName;
     }
 
     public Integer getPriceCents() {
@@ -180,10 +176,6 @@ public class Offer {
 
     public long getValidToUnix() {
         return validToUnix;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     @Override
