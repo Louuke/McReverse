@@ -9,7 +9,6 @@ public class StreamData {
     @Id
     private String name;
     private String data, type;
-    private long createdTime = Instant.now().getEpochSecond();
 
     public StreamData() {}
 
@@ -29,9 +28,5 @@ public class StreamData {
 
     public String getDataType() {
         return type;
-    }
-
-    public long getCreatedTime() {
-        return createdTime;
     }
 }
