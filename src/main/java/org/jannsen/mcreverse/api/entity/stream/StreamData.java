@@ -29,4 +29,8 @@ public class StreamData {
     public String getDataType() {
         return type;
     }
+
+    public void setData(String date) {
+        this.data = data;
+    }
 }
