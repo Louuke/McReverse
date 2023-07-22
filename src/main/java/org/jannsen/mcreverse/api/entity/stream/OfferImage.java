@@ -6,7 +6,7 @@ public class OfferImage extends StreamData {
         super();
     }
 
-    public OfferImage(String name, String data, String type) {
-        super(name, data, type);
+    public OfferImage(String name, String data, String type, long length) {
+        super(name, data, type, length);
     }
 }

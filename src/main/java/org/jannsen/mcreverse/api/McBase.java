@@ -15,7 +15,6 @@ import org.jannsen.mcreverse.api.request.BasicBearerRequest;
 import org.jannsen.mcreverse.api.request.Request;
 import org.jannsen.mcreverse.api.request.builder.TokenProvider;
 import org.jannsen.mcreverse.api.response.BasicBearerResponse;
-import org.jannsen.mcreverse.api.response.StreamResponse;
 import org.jannsen.mcreverse.api.response.adapter.CodeAdapter;
 import org.jannsen.mcreverse.api.response.Response;
 import org.jannsen.mcreverse.api.response.adapter.OfferAdapter;
@@ -50,14 +49,14 @@ public class McBase {
     private transient Proxy proxy;
 
     <T extends Response> T query(StreamRequest request, String httpMethod, Class<T> responseType) {
-        return requestScheduler.enqueueGetAsBase64(buildRequest(request, httpMethod)::execute)
-                .map(content -> gson.toJson(new StreamResponse(request.getUrl(), content)))
+        return requestScheduler.enqueueGetAsStream(buildRequest(request, httpMethod))
+                .map(gson::toJson)
                 .map(content -> gson.fromJson(content, responseType))
                 .orElse(exceptionHandler.createFallbackResponse(responseType));
     }
 
     <T extends Response> T query(Request request, String httpMethod, Class<T> responseType) {
-        return requestScheduler.enqueueGetString(buildRequest(request, httpMethod)::execute)
+        return requestScheduler.enqueueGetString(buildRequest(request, httpMethod))
                 .filter(exceptionHandler::validJsonResponse)
                 .map(content -> gson.fromJson(content, responseType))
                 .orElse(exceptionHandler.createFallbackResponse(responseType));

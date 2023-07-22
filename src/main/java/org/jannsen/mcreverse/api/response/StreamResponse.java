@@ -1,8 +1,9 @@
 package org.jannsen.mcreverse.api.response;
 
-import org.apache.http.entity.ContentType;
 import org.jannsen.mcreverse.api.entity.stream.StreamData;
 import org.jannsen.mcreverse.api.response.status.Status;
+
+import java.util.Base64;
 
 import static org.jannsen.mcreverse.utils.Utils.detectMimeType;
 
@@ -14,11 +15,11 @@ public class StreamResponse extends Response {
         super(status);
     }
 
-    public StreamResponse(String url, String data) {
+    public StreamResponse(String url, String data, long length) {
         super(new Status());
-        String[] dirs = url.split("/");
         String mimeType = detectMimeType(data);
-        this.response = new StreamData(dirs[dirs.length -1], data, mimeType);
+        String[] dirs = url.split("/");
+        this.response = new StreamData(dirs[dirs.length -1], data, mimeType, length);
     }
 
     @Override
@@ -28,6 +29,6 @@ public class StreamResponse extends Response {
 
     @Override
     public boolean success() {
-        return response != null && response.getDataType().equals(ContentType.APPLICATION_OCTET_STREAM.getMimeType());
+        return response != null && Base64.getDecoder().decode(response.getData()).length == response.getLength();
     }
 }

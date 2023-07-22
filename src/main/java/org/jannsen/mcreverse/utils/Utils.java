@@ -53,7 +53,8 @@ public class Utils {
 
     public static String detectMimeType(String base64) {
         try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(base64));
+            byte[] data = Base64.getDecoder().decode(base64);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
             return detector.detectMimeType("", inputStream);
         } catch (GetBytesException ignored) {}
         return ContentType.APPLICATION_JSON.getMimeType();
