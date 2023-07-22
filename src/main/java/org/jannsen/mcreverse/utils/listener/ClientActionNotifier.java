@@ -14,7 +14,6 @@ public class ClientActionNotifier {
         switch (action) {
             case JWT_INVALID -> listeners.forEach(ClientActionListener::jwtIsInvalid);
             case ACCOUNT_DELETED -> listeners.forEach(ClientActionListener::accountDeleted);
-            case AUTHORIZATION_REFRESH_REQUIRED -> listeners.forEach(ClientActionListener::authRefreshRequired);
             default -> {}
         }
     }

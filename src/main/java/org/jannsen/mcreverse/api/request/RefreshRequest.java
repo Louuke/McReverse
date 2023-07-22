@@ -1,5 +1,8 @@
 package org.jannsen.mcreverse.api.request;
 
+import org.jannsen.mcreverse.annotation.SensorRequired;
+
+@SensorRequired
 public class RefreshRequest extends Request {
 
     private final String refreshToken;

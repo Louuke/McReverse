@@ -11,11 +11,7 @@ import org.jannsen.mcreverse.utils.listener.ClientActionListener;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class McClient extends McBase implements ClientActionListener {
-
-    public McClient() {
-        addActionListener(this);
-    }
+public class McClient extends McBase {
 
     public LoginResponse login(@Nonnull String email, @Nonnull String password, @Nonnull String deviceId) {
         setEmail(email);
@@ -125,11 +121,5 @@ public class McClient extends McBase implements ClientActionListener {
     public CampaignResponse joinCampaign(String userId) {
         Request request = new CampaignParticipateRequest("plant23", "plantRedemptions", getAuthorization().getAccessToken(), userId, getEmail());
         return query(request, HttpMethods.PUT, CampaignResponse.class);
-    }
-
-    @Override
-    public void authRefreshRequired() {
-        LoginResponse response = query(new RefreshRequest(getAuthorization().getRefreshToken()), HttpMethods.POST, LoginResponse.class);
-        if(response.success()) setAuthorization(response.getResponse());
     }
 }

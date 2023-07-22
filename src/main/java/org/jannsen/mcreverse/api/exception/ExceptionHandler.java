@@ -18,15 +18,14 @@ public class ExceptionHandler {
         this.actionConsumer = actionConsumer;
     }
 
-    public void searchResponseError(@Nonnull String responseContent) {
-        Response response = createFallbackResponse(Response.class, responseContent);
+    public <T extends Response> T searchError(@Nonnull T response) {
         Action action = switch (searchErrorCode(response)) {
-            case 40003 -> Action.JWT_INVALID; // Authorization is invalid and can't be recovered
+            case 40003, 40006 -> Action.JWT_INVALID; // Authorization is invalid and can't be recovered / JWTTokenExpired
             case 11310, 41471 -> Action.ACCOUNT_DELETED;
-            case 40006 -> Action.AUTHORIZATION_REFRESH_REQUIRED; // JWTTokenExpired
             default -> Action.UNKNOWN_ERROR;
         };
         actionConsumer.accept(action);
+        return response;
     }
 
     private <T extends Response> int searchErrorCode(@Nonnull T response) {
@@ -58,6 +57,7 @@ public class ExceptionHandler {
     }
 
     public boolean validJsonResponse(String content) {
+        System.out.println("Valid: " + content);
         try {
             gson.fromJson(content, Response.class);
         } catch (JsonSyntaxException e) {

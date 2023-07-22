@@ -50,6 +50,7 @@ public class RequestScheduler {
             Utils.waitMill(200);
         }
         Optional<HttpResponse> response = unchecked(request);
+        response.ifPresent(r -> System.out.println(r.getStatusCode()));
         ByteArrayOutputStream content = response.flatMap(r -> unchecked(r::getContent)).map(this::parseAsByteArray).orElse(new ByteArrayOutputStream());
         long contentLength = response.map(r -> r.getHeaders().getContentLength()).orElse(0L);
         return response.map(r -> Map.of("length", contentLength, "content", content));
