@@ -86,6 +86,7 @@ public class HttpBuilder {
         if(token != null) headers.set("x-acf-sensor-data", token.getToken());
         headers.set("mcd-clientid", "6DEUyJOKaBoz8QRFm49qqVIVPj0GUzoH");
         if(authorization != null) headers.set("authorization", authorization.getAccessToken(true));
+        headers.set("mcd-clientsecret", "5imh6NKU3v5CUifTvHQ7ExF8exkmaNjb");
         headers.set("cache-control", "true");
         headers.set("accept-charset", "UTF-8");
         headers.set("user-agent", "MCDSDK/27.0.18 (Android; 30; de-DE) GMA/7.11");

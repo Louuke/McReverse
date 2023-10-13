@@ -2,10 +2,10 @@ package org.jannsen.mcreverse.api.response.adapter;
 
 import org.jannsen.mcreverse.api.entity.redeem.Code;
 
-import java.lang.reflect.Field;
 import java.time.ZoneId;
 
 import static org.jannsen.mcreverse.utils.Utils.timeToUnix;
+import static org.jannsen.mcreverse.utils.ObjectModification.setField;
 
 public class CodeAdapter extends AbstractAdapterFactory {
 

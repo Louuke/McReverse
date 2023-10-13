@@ -6,6 +6,7 @@ import org.jannsen.mcreverse.api.McClientSettings;
 import java.util.regex.Pattern;
 
 import static org.jannsen.mcreverse.utils.Utils.timeToUnix;
+import static org.jannsen.mcreverse.utils.ObjectModification.setField;
 
 public class OfferAdapter extends AbstractAdapterFactory {
 
@@ -20,6 +21,7 @@ public class OfferAdapter extends AbstractAdapterFactory {
     public void modifyPojo(Object pojo) {
         Offer offer = (Offer) pojo;
         setField(offer, "shortName", getName(offer));
+        setField(offer, "imageUrl", getImageUrl(offer));
         setField(offer, "price", getPrice(offer));
         setField(offer, "priceCents", pricePattern.matcher(offer.getPrice()).results()
                 .map(result -> result.group().replaceAll("[,|.]", ""))
@@ -30,7 +32,6 @@ public class OfferAdapter extends AbstractAdapterFactory {
                 .map(result -> Integer.parseInt(result.group().split("-")[0])).findAny().orElse(0));
         setField(offer, "availableHourTo", clockPattern.matcher(offer.getPrice()).results()
                 .map(result -> Integer.parseInt(result.group().split("-")[1])).findAny().orElse(24));
-        offer.setImageUrl(createImageUrl(offer.getImageBaseName()));
     }
 
     private String getName(Offer offer) {
@@ -43,7 +44,7 @@ public class OfferAdapter extends AbstractAdapterFactory {
         return fullName.contains("\n") ? fullName.split("\n")[1].strip() : "0";
     }
 
-    private String createImageUrl(String filename) {
-        return "https://de-prod-us-cds-oceofferimages.s3.amazonaws.com/oce3-de-prod/offers/" + filename;
+    private String getImageUrl(Offer offer) {
+        return "https://de-prod-us-cds-oceofferimages.s3.amazonaws.com/oce3-de-prod/offers/" + offer.getImageBaseName();
     }
 }

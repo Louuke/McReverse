@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import org.jannsen.mcreverse.api.entity.akamai.SensorToken;
 import org.jannsen.mcreverse.api.exception.ExceptionHandler;
 import org.jannsen.mcreverse.api.exception.HttpRetryHandler;
+import org.jannsen.mcreverse.api.request.RefreshRequest;
 import org.jannsen.mcreverse.api.request.StreamRequest;
 import org.jannsen.mcreverse.api.request.builder.AuthProvider;
 import org.jannsen.mcreverse.api.request.builder.HttpBuilder;
@@ -15,7 +16,7 @@ import org.jannsen.mcreverse.api.request.BasicBearerRequest;
 import org.jannsen.mcreverse.api.request.Request;
 import org.jannsen.mcreverse.api.request.builder.TokenProvider;
 import org.jannsen.mcreverse.api.response.BasicBearerResponse;
-import org.jannsen.mcreverse.api.response.StreamResponse;
+import org.jannsen.mcreverse.api.response.LoginResponse;
 import org.jannsen.mcreverse.api.response.adapter.CodeAdapter;
 import org.jannsen.mcreverse.api.response.Response;
 import org.jannsen.mcreverse.api.response.adapter.OfferAdapter;
@@ -29,7 +30,7 @@ import java.net.Proxy;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class McBase {
+public class McBase implements ClientActionListener {
 
     private static final Gson gson = new GsonBuilder().disableHtmlEscaping()
             .registerTypeAdapterFactory(new OfferAdapter())
@@ -50,16 +51,17 @@ public class McBase {
     private transient Proxy proxy;
 
     <T extends Response> T query(StreamRequest request, String httpMethod, Class<T> responseType) {
-        return requestScheduler.enqueueGetAsBase64(buildRequest(request, httpMethod)::execute)
-                .map(content -> gson.toJson(new StreamResponse(request.getUrl(), content)))
+        return requestScheduler.enqueueGetAsStream(buildRequest(request, httpMethod))
+                .map(gson::toJson)
                 .map(content -> gson.fromJson(content, responseType))
                 .orElse(exceptionHandler.createFallbackResponse(responseType));
     }
 
     <T extends Response> T query(Request request, String httpMethod, Class<T> responseType) {
-        return requestScheduler.enqueueGetString(buildRequest(request, httpMethod)::execute)
+        return requestScheduler.enqueueGetString(buildRequest(request, httpMethod))
                 .filter(exceptionHandler::validJsonResponse)
                 .map(content -> gson.fromJson(content, responseType))
+                //.map(exceptionHandler::searchError)
                 .orElse(exceptionHandler.createFallbackResponse(responseType));
     }
 
@@ -69,9 +71,15 @@ public class McBase {
                 .setHttpMethod(httpMethod)
                 .setProxy(proxy)
                 .setAuthorization(authProvider.getAppropriateAuth(request))
-                .setUnsuccessfulResponseHandler(new HttpRetryHandler(this::getAuthorization, exceptionHandler::searchResponseError))
+                .setUnsuccessfulResponseHandler(new HttpRetryHandler(() -> authProvider.getAppropriateAuth(request), this::refreshAuthorization))
                 .setSensorToken(request.isTokenRequired() ? tokenProvider.getSensorToken(email) : null)
                 .build();
+    }
+
+    private void refreshAuthorization() {
+        if(getAuthorization().getAccessToken().isEmpty()) return;
+        LoginResponse response = query(new RefreshRequest(getAuthorization().getRefreshToken()), HttpMethods.POST, LoginResponse.class);
+        if(response.success()) setAuthorization(response.getResponse());
     }
 
     private BasicBearerAuthorization requestBasicBearer() {

@@ -178,10 +178,6 @@ public class Offer {
         return validToUnix;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
     @Override
     public boolean equals(Object o) {
         if(!(o instanceof Offer offer)) {

@@ -8,7 +8,5 @@ public interface ClientActionListener {
 
     default void authChanged(BearerAuthorization authorization) {}
 
-    default void authRefreshRequired() {}
-
     default void accountDeleted() {}
 }
